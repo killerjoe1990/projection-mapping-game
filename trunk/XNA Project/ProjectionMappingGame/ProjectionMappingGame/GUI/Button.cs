@@ -4,9 +4,8 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
-using ProjectionMappingGame.Input;
 
-namespace ProjectionMappingGame.GUI
+namespace InterfaceElements
 {
     public class Button : ClickableElement
     {
@@ -54,7 +53,7 @@ namespace ProjectionMappingGame.GUI
 
         public override void Update(float deltaTime)
         {
-
+            base.Update(deltaTime);
         }
 
         public override void Draw(GraphicsDevice graphics, SpriteBatch sprite)

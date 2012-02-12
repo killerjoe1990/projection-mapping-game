@@ -5,9 +5,8 @@ using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using ProjectionMappingGame.Input;
 
-namespace ProjectionMappingGame.GUI
+namespace InterfaceElements
 {
     public class Slider : ClickableElement
     {
@@ -42,19 +41,21 @@ namespace ProjectionMappingGame.GUI
             }
         }
 
-        public float GetValue()
+        public float Value
         {
-            return m_MinValue * (1 - m_Gradient) + m_MaxValue * m_Gradient;
-        }
-
-        public void SetValue(float gradient)
-        {
-            m_Gradient = gradient;
+            get
+            {
+                return m_MinValue * (1 - m_Gradient) + m_MaxValue * m_Gradient;
+            }
+            set
+            {
+                m_Gradient = value / (m_MaxValue - m_MinValue);
+            }
         }
 
         public override void Update(float deltaTime)
         {
-            throw new NotImplementedException();
+            base.Update(deltaTime);
         }
 
         public override void Draw(GraphicsDevice graphics, SpriteBatch sprite)

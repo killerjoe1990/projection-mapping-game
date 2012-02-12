@@ -8,9 +8,8 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
-using ProjectionMappingGame.Input;
 
-namespace ProjectionMappingGame.GUI
+namespace InterfaceElements
 {
     /// <summary>
     /// The base class for all User Interface Elements in this library.
@@ -44,6 +43,9 @@ namespace ProjectionMappingGame.GUI
                 m_Bounds.Y = (int)value.Y;
             }
         }
+
+        
+
 
         /// <summary>
         /// The width of the element in pixels.
@@ -92,11 +94,6 @@ namespace ProjectionMappingGame.GUI
         /// <param name="child">The UIElement to be added</param>
         public void AddChild(UIElement child)
         {
-            // make positioning relative to upper left corner of this element
-            Vector2 l = child.Location;
-            l.X += m_Bounds.X;
-            l.Y += m_Bounds.Y;
-            child.Location = l;
             m_Children.Add(child);
         }
 
@@ -104,7 +101,13 @@ namespace ProjectionMappingGame.GUI
         /// Performs any frame based calculations.
         /// </summary>
         /// <param name="deltaTime"></param>
-        public abstract void Update(float deltaTime);
+        public virtual void Update(float deltaTime)
+        {
+            foreach (UIElement child in m_Children)
+            {
+                child.Update(deltaTime);
+            }
+        }
         /// <summary>
         /// Displays the element on the screen
         /// </summary>
@@ -119,6 +122,8 @@ namespace ProjectionMappingGame.GUI
     /// </summary>
     public abstract class ClickableElement : UIElement
     {
+
+        protected bool m_Context;
 
         public virtual void OnLeftClick(object sender, MouseEventArgs args)
         {
@@ -156,6 +161,11 @@ namespace ProjectionMappingGame.GUI
             {
                 return false;
             }
+        }
+
+        public virtual void SetContext(bool isInContext)
+        {
+            m_Context = isInContext;
         }
     }
 }

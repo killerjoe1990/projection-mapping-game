@@ -4,9 +4,8 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using ProjectionMappingGame.Input;
 
-namespace ProjectionMappingGame.GUI
+namespace InterfaceElements
 {
     /// <summary>
     /// A class that can keep track of multiple ViewPane instances. This will keep track of which
@@ -100,7 +99,14 @@ namespace ProjectionMappingGame.GUI
         /// <returns></returns>
         public bool HandleInput(int player)
         {
-            return m_CurrentContext.HandleInput(player);
+            if (m_CurrentContext != null)
+            {
+                return m_CurrentContext.HandleInput(player);
+            }
+            else
+            {
+                return false;
+            }
         }
 
     }
@@ -227,6 +233,18 @@ namespace ProjectionMappingGame.GUI
             if (IsOver(args.X,args.Y) && m_Controller != null)
             {
                 m_Controller.SetContextPane(this);
+
+                foreach (ClickableElement c in m_Clickables)
+                {
+                    if (c.IsOver(args.X, args.Y))
+                    {
+                        c.SetContext(true);
+                    }
+                    else
+                    {
+                        c.SetContext(false);
+                    }
+                }
             }
         }
 
@@ -240,10 +258,7 @@ namespace ProjectionMappingGame.GUI
 
         public override void Update(float deltaTime)
         {
-            foreach (UIElement child in m_Children)
-            {
-                child.Update(deltaTime);
-            }
+            base.Update(deltaTime);
         }
 
         public override void Draw(GraphicsDevice graphics, SpriteBatch sprite)

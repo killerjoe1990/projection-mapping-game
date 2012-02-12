@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework;
 
-namespace ProjectionMappingGame.Input
+namespace InterfaceElements
 {
     /// <summary>
     /// Every class that does any sort of input handling
@@ -191,7 +191,7 @@ namespace ProjectionMappingGame.Input
             m_LastState = Keyboard.GetState();
         }
 
-        public void RegisterKeypress(KeyboardEvent handler)
+        public void RegisterKeyPress(KeyboardEvent handler)
         {
             m_KeyPressed += handler;
         }
