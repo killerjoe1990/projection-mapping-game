@@ -280,6 +280,7 @@ namespace ProjectionMappingGame
             if (Player != null)
                 throw new NotSupportedException("A level may only have one starting point.");
 
+            
             start = RectangleExtensions.GetBottomCenter(GetBounds(x, y));
             player = new Player(this, start);
 
@@ -454,15 +455,22 @@ namespace ProjectionMappingGame
                    
                 }
             }*/
-            
-            Tile[] tiles = tileGenerator.TileArray;
-            for (int i = 0; i < tiles.Length; ++i)
+            tileGenerator.checkToSpawnTiles(elapsedTime);
+
+            if (tileGenerator.isReady == true)
             {
-                if (tiles[i] != null && tiles[i].Texture != null)
+                //tileGenerator.isReady = false;
+
+                Tile[] tiles = tileGenerator.TileArray;
+                for (int i = 0; i < tiles.Length; ++i)
                 {
-                    tileList.Add(tiles[i]);
-                   // tiles[i].updatePosition(elapsedTime);
+                    if (tiles[i] != null && tiles[i].Texture != null)
+                    {
+                        tileList.Add(tiles[i]);
+                        // tiles[i].updatePosition(elapsedTime);
+                    }
                 }
+                
             }
             for (int j = 0; j < tileList.Count; j++)
             {

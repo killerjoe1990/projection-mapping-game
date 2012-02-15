@@ -61,7 +61,7 @@ namespace ProjectionMappingGame
             Texture = texture;
             Collision = collision;
             this.position = new Vector2(0f,0f);
-            this.velocity = new Vector2(0f,.1f);
+            this.velocity = new Vector2(0f,1f);
         }
         public void setPosition(Vector2 position)
         {
@@ -73,10 +73,11 @@ namespace ProjectionMappingGame
         }
         public void updatePosition(float elapsedTime)
         {
-            velocity.Y = velocity.Y + GravityAcceleration * elapsedTime;
+            //velocity.Y = velocity.Y + GravityAcceleration * elapsedTime;
+            velocity.Y = velocity.Y + elapsedTime;
 
             this.position += velocity * elapsedTime;
-            this.position = new Vector2((float)Math.Round(this.position.X), (float)Math.Round(this.position.Y));
+            //this.position = new Vector2((float)Math.Round(this.position.X), (float)Math.Round(this.position.Y));
         }
         public void drawTile(SpriteBatch spriteBatch)
         {
