@@ -1,4 +1,0 @@
-C:\Users\ffapplejuice\Documents\College\CPI 441\ProjectionMappingGame\ProjectionMappingGame\ProjectionMappingGameContent\obj\x86\Debug\ResolveAssemblyReference.cache
-C:\Users\ajfairfi\Desktop\Code\C#\ProjectionMappingGame\ProjectionMappingGame\ProjectionMappingGame\ProjectionMappingGameContent\obj\x86\Debug\ResolveAssemblyReference.cache
-C:\Users\ffapplejuice\Documents\College\CPI 441\ProjectionMappingGame\ProjectionMappingGame\ProjectionMappingGame\ProjectionMappingGameContent\obj\x86\Debug\ResolveAssemblyReference.cache
-C:\Users\ffapplejuice\Documents\College\CPI 441\XNA Project\ProjectionMappingGame\ProjectionMappingGameContent\obj\x86\Debug\ResolveAssemblyReference.cache
