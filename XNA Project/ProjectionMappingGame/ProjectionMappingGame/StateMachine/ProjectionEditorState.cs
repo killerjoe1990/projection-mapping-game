@@ -43,7 +43,9 @@ namespace ProjectionMappingGame.StateMachine
       ProjectionPreviewComponent m_ProjectorPreview;
       UVGridEditor m_UVGridEditor;
       UVPointEditor m_UVEditor;
+      EditorMenu m_EditorMenu;
       int m_FocusedPane;
+      bool m_EditorMode;
 
       SpriteFont m_ArialFont;
 
@@ -78,7 +80,9 @@ namespace ProjectionMappingGame.StateMachine
          m_UVGridEditor = new UVGridEditor(m_Game, GUI_UV_GRID_EDITOR_X, GUI_UV_GRID_EDITOR_Y, GUI_UV_GRID_EDITOR_WIDTH, GUI_UV_GRID_EDITOR_HEIGHT);
          m_UVEditor = new UVPointEditor(m_Game, GUI_UV_EDITOR_X, GUI_UV_EDITOR_Y, GUI_UV_EDITOR_WIDTH, GUI_UV_EDITOR_HEIGHT);
          m_ProjectorPreview = new ProjectionPreviewComponent(m_Game, GUI_PROJECTOR_PREVIEW_X, GUI_PROJECTOR_PREVIEW_Y, GUI_PROJECTOR_PREVIEW_WIDTH, GUI_PROJECTOR_PREVIEW_HEIGHT);
+         m_EditorMenu = new EditorMenu(m_Game, GUI_TOOLBAR_X, GUI_TOOLBAR_Y, GUI_TOOLBAR_WIDTH, GUI_TOOLBAR_HEIGHT);
          m_FocusedPane = 0;
+         m_EditorMode = true;
 
          // Initialize input
          m_PrevMouseState = Mouse.GetState();
@@ -90,6 +94,7 @@ namespace ProjectionMappingGame.StateMachine
          m_UVEditor.Reset();
          m_UVGridEditor.Reset();
          m_ProjectorPreview.Reset();
+         m_EditorMenu.Reset();
 
          m_UVEditor.SetPoints(m_UVGridEditor.GetIntersectionPoints());
       }
@@ -103,6 +108,7 @@ namespace ProjectionMappingGame.StateMachine
          m_UVGridEditor.LoadContent(content);
          m_UVEditor.LoadContent(content);
          m_ProjectorPreview.LoadContent(content);
+         m_EditorMenu.LoadContent(content);
 
          // Load initial points
          m_UVEditor.SetPoints(m_UVGridEditor.GetIntersectionPoints());
@@ -120,6 +126,16 @@ namespace ProjectionMappingGame.StateMachine
 
          if (m_UVEditor.RenderTargetTexture != null)
             m_ProjectorPreview.ProjectorTexture = m_UVEditor.RenderTargetTexture;
+
+         // Sync menu status
+         m_EditorMenu.EditorMode = (m_EditorMode) ? "Editor" : "Preview";
+         m_EditorMenu.GizmoToolSelected = (m_ProjectorPreview.Gizmo.ActiveMode.ToString().Contains("Scale")) ? "Scale" : m_ProjectorPreview.Gizmo.ActiveMode.ToString();
+         m_EditorMenu.ProjectorEnabled = (m_ProjectorPreview.ProjectorIsOn).ToString();
+         m_EditorMenu.ProjectorPosition = m_ProjectorPreview.Projector.Position;
+         m_EditorMenu.ProjectorRotation = new Vector3(m_ProjectorPreview.Projector.Yaw, m_ProjectorPreview.Projector.Pitch, 0.0f);
+         m_EditorMenu.BuildingPosition = m_ProjectorPreview.Building.Position;
+         m_EditorMenu.BuildingRotation = new Vector3(m_ProjectorPreview.Building.RotX, m_ProjectorPreview.Building.RotY, m_ProjectorPreview.Building.RotZ);
+         m_EditorMenu.BuildingScale = m_ProjectorPreview.Building.Scale;
       }
 
       public override void HandleInput(float elapsedTime)
@@ -140,6 +156,38 @@ namespace ProjectionMappingGame.StateMachine
          {
             Reset();
             return;
+         }
+
+         // Handle turning the projector on/off
+         if (keyboardState.IsKeyDown(Keys.P) && !m_PrevKeyboardState.IsKeyDown(Keys.P))
+            m_ProjectorPreview.ProjectorIsOn = !m_ProjectorPreview.ProjectorIsOn;
+
+         // Handle mode switching
+         if (keyboardState.IsKeyDown(Keys.C) && !m_PrevKeyboardState.IsKeyDown(Keys.C))
+         {
+            m_EditorMode = !m_EditorMode;
+            if (m_EditorMode)
+            {
+               m_ProjectorPreview.MoveCamera = true;
+               m_ProjectorPreview.ProjectorAttached = false;
+            }
+            else
+            {
+               m_ProjectorPreview.MoveCamera = false;
+               m_ProjectorPreview.ProjectorAttached = true;
+               m_ProjectorPreview.SnapCameraToOrbitPosition();
+            }
+         }
+
+         // Handle gizmo mode switching
+         if (keyboardState.IsKeyDown(Keys.O) && !m_PrevKeyboardState.IsKeyDown(Keys.O))
+         {
+            if (m_ProjectorPreview.Gizmo.ActiveMode == GizmoMode.Translate)
+               m_ProjectorPreview.Gizmo.ActiveMode = GizmoMode.Rotate;
+            else if (m_ProjectorPreview.Gizmo.ActiveMode == GizmoMode.Rotate)
+               m_ProjectorPreview.Gizmo.ActiveMode = GizmoMode.UniformScale;
+            else if (m_ProjectorPreview.Gizmo.ActiveMode == GizmoMode.UniformScale)
+               m_ProjectorPreview.Gizmo.ActiveMode = GizmoMode.Translate;
          }
 
          // Update the UV Grid Editor
@@ -207,6 +255,10 @@ namespace ProjectionMappingGame.StateMachine
          m_Game.GraphicsDevice.Viewport = m_ProjectorPreview.Viewport;
          m_ProjectorPreview.Draw();
          m_ProjectorPreview.DrawGUI(spriteBatch);
+
+         // Render the menu
+         m_Game.GraphicsDevice.Viewport = m_EditorMenu.Viewport;
+         m_EditorMenu.Draw(spriteBatch);
 
          // Restore the default viewport
          m_Game.GraphicsDevice.Viewport = defaultViewport;

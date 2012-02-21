@@ -29,6 +29,7 @@ using ProjectionMappingGame.Editor;
 
 namespace ProjectionMappingGame.Components
 {
+   
    class ProjectionPreviewComponent
    {
       Viewport m_Viewport;
@@ -209,41 +210,6 @@ namespace ProjectionMappingGame.Components
          // Update the building
          m_BuildingEntity.Update(elapsedTime);
 
-         // Handle turning the projector on/off
-         if (keyboardState.IsKeyDown(Keys.P) && !m_PrevKeyboardState.IsKeyDown(Keys.P))
-            m_Projector.IsOn = !m_Projector.IsOn;
-
-         // Handle mode switching
-         if (keyboardState.IsKeyDown(Keys.C) && !m_PrevKeyboardState.IsKeyDown(Keys.C))
-         {
-            if (m_ProjectorAttached)
-            {
-               m_ProjectorAttached = false;
-               m_MoveCamera = true;
-               SnapCameraToOrbitPosition();
-            }
-            else if (m_MoveCamera)
-            {
-               m_MoveCamera = false;
-            }
-            else if (!m_MoveCamera)
-            {
-               m_ProjectorAttached = true;
-               SnapCameraToProjector();
-            }
-         }
-
-         // Handle gizmo mode switching
-         if (keyboardState.IsKeyDown(Keys.O) && !m_PrevKeyboardState.IsKeyDown(Keys.O))
-         {
-            if (m_Gizmo.ActiveMode == GizmoMode.Translate)
-               m_Gizmo.ActiveMode = GizmoMode.Rotate;
-            else if (m_Gizmo.ActiveMode == GizmoMode.Rotate)
-               m_Gizmo.ActiveMode = GizmoMode.UniformScale;
-            else if (m_Gizmo.ActiveMode == GizmoMode.UniformScale)
-               m_Gizmo.ActiveMode = GizmoMode.Translate;
-         }
-
          // Handle camera/projector input
          if (m_ProjectorAttached)
          {
@@ -372,14 +338,6 @@ namespace ProjectionMappingGame.Components
          spriteBatch.DrawString(m_ArialFont, "M", Vector2.One + new Vector2(m_Viewport.Width - m_ArialFont.MeasureString("M").Length(), y + 180), Color.Black);
          spriteBatch.DrawString(m_ArialFont, "M", new Vector2(m_Viewport.Width - m_ArialFont.MeasureString("M").Length(), y + 180), Color.White);
 
-         // Scene status
-         string mode = "Mode: " + controlStatus; 
-         spriteBatch.DrawString(m_ArialFont, mode, Vector2.One + new Vector2(5, 5), Color.Black);
-         spriteBatch.DrawString(m_ArialFont, mode, new Vector2(5, 5), Color.White);
-         spriteBatch.DrawString(m_ArialFont, "Projector: " + projStatus, Vector2.One + new Vector2(5, 30), Color.Black);
-         spriteBatch.DrawString(m_ArialFont, "Projector: " + projStatus, new Vector2(5, 30), Color.White);
-         spriteBatch.DrawString(m_ArialFont, "Gizmo Tool: " + m_Gizmo.ActiveMode.ToString(), Vector2.One + new Vector2(5, 55), Color.Black);
-         spriteBatch.DrawString(m_ArialFont, "Gizmo Tool: " + m_Gizmo.ActiveMode.ToString(), new Vector2(5, 55), Color.White);
          spriteBatch.End();
       }
 
@@ -387,7 +345,7 @@ namespace ProjectionMappingGame.Components
 
       #region Rendering Utility
 
-      private void SnapCameraToOrbitPosition()
+      public void SnapCameraToOrbitPosition()
       {
          // Restore camera state
          m_Camera.Target = m_CameraLastTarget;
@@ -565,11 +523,13 @@ namespace ProjectionMappingGame.Components
       public bool ProjectorAttached
       {
          get { return m_ProjectorAttached; }
+         set { m_ProjectorAttached = value; }
       }
 
       public bool MoveCamera
       {
          get { return m_MoveCamera; }
+         set { m_MoveCamera = value; }
       }
 
       public Vector3 CameraPosition
@@ -597,9 +557,19 @@ namespace ProjectionMappingGame.Components
          get { return m_Camera; }
       }
 
+      public GizmoComponent Gizmo
+      {
+         get { return m_Gizmo; }
+      }
+
       public MouseState PrevMouseState
       {
          set { m_PrevMouseState = value; }
+      }
+
+      public BuildingEntity Building
+      {
+         get { return m_BuildingEntity; }
       }
 
       #endregion

@@ -30,7 +30,7 @@ namespace ProjectionMappingGame.GUI
 
       public override void Draw(GraphicsDevice graphics, SpriteBatch spriteBatch)
       {
-         spriteBatch.DrawString(m_Font, m_Text, Location + Vector2.One, Color.Black);
+         //spriteBatch.DrawString(m_Font, m_Text, Location + Vector2.One, Color.Black);
          spriteBatch.DrawString(m_Font, m_Text, Location, m_Color);
       }
 
@@ -52,6 +52,12 @@ namespace ProjectionMappingGame.GUI
       {
          set { m_Color = value; }
          get { return m_Color; }
+      }
+
+      public string Text
+      {
+         set { m_Text = value; }
+         get { return m_Text; }
       }
 
       #endregion
