@@ -24,7 +24,7 @@ namespace ProjectionMappingGame.Components
       private SpriteFont font;
 
       public bool Enabled;
-      private bool precisionMode = false;
+      private bool precisionMode = true;
 
       private Matrix view;
       private Matrix projection;
@@ -394,23 +394,6 @@ namespace ProjectionMappingGame.Components
          GizmoSelected = false;
 
          // -- Select Gizmo Mode -- //
-         if (keyboardState.IsKeyDown(Keys.D1) && !prevKeyboardState.IsKeyDown(Keys.D1))
-         {
-            ActiveMode = GizmoMode.Translate;
-         }
-         else if (keyboardState.IsKeyDown(Keys.D2) && !prevKeyboardState.IsKeyDown(Keys.D2))
-         {
-            ActiveMode = GizmoMode.Rotate;
-         }
-         else if (keyboardState.IsKeyDown(Keys.D3) && !prevKeyboardState.IsKeyDown(Keys.D3))
-         {
-            ActiveMode = GizmoMode.NonUniformScale;
-         }
-         else if (keyboardState.IsKeyDown(Keys.D4) && !prevKeyboardState.IsKeyDown(Keys.D4))
-         {
-            ActiveMode = GizmoMode.UniformScale;
-         }
-
          // -- Cycle TransformationSpaces -- //
          if (keyboardState.IsKeyDown(Keys.Space) && !prevKeyboardState.IsKeyDown(Keys.Space))
          {
@@ -429,19 +412,6 @@ namespace ProjectionMappingGame.Components
                ActivePivot++;
          }
 
-         // -- Toggle PrecisionMode -- //
-         if (keyboardState.IsKeyDown(Keys.LeftShift) && !prevKeyboardState.IsKeyDown(Keys.LeftShift))
-         {
-            precisionMode = true;
-         }
-         else
-            precisionMode = false;
-
-         // -- Toggle Snapping -- //
-         if (keyboardState.IsKeyDown(Keys.S) && !prevKeyboardState.IsKeyDown(Keys.S))
-         {
-            SnapEnabled = !SnapEnabled;
-         }
 
          if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton != ButtonState.Pressed && ActiveAxis == GizmoAxis.None)
          {
@@ -595,7 +565,6 @@ namespace ProjectionMappingGame.Components
                   }
                   else if (ActiveMode == GizmoMode.UniformScale)
                   {
-
                      float diff = 1 + ((delta.X + delta.Y + delta.Z) / 3);
                      foreach (EditorEntity entity in Selection)
                      {
@@ -610,8 +579,9 @@ namespace ProjectionMappingGame.Components
                {
                   #region Rotate
                   float delta = (mouseState.X) - (prevMouseState.X);
-                  delta *= inputScale;
-
+                  
+                  //delta *= (inputScale * 2.0f);
+                  delta *= 0.1f;
 
                   if (SnapEnabled)
                   {
@@ -634,6 +604,7 @@ namespace ProjectionMappingGame.Components
                      delta *= precisionModeScale;
                   }
 
+                  Console.WriteLine(delta);
                   // rotation matrix to transform - if more than one objects selected, always use world-space.
                   Matrix rot = Matrix.Identity;
                   rot.Forward = sceneWorld.Forward;

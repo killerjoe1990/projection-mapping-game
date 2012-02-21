@@ -130,7 +130,7 @@ namespace ProjectionMappingGame.Editor
       public float RotX
       {
          get { return m_RotX; }
-         set { m_RotX = value; }
+         set { m_RotX = value; if (m_RotX < -MathHelper.TwoPi) m_RotX = 0.0f; else if (m_RotX > MathHelper.TwoPi) m_RotX = 0.0f; }
       }
 
       /// <summary>
@@ -139,7 +139,7 @@ namespace ProjectionMappingGame.Editor
       public float RotY
       {
          get { return m_RotY; }
-         set { m_RotY = value; }
+         set { m_RotY = value; if (m_RotY < -MathHelper.TwoPi) m_RotY = 0.0f; else if (m_RotY > MathHelper.TwoPi) m_RotY = 0.0f; }
       }
 
       /// <summary>
@@ -148,7 +148,7 @@ namespace ProjectionMappingGame.Editor
       public float RotZ
       {
          get { return m_RotZ; }
-         set { m_RotZ = value; }
+         set { m_RotZ = value; if (m_RotZ < -MathHelper.TwoPi) m_RotZ = 0.0f; else if (m_RotZ > MathHelper.TwoPi) m_RotZ = 0.0f; }
       }
 
       /// <summary>
