@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using ProjectionMappingGame.Input;
 
 namespace ProjectionMappingGame.GUI
 {
@@ -98,9 +97,16 @@ namespace ProjectionMappingGame.GUI
         /// </summary>
         /// <param name="player">The player taking action.</param>
         /// <returns></returns>
-        public bool HandleInput(int player)
+        public bool HandleInput(PlayerIndex player)
         {
-            return m_CurrentContext.HandleInput(player);
+            if (m_CurrentContext != null)
+            {
+                return m_CurrentContext.HandleInput(player);
+            }
+            else
+            {
+                return false;
+            }
         }
 
     }
@@ -210,7 +216,7 @@ namespace ProjectionMappingGame.GUI
             m_TitleColor = color;
         }
 
-        public bool HandleInput(int player)
+        public bool HandleInput(PlayerIndex player)
         {
             if (m_Input != null)
             {
@@ -227,6 +233,18 @@ namespace ProjectionMappingGame.GUI
             if (IsOver(args.X,args.Y) && m_Controller != null)
             {
                 m_Controller.SetContextPane(this);
+
+                foreach (ClickableElement c in m_Clickables)
+                {
+                    if (c.IsOver(args.X, args.Y))
+                    {
+                        c.SetContext(true);
+                    }
+                    else
+                    {
+                        c.SetContext(false);
+                    }
+                }
             }
         }
 
@@ -240,10 +258,7 @@ namespace ProjectionMappingGame.GUI
 
         public override void Update(float deltaTime)
         {
-            foreach (UIElement child in m_Children)
-            {
-                child.Update(deltaTime);
-            }
+            base.Update(deltaTime);
         }
 
         public override void Draw(GraphicsDevice graphics, SpriteBatch sprite)

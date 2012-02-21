@@ -118,8 +118,15 @@
     <Compile Include="Editor\UVPointEditor.cs" />
     <Compile Include="Editor\UVGridEditor.cs" />
     <Compile Include="GameConstants.cs" />
+    <Compile Include="Game\Animation.cs" />
+    <Compile Include="Game\MoveableObject.cs" />
+    <Compile Include="Game\Platform.cs" />
+    <Compile Include="Game\PlatformSpawner.cs" />
+    <Compile Include="Game\Player.cs" />
     <Compile Include="GUI\Button.cs" />
+    <Compile Include="GUI\InputController.cs" />
     <Compile Include="GUI\Label.cs" />
+    <Compile Include="GUI\NumUpDown.cs" />
     <Compile Include="Input\InputController.cs" />
     <Compile Include="GUI\Slider.cs" />
     <Compile Include="GUI\UIElement.cs" />

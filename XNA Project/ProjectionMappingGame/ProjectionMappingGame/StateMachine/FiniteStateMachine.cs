@@ -203,8 +203,8 @@ namespace ProjectionMappingGame.StateMachine
             // Only if a state is updatable
             if (m_States[activeStates[i]].IsUpdatable)
             {
-               m_States[activeStates[i]].Update(elapsedTime);
                m_States[activeStates[i]].HandleInput(elapsedTime);
+               m_States[activeStates[i]].Update(elapsedTime);
             }
          }
       }
