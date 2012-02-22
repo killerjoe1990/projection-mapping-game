@@ -228,7 +228,7 @@ namespace ProjectionMappingGame.GUI
             return false;
         }
 
-        public override void OnLeftClick(object sender, MouseEventArgs args)
+        protected override void OnLeftClick(object sender, MouseEventArgs args)
         {
             if (IsOver(args.X,args.Y) && m_Controller != null)
             {
@@ -248,7 +248,7 @@ namespace ProjectionMappingGame.GUI
             }
         }
 
-        public override void OnRightClick(object sender, MouseEventArgs args)
+        protected override void OnRightClick(object sender, MouseEventArgs args)
         {
             if (IsOver(args.X, args.Y) && m_Controller != null)
             {

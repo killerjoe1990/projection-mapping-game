@@ -69,7 +69,7 @@ namespace ProjectionMappingGame.GUI
             sprite.Draw(m_SlideImage, slider, Color.White);
         }
 
-        public override void OnLeftDrag(object sender, MouseEventArgs args)
+        protected override void OnLeftDrag(object sender, MouseEventArgs args)
         {
             if (IsOver(args.X, args.Y))
             {
@@ -87,7 +87,7 @@ namespace ProjectionMappingGame.GUI
             }
         }
 
-        public override void OnLeftClick(object sender, MouseEventArgs args)
+        protected override void OnLeftClick(object sender, MouseEventArgs args)
         {
             if (IsOver(args.X, args.Y))
             {

@@ -74,13 +74,18 @@ namespace ProjectionMappingGame.Game
 
             m_Bounds.X = (int)m_Position.X;
             m_Bounds.Y = (int)m_Position.Y;
+
+            if (m_CurrentAnimation != null)
+            {
+                m_CurrentAnimation.Update(deltaTime);
+            }
         }
 
         public void Draw(SpriteBatch batch)
         {
             if (m_CurrentAnimation != null)
             {
-                m_CurrentAnimation.Draw(batch, m_Bounds);
+                m_CurrentAnimation.Draw(batch, m_Bounds, SpriteEffects.None);
             }
         }
     }

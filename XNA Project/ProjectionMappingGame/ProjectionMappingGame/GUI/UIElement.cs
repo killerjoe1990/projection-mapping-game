@@ -125,22 +125,22 @@ namespace ProjectionMappingGame.GUI
 
         protected bool m_Context;
 
-        public virtual void OnLeftClick(object sender, MouseEventArgs args)
+        protected virtual void OnLeftClick(object sender, MouseEventArgs args)
         {
 
         }
 
-        public virtual void OnRightClick(object sender, MouseEventArgs args)
+        protected virtual void OnRightClick(object sender, MouseEventArgs args)
         {
 
         }
 
-        public virtual void OnLeftDrag(object sender, MouseEventArgs args)
+        protected virtual void OnLeftDrag(object sender, MouseEventArgs args)
         {
 
         }
 
-        public virtual void OnRightDrag(object sender, MouseEventArgs args)
+        protected virtual void OnRightDrag(object sender, MouseEventArgs args)
         {
 
         }
