@@ -39,6 +39,8 @@ namespace ProjectionMappingGame.StateMachine
 
       Texture2D m_PlayerIdleTex;
       Texture2D m_PlayerRunTex;
+      Texture2D m_PlayerJumpTex;
+
       Texture2D m_Background;
 
       Texture2D[][] m_PlatformTex;
@@ -63,8 +65,7 @@ namespace ProjectionMappingGame.StateMachine
           m_Gamepad = new GUI.GamepadInput();
 
           m_Players = new Game.Player[GameConstants.MAX_PLAYERS];
-          m_Players[(int)PlayerIndex.One] = new Game.Player(m_PlayerIdleTex, new Rectangle(GameConstants.WINDOW_WIDTH / (GameConstants.MAX_PLAYERS + 1), (int)START_Y, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y),
-              m_Keyboard, PlayerIndex.One);
+
           m_NumPlayers = 1;
 
           m_Platforms = new List<Game.Platform>();
@@ -81,7 +82,10 @@ namespace ProjectionMappingGame.StateMachine
           }
 
           m_Players[(int)PlayerIndex.One] = new Game.Player(m_PlayerIdleTex, new Rectangle(GameConstants.WINDOW_WIDTH / (GameConstants.MAX_PLAYERS + 1), (int)START_Y, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y),
-              m_Keyboard, PlayerIndex.One);
+              m_Gamepad, m_Keyboard, PlayerIndex.One);
+
+          m_Players[0].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_FRAMERATE, true));
+          m_Players[0].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_FRAMERATE, false));
 
           m_Platforms.Clear();
 
@@ -104,7 +108,11 @@ namespace ProjectionMappingGame.StateMachine
          m_ArialFont = content.Load<SpriteFont>("Fonts/Arial");
           // Load Sprites
          m_PlayerIdleTex = content.Load<Texture2D>("Sprites/Idle");
-         m_PlayerRunTex = content.Load<Texture2D>("Textures/white");
+         m_PlayerRunTex = content.Load<Texture2D>("Sprites/Run");
+         m_PlayerJumpTex = content.Load<Texture2D>("Sprites/Jump");
+
+         
+
          // TEMPORARY LOAD FOR RENDER TARGET
          m_RenderTarget = content.Load<Texture2D>("Textures/pow");
 

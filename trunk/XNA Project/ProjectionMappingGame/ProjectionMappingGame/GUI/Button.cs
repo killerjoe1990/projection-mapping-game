@@ -73,7 +73,7 @@ namespace ProjectionMappingGame.GUI
             m_OnClick += handler;
         }
 
-        public void OnOver(object sender, MouseEventArgs args)
+        protected void OnOver(object sender, MouseEventArgs args)
         {
             if (!m_BeenClicked)
             {
@@ -95,7 +95,7 @@ namespace ProjectionMappingGame.GUI
             }
         }
 
-        public override void OnLeftDrag(object sender, MouseEventArgs args)
+        protected override void OnLeftDrag(object sender, MouseEventArgs args)
         {
             if (IsOver(args.X, args.Y))
             {
@@ -104,7 +104,7 @@ namespace ProjectionMappingGame.GUI
             }
         }
 
-        public override void OnLeftClick(object sender, MouseEventArgs args)
+        protected override void OnLeftClick(object sender, MouseEventArgs args)
         {
             if (IsOver(args.X, args.Y))
             {

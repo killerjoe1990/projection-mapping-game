@@ -28,8 +28,8 @@ namespace ProjectionMappingGame.Game
         public Player(Texture2D image, Rectangle bounds, GUI.KeyboardInput keyboard, PlayerIndex player) 
             : base(bounds, Vector2.Zero, image)
         {
-            keyboard.RegisterKeyHeld(onKeyDown);
             keyboard.RegisterKeyHeld(onKeyHeld);
+            keyboard.RegisterKeyHeld(onKeyDown);
 
             m_Player = player;
 
@@ -38,6 +38,7 @@ namespace ProjectionMappingGame.Game
             m_Impulse = Vector2.Zero;
 
             m_Animations = new Animation[Enum.GetValues(typeof(Animations)).Length];
+            m_Animations[(int)Animations.IDLE] = m_CurrentAnimation;
 
             m_OnGround = false;
         }
@@ -45,9 +46,9 @@ namespace ProjectionMappingGame.Game
         public Player(Texture2D image, Rectangle bounds, GUI.GamepadInput gamepad, PlayerIndex player)
             : base(bounds, Vector2.Zero, image)
         {
-
-            gamepad.RegisterButtonEvent(GUI.GamepadEventType.BUTTON_DOWN, onButtonDown, player);
             gamepad.RegisterAxisEvent(onAxisChange, player);
+            gamepad.RegisterButtonEvent(GUI.GamepadEventType.BUTTON_DOWN, onButtonHold, player);
+            
 
             m_Player = player;
 
@@ -56,6 +57,7 @@ namespace ProjectionMappingGame.Game
             m_Impulse = Vector2.Zero;
 
             m_Animations = new Animation[Enum.GetValues(typeof(Animations)).Length];
+            m_Animations[(int)Animations.IDLE] = m_CurrentAnimation;
 
             m_OnGround = false;
         }
@@ -66,9 +68,9 @@ namespace ProjectionMappingGame.Game
             keyboard.RegisterKeyDown(onKeyDown);
             keyboard.RegisterKeyHeld(onKeyHeld);
 
-            gamepad.RegisterButtonEvent(GUI.GamepadEventType.BUTTON_DOWN, onButtonDown, player);
             gamepad.RegisterAxisEvent(onAxisChange, player);
-
+            gamepad.RegisterButtonEvent(GUI.GamepadEventType.BUTTON_HOLD, onButtonHold, player);
+            
             m_Player = player;
 
             m_Move = 0;
@@ -76,6 +78,7 @@ namespace ProjectionMappingGame.Game
             m_Impulse = Vector2.Zero;
 
             m_Animations = new Animation[Enum.GetValues(typeof(Animations)).Length];
+            m_Animations[(int)Animations.IDLE] = m_CurrentAnimation;
 
             m_OnGround = false;
         }
@@ -93,7 +96,9 @@ namespace ProjectionMappingGame.Game
 
                 if (m_Animations[(int)Animations.JUMP] != null)
                 {
+                    //m_CurrentAnimation.Reset();
                     m_CurrentAnimation = m_Animations[(int)Animations.JUMP];
+                    m_CurrentAnimation.Reset();
                 }
             }
         }
@@ -106,6 +111,7 @@ namespace ProjectionMappingGame.Game
 
                 if (m_Animations[(int)Animations.RUN] != null && m_OnGround)
                 {
+                    //m_CurrentAnimation.Reset();
                     m_CurrentAnimation = m_Animations[(int)Animations.RUN];
                 }
             }
@@ -115,12 +121,13 @@ namespace ProjectionMappingGame.Game
 
                 if (m_Animations[(int)Animations.RUN] != null && m_OnGround)
                 {
+                    //m_CurrentAnimation.Reset();
                     m_CurrentAnimation = m_Animations[(int)Animations.RUN];
                 }
             }
         }
 
-        private void onButtonDown(object sender, GUI.GamepadInput.Buttons button)
+        private void onButtonHold(object sender, GUI.GamepadInput.Buttons button)
         {
             if (button.Equals(GUI.GamepadInput.Buttons.A) && m_OnGround)
             {
@@ -129,6 +136,7 @@ namespace ProjectionMappingGame.Game
                 if (m_Animations[(int)Animations.JUMP] != null)
                 {
                     m_CurrentAnimation = m_Animations[(int)Animations.JUMP];
+                    m_CurrentAnimation.Reset();
                 }
             }
         }
@@ -137,23 +145,11 @@ namespace ProjectionMappingGame.Game
         {
             if (axis.Equals(GUI.GamepadInput.Axis.LS_X))
             {
-                if (degree < 0)
-                {
-                    m_Move = -1 * degree;
+                m_Move = degree;
 
-                    if (m_Animations[(int)Animations.RUN] != null && m_OnGround)
-                    {
-                        m_CurrentAnimation = m_Animations[(int)Animations.RUN];
-                    }
-                }
-                else
+                if (m_Animations[(int)Animations.RUN] != null && m_OnGround)
                 {
-                    m_Move = degree;
-
-                    if (m_Animations[(int)Animations.RUN] != null && m_OnGround)
-                    {
-                        m_CurrentAnimation = m_Animations[(int)Animations.RUN];
-                    }
+                    m_CurrentAnimation = m_Animations[(int)Animations.RUN];
                 }
             }
         }
@@ -169,6 +165,12 @@ namespace ProjectionMappingGame.Game
                 m_Velocity.Y += GameConstants.GRAVITY * deltaTime;
             }
 
+            if (m_Velocity.X < 0.001f && m_Velocity.X > -0.001f && m_OnGround)
+            {
+                //m_CurrentAnimation.Reset();
+                m_CurrentAnimation = m_Animations[(int)Animations.IDLE];
+            }
+
             m_Move = 0;
 
             base.Update(deltaTime);
@@ -179,55 +181,12 @@ namespace ProjectionMappingGame.Game
             m_OnGround = false;
             foreach (Platform p in platforms)
             {
-                /*Vector2 nextVelocity;
-
-                nextVelocity = m_Velocity + m_Impulse * deltaTime;
-                nextVelocity.X += m_Move * GameConstants.MOVE_SPEED * deltaTime;
-                nextVelocity.Y += GameConstants.GRAVITY * deltaTime;
-                Vector2 nextPosition = m_Position + nextVelocity * deltaTime;
-                Rectangle platBounds = p.Bounds;
-
-                switch (p.Type)
-                {
-                    case PlatformTypes.Impassable:
-                        if (CheckTop(nextPosition, platBounds))
-                        {
-                            m_Velocity.Y = 0;
-                            m_Impulse.Y = 0;
-                        }
-                        if (CheckBot(nextPosition, platBounds))
-                        {
-                            m_Velocity.Y = p.Velocity.Y;
-                            m_OnGround = true;
-                        }
-                        if (CheckLeft(nextPosition, platBounds))
-                        {
-                            m_Velocity.X = 0;
-                            m_Move = (m_Move < 0) ? 0 : m_Move;
-                        }
-                        if (CheckRight(nextPosition, platBounds))
-                        {
-                            m_Velocity.X = 0;
-                            m_Move = (m_Move > 0) ? 0 : m_Move;
-                        }
-                        break;
-                    case PlatformTypes.Platform:
-                        if (CheckBot(nextPosition, platBounds))
-                        {
-                            m_Velocity.Y = p.Velocity.Y;
-                            m_OnGround = true;
-                        }
-                        break;
-                    case PlatformTypes.Passable:
-                        break;
-                }*/
-
                 foreach (Tile t in p.Tiles)
                 {
                     Vector2 nextVelocity;
 
                     nextVelocity = m_Velocity + m_Impulse * deltaTime;
-                    nextVelocity.X += m_Move * GameConstants.MOVE_SPEED * deltaTime;
+                    nextVelocity.X = m_Move * GameConstants.MOVE_SPEED * deltaTime;
                     nextVelocity.Y += GameConstants.GRAVITY * deltaTime;
                     Vector2 nextPosition = m_Position + nextVelocity * deltaTime;
                     Rectangle platBounds = t.Bounds;
@@ -242,7 +201,8 @@ namespace ProjectionMappingGame.Game
                             }
                             if (CheckBot(nextPosition, platBounds))
                             {
-                                m_Velocity.Y = t.Velocity.Y;
+                                m_Velocity.Y = 0;
+                                m_Position.Y = t.Position.Y - m_Bounds.Height - 0.01f;
                                 m_OnGround = true;
                             }
                             if (CheckLeft(nextPosition, platBounds))
@@ -259,7 +219,8 @@ namespace ProjectionMappingGame.Game
                         case PlatformTypes.Platform:
                             if (CheckBot(nextPosition, platBounds))
                             {
-                                m_Velocity.Y = t.Velocity.Y;
+                                m_Velocity.Y = 0;
+                                m_Position.Y = t.Position.Y - m_Bounds.Height - 0.01f;
                                 m_OnGround = true;
                             }
                             break;
@@ -342,6 +303,18 @@ namespace ProjectionMappingGame.Game
             {
                 return false;
             }
+        }
+
+        public new void Draw(SpriteBatch batch)
+        {
+            SpriteEffects effect = SpriteEffects.None;
+
+            if (m_Velocity.X > 0)
+            {
+                effect = SpriteEffects.FlipHorizontally;
+            }
+
+            m_CurrentAnimation.Draw(batch, m_Bounds, effect);
         }
     }
 }

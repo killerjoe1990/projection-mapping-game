@@ -263,6 +263,8 @@ namespace ProjectionMappingGame.GUI
 
     public class GamepadInput : InputController
     {
+        const float AXIS_BUFFER = 0.05f;
+
         public enum Buttons
         {
             A,
@@ -306,6 +308,11 @@ namespace ProjectionMappingGame.GUI
             m_LastState[(int)PlayerIndex.Two] = GamePad.GetState(PlayerIndex.Two);
             m_LastState[(int)PlayerIndex.Three] = GamePad.GetState(PlayerIndex.Three);
             m_LastState[(int)PlayerIndex.Four] = GamePad.GetState(PlayerIndex.Four);
+
+            m_ButtonDown = new GamepadButtonEvent[GameConstants.MAX_PLAYERS];
+            m_ButtonHold = new GamepadButtonEvent[GameConstants.MAX_PLAYERS];
+            m_ButtonUp = new GamepadButtonEvent[GameConstants.MAX_PLAYERS];
+            m_AxisChange = new GamepadAxisEvent[GameConstants.MAX_PLAYERS];
         }
 
         public void RegisterButtonEvent(GamepadEventType type, GamepadButtonEvent handler, PlayerIndex player)
@@ -338,216 +345,380 @@ namespace ProjectionMappingGame.GUI
 
             GamePadState padState = GamePad.GetState(player);
 
-            #region Check A
-            if (padState.Buttons.A == ButtonState.Pressed)
+            if (padState.IsConnected)
             {
-                if (m_LastState[(int)player].Buttons.A == ButtonState.Pressed)
+
+                #region Check A
+                if (padState.Buttons.A == ButtonState.Pressed)
                 {
-                    m_ButtonHold[(int)player](this, Buttons.A);
+                    if (m_LastState[(int)player].Buttons.A == ButtonState.Pressed)
+                    {
+                        if (m_ButtonHold[(int)player] != null)
+                        {
+                            m_ButtonHold[(int)player](this, Buttons.A);
+                            handled = true;
+                        }
+                    }
+                    else
+                    {
+                        if (m_ButtonDown[(int)player] != null)
+                        {
+                            m_ButtonDown[(int)player](this, Buttons.A);
+                            handled = true;
+                        }
+                    }
                 }
                 else
                 {
-                    m_ButtonDown[(int)player](this, Buttons.A);
+                    if (m_LastState[(int)player].Buttons.A == ButtonState.Pressed)
+                    {
+                        if (m_ButtonUp[(int)player] != null)
+                        {
+                            m_ButtonUp[(int)player](this, Buttons.A);
+                            handled = true;
+                        }
+                    }
                 }
-            }
-            else
-            {
-                if (m_LastState[(int)player].Buttons.A == ButtonState.Pressed)
-                {
-                    m_ButtonUp[(int)player](this, Buttons.A);
-                }
-            }
-            #endregion 
+                #endregion
 
-            #region Check B
-            if (padState.Buttons.B == ButtonState.Pressed)
-            {
-                if (m_LastState[(int)player].Buttons.B == ButtonState.Pressed)
+                #region Check B
+                if (padState.Buttons.B == ButtonState.Pressed)
                 {
-                    m_ButtonHold[(int)player](this, Buttons.B);
+                    if (m_LastState[(int)player].Buttons.B == ButtonState.Pressed)
+                    {
+                        if (m_ButtonHold[(int)player] != null)
+                        {
+                            m_ButtonHold[(int)player](this, Buttons.B);
+                            handled = true;
+                        }
+                    }
+                    else
+                    {
+                        if (m_ButtonDown[(int)player] != null)
+                        {
+                            m_ButtonDown[(int)player](this, Buttons.B);
+                            handled = true;
+                        }
+                    }
                 }
                 else
                 {
-                    m_ButtonDown[(int)player](this, Buttons.B);
+                    if (m_LastState[(int)player].Buttons.B == ButtonState.Pressed)
+                    {
+                        if (m_ButtonUp[(int)player] != null)
+                        {
+                            m_ButtonUp[(int)player](this, Buttons.B);
+                            handled = true;
+                        }
+                    }
                 }
-            }
-            else
-            {
-                if (m_LastState[(int)player].Buttons.B == ButtonState.Pressed)
-                {
-                    m_ButtonUp[(int)player](this, Buttons.B);
-                }
-            }
-            #endregion
+                #endregion
 
-            #region Check X
-            if (padState.Buttons.X == ButtonState.Pressed)
-            {
-                if (m_LastState[(int)player].Buttons.X == ButtonState.Pressed)
+                #region Check X
+                if (padState.Buttons.X == ButtonState.Pressed)
                 {
-                    m_ButtonHold[(int)player](this, Buttons.X);
+                    if (m_LastState[(int)player].Buttons.X == ButtonState.Pressed)
+                    {
+                        if (m_ButtonHold[(int)player] != null)
+                        {
+                            m_ButtonHold[(int)player](this, Buttons.X);
+                            handled = true;
+                        }
+                    }
+                    else
+                    {
+                        if (m_ButtonDown[(int)player] != null)
+                        {
+                            m_ButtonDown[(int)player](this, Buttons.X);
+                            handled = true;
+                        }
+                    }
                 }
                 else
                 {
-                    m_ButtonDown[(int)player](this, Buttons.X);
+                    if (m_LastState[(int)player].Buttons.X == ButtonState.Pressed)
+                    {
+                        if (m_ButtonUp[(int)player] != null)
+                        {
+                            m_ButtonUp[(int)player](this, Buttons.X);
+                            handled = true;
+                        }
+                    }
                 }
-            }
-            else
-            {
-                if (m_LastState[(int)player].Buttons.X == ButtonState.Pressed)
-                {
-                    m_ButtonUp[(int)player](this, Buttons.X);
-                }
-            }
-            #endregion
+                #endregion
 
-            #region Check Y
-            if (padState.Buttons.Y == ButtonState.Pressed)
-            {
-                if (m_LastState[(int)player].Buttons.Y == ButtonState.Pressed)
+                #region Check Y
+                if (padState.Buttons.Y == ButtonState.Pressed)
                 {
-                    m_ButtonHold[(int)player](this, Buttons.Y);
+                    if (m_LastState[(int)player].Buttons.Y == ButtonState.Pressed)
+                    {
+                        if (m_ButtonHold[(int)player] != null)
+                        {
+                            m_ButtonHold[(int)player](this, Buttons.Y);
+                            handled = true;
+                        }
+                    }
+                    else
+                    {
+                        if (m_ButtonDown[(int)player] != null)
+                        {
+                            m_ButtonDown[(int)player](this, Buttons.Y);
+                            handled = true;
+                        }
+                    }
                 }
                 else
                 {
-                    m_ButtonDown[(int)player](this, Buttons.Y);
+                    if (m_LastState[(int)player].Buttons.Y == ButtonState.Pressed)
+                    {
+                        if (m_ButtonUp[(int)player] != null)
+                        {
+                            m_ButtonUp[(int)player](this, Buttons.Y);
+                            handled = true;
+                        }
+                    }
                 }
-            }
-            else
-            {
-                if (m_LastState[(int)player].Buttons.Y == ButtonState.Pressed)
-                {
-                    m_ButtonUp[(int)player](this, Buttons.Y);
-                }
-            }
-            #endregion
+                #endregion
 
-            #region Check RB
-            if (padState.Buttons.RightShoulder == ButtonState.Pressed)
-            {
-                if (m_LastState[(int)player].Buttons.RightShoulder == ButtonState.Pressed)
+                #region Check RB
+                if (padState.Buttons.RightShoulder == ButtonState.Pressed)
                 {
-                    m_ButtonHold[(int)player](this, Buttons.RB);
+                    if (m_LastState[(int)player].Buttons.RightShoulder == ButtonState.Pressed)
+                    {
+                        if (m_ButtonHold[(int)player] != null)
+                        {
+                            m_ButtonHold[(int)player](this, Buttons.RB);
+                            handled = true;
+                        }
+                    }
+                    else
+                    {
+                        if (m_ButtonDown[(int)player] != null)
+                        {
+                            m_ButtonDown[(int)player](this, Buttons.RB);
+                            handled = true;
+                        }
+                    }
                 }
                 else
                 {
-                    m_ButtonDown[(int)player](this, Buttons.RB);
+                    if (m_LastState[(int)player].Buttons.RightShoulder == ButtonState.Pressed)
+                    {
+                        if (m_ButtonUp[(int)player] != null)
+                        {
+                            m_ButtonUp[(int)player](this, Buttons.RB);
+                            handled = true;
+                        }
+                    }
                 }
-            }
-            else
-            {
-                if (m_LastState[(int)player].Buttons.RightShoulder == ButtonState.Pressed)
-                {
-                    m_ButtonUp[(int)player](this, Buttons.RB);
-                }
-            }
-            #endregion
+                #endregion
 
-            #region Check LB
-            if (padState.Buttons.LeftShoulder == ButtonState.Pressed)
-            {
-                if (m_LastState[(int)player].Buttons.LeftShoulder == ButtonState.Pressed)
+                #region Check LB
+                if (padState.Buttons.LeftShoulder == ButtonState.Pressed)
                 {
-                    m_ButtonHold[(int)player](this, Buttons.LB);
+                    if (m_LastState[(int)player].Buttons.LeftShoulder == ButtonState.Pressed)
+                    {
+                        if (m_ButtonHold[(int)player] != null)
+                        {
+                            m_ButtonHold[(int)player](this, Buttons.LB);
+                            handled = true;
+                        }
+                    }
+                    else
+                    {
+                        if (m_ButtonDown[(int)player] != null)
+                        {
+                            m_ButtonDown[(int)player](this, Buttons.LB);
+                            handled = true;
+                        }
+                    }
                 }
                 else
                 {
-                    m_ButtonDown[(int)player](this, Buttons.LB);
+                    if (m_LastState[(int)player].Buttons.LeftShoulder == ButtonState.Pressed)
+                    {
+                        if (m_ButtonUp[(int)player] != null)
+                        {
+                            m_ButtonUp[(int)player](this, Buttons.LB);
+                            handled = true;
+                        }
+                    }
                 }
-            }
-            else
-            {
-                if (m_LastState[(int)player].Buttons.LeftShoulder == ButtonState.Pressed)
-                {
-                    m_ButtonUp[(int)player](this, Buttons.LB);
-                }
-            }
-            #endregion
+                #endregion
 
-            #region Check START
-            if (padState.Buttons.Start == ButtonState.Pressed)
-            {
-                if (m_LastState[(int)player].Buttons.Start == ButtonState.Pressed)
+                #region Check START
+                if (padState.Buttons.Start == ButtonState.Pressed)
                 {
-                    m_ButtonHold[(int)player](this, Buttons.START);
+                    if (m_LastState[(int)player].Buttons.Start == ButtonState.Pressed)
+                    {
+                        if (m_ButtonHold[(int)player] != null)
+                        {
+                            m_ButtonHold[(int)player](this, Buttons.START);
+                            handled = true;
+                        }
+                    }
+                    else
+                    {
+                        if (m_ButtonDown[(int)player] != null)
+                        {
+                            m_ButtonDown[(int)player](this, Buttons.START);
+                            handled = true;
+                        }
+                    }
                 }
                 else
                 {
-                    m_ButtonDown[(int)player](this, Buttons.START);
+                    if (m_LastState[(int)player].Buttons.Start == ButtonState.Pressed)
+                    {
+                        if (m_ButtonUp[(int)player] != null)
+                        {
+                            m_ButtonUp[(int)player](this, Buttons.START);
+                            handled = true;
+                        }
+                    }
                 }
-            }
-            else
-            {
-                if (m_LastState[(int)player].Buttons.Start == ButtonState.Pressed)
-                {
-                    m_ButtonUp[(int)player](this, Buttons.START);
-                }
-            }
-            #endregion
+                #endregion
 
-            #region Check SELECT
-            if (padState.Buttons.Back == ButtonState.Pressed)
-            {
-                if (m_LastState[(int)player].Buttons.Back == ButtonState.Pressed)
+                #region Check SELECT
+                if (padState.Buttons.Back == ButtonState.Pressed)
                 {
-                    m_ButtonHold[(int)player](this, Buttons.SELECT);
+                    if (m_LastState[(int)player].Buttons.Back == ButtonState.Pressed)
+                    {
+                        if (m_ButtonHold[(int)player] != null)
+                        {
+                            m_ButtonHold[(int)player](this, Buttons.SELECT);
+                            handled = true;
+                        }
+                    }
+                    else
+                    {
+                        if (m_ButtonDown[(int)player] != null)
+                        {
+                            m_ButtonDown[(int)player](this, Buttons.SELECT);
+                            handled = true;
+                        }
+                    }
                 }
                 else
                 {
-                    m_ButtonDown[(int)player](this, Buttons.SELECT);
+                    if (m_LastState[(int)player].Buttons.Back == ButtonState.Pressed)
+                    {
+                        if (m_ButtonUp[(int)player] != null)
+                        {
+                            m_ButtonUp[(int)player](this, Buttons.SELECT);
+                            handled = true;
+                        }
+                    }
                 }
-            }
-            else
-            {
-                if (m_LastState[(int)player].Buttons.Back == ButtonState.Pressed)
-                {
-                    m_ButtonUp[(int)player](this, Buttons.SELECT);
-                }
-            }
-            #endregion
+                #endregion
 
-            #region Check RS
-            if (padState.Buttons.RightStick == ButtonState.Pressed)
-            {
-                if (m_LastState[(int)player].Buttons.RightStick == ButtonState.Pressed)
+                #region Check RS
+                if (padState.Buttons.RightStick == ButtonState.Pressed)
                 {
-                    m_ButtonHold[(int)player](this, Buttons.RS);
+                    if (m_LastState[(int)player].Buttons.RightStick == ButtonState.Pressed)
+                    {
+                        if (m_ButtonHold[(int)player] != null)
+                        {
+                            m_ButtonHold[(int)player](this, Buttons.RS);
+                            handled = true;
+                        }
+                    }
+                    else
+                    {
+                        if (m_ButtonDown[(int)player] != null)
+                        {
+                            m_ButtonDown[(int)player](this, Buttons.RS);
+                            handled = true;
+                        }
+                    }
                 }
                 else
                 {
-                    m_ButtonDown[(int)player](this, Buttons.RS);
+                    if (m_LastState[(int)player].Buttons.RightStick == ButtonState.Pressed)
+                    {
+                        if (m_ButtonUp[(int)player] != null)
+                        {
+                            m_ButtonUp[(int)player](this, Buttons.RS);
+                            handled = true;
+                        }
+                    }
                 }
-            }
-            else
-            {
-                if (m_LastState[(int)player].Buttons.RightStick == ButtonState.Pressed)
-                {
-                    m_ButtonUp[(int)player](this, Buttons.RS);
-                }
-            }
-            #endregion
+                #endregion
 
-            #region Check LS
-            if (padState.Buttons.LeftStick == ButtonState.Pressed)
-            {
-                if (m_LastState[(int)player].Buttons.LeftStick == ButtonState.Pressed)
+                #region Check LS
+                if (padState.Buttons.LeftStick == ButtonState.Pressed)
                 {
-                    m_ButtonHold[(int)player](this, Buttons.LS);
+                    if (m_LastState[(int)player].Buttons.LeftStick == ButtonState.Pressed)
+                    {
+                        if (m_ButtonHold[(int)player] != null)
+                        {
+                            m_ButtonHold[(int)player](this, Buttons.LS);
+                            handled = true;
+                        }
+                    }
+                    else
+                    {
+                        if (m_ButtonDown[(int)player] != null)
+                        {
+                            m_ButtonDown[(int)player](this, Buttons.LS);
+                            handled = true;
+                        }
+                    }
                 }
                 else
                 {
-                    m_ButtonDown[(int)player](this, Buttons.LS);
+                    if (m_LastState[(int)player].Buttons.LeftStick == ButtonState.Pressed)
+                    {
+                        if (m_ButtonUp[(int)player] != null)
+                        {
+                            m_ButtonUp[(int)player](this, Buttons.LS);
+                            handled = true;
+                        }
+                    }
                 }
-            }
-            else
-            {
-                if (m_LastState[(int)player].Buttons.LeftStick == ButtonState.Pressed)
-                {
-                    m_ButtonUp[(int)player](this, Buttons.LS);
-                }
-            }
-            #endregion
+                #endregion
 
+
+
+                #region Check LS Axis
+
+                if ((padState.ThumbSticks.Left.X >= AXIS_BUFFER || padState.ThumbSticks.Left.X <= -AXIS_BUFFER) && m_AxisChange[(int)player] != null)
+                {
+                    m_AxisChange[(int)player](this, Axis.LS_X, padState.ThumbSticks.Left.X);
+                }
+                if ((padState.ThumbSticks.Left.Y >= AXIS_BUFFER || padState.ThumbSticks.Left.Y <= -AXIS_BUFFER) && m_AxisChange[(int)player] != null)
+                {
+                    m_AxisChange[(int)player](this, Axis.LS_Y, padState.ThumbSticks.Left.Y);
+                }
+
+                #endregion
+
+                #region Check RS Axis
+
+                if ((padState.ThumbSticks.Right.X >= AXIS_BUFFER || padState.ThumbSticks.Right.X <= -AXIS_BUFFER) && m_AxisChange[(int)player] != null)
+                {
+                    m_AxisChange[(int)player](this, Axis.RS_X, padState.ThumbSticks.Right.X);
+                }
+                if ((padState.ThumbSticks.Right.Y >= AXIS_BUFFER || padState.ThumbSticks.Right.Y <= -AXIS_BUFFER) && m_AxisChange[(int)player] != null)
+                {
+                    m_AxisChange[(int)player](this, Axis.RS_Y, padState.ThumbSticks.Right.Y); ;
+                }
+
+                #endregion
+
+                #region Check Trigger Axis
+                if (padState.Triggers.Left >= AXIS_BUFFER && m_AxisChange[(int)player] != null)
+                {
+                    m_AxisChange[(int)player](this, Axis.LT, padState.Triggers.Left); ;
+                }
+                if (padState.Triggers.Right >= AXIS_BUFFER && m_AxisChange[(int)player] != null)
+                {
+                    m_AxisChange[(int)player](this, Axis.RT, padState.Triggers.Right); ;
+                }
+                #endregion
+                m_LastState[(int)player] = padState;
+
+            }
             return handled;
         }
 

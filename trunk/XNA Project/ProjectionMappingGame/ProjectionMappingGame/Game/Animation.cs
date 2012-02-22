@@ -9,30 +9,34 @@ namespace ProjectionMappingGame.Game
 {
     public class Animation
     {
-        Texture2D[] m_Frames;
+        Texture2D m_Frames;
 
         float m_FrameRate;
         int m_CurrentFrame;
         float m_Counter;
+        int m_NumFrames;
+        bool m_Repeat;
 
         public Animation(Texture2D texture)
         {
-            m_Frames = new Texture2D[1];
-            m_Frames[0] = texture;
+            m_Frames = texture;
 
             m_FrameRate = 0;
             m_CurrentFrame = 0;
             m_Counter = 0;
-
+            m_NumFrames = 1;
+            m_Repeat = false;
         }
 
-        public Animation(Texture2D[] textures, float rate)
+        public Animation(Texture2D texture, int numFrames, float rate, bool repeat)
         {
             m_CurrentFrame = 0;
-            m_Frames = textures;
+            m_Frames = texture;
 
-            m_FrameRate = rate;
+            m_FrameRate = 1.0f/rate;
             m_Counter = 0;
+            m_NumFrames = numFrames;
+            m_Repeat = repeat;
         }
 
         public void Update(float deltaTime)
@@ -43,15 +47,35 @@ namespace ProjectionMappingGame.Game
 
             m_CurrentFrame += moveFrames;
 
+            if (m_Repeat)
+            {
+                m_CurrentFrame %= m_NumFrames;
+            }
+            else
+            {
+                m_CurrentFrame = (m_CurrentFrame >= m_NumFrames) ? m_NumFrames - 1 : m_CurrentFrame;
+            }
+
             if (moveFrames > 0)
             {
                 m_Counter = m_Counter % m_FrameRate;
             }
         }
 
-        public void Draw(SpriteBatch batch, Rectangle bounds)
+        public void Reset()
         {
-            batch.Draw(m_Frames[m_CurrentFrame], bounds, Color.White);
+            m_CurrentFrame = 0;
+            m_Counter = 0;
+        }
+
+        public void Draw(SpriteBatch batch, Rectangle bounds, SpriteEffects effect)
+        {
+            int width = m_Frames.Width / m_NumFrames;
+            int height = m_Frames.Height;
+
+            Rectangle source = new Rectangle(width * m_CurrentFrame, 0, width, height);
+
+            batch.Draw(m_Frames, bounds, source, Color.White, 0, Vector2.Zero, effect, 0);
         }
 
     }
