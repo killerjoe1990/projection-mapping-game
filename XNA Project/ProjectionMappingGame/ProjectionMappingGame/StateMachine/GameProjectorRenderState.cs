@@ -110,6 +110,7 @@ namespace ProjectionMappingGame.StateMachine
 
       public void ConfigureProjector(Vector3 target, float distance, float yaw, float pitch)
       {
+         /*
          m_ProjectorPreview.Projector.Target = target;
          m_ProjectorPreview.Projector.Distance = distance;
          m_ProjectorPreview.Projector.Yaw = yaw;
@@ -120,6 +121,7 @@ namespace ProjectionMappingGame.StateMachine
          m_ProjectorPreview.Camera.Yaw = yaw;
          m_ProjectorPreview.Camera.Pitch = pitch;
          m_ProjectorPreview.Camera.UpdateView();
+          */
       }
 
       public Texture2D ProjectorInput

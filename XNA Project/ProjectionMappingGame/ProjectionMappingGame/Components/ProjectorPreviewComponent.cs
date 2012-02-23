@@ -145,14 +145,13 @@ namespace ProjectionMappingGame.Components
 
          // Initialize projector
          m_Projector = new ProjectorComponent(
-            new Vector3(0.0f, 0.0f, -10.0f),
-            new Vector3(0.0f, 1.0f, 0.0f),
+            new Vector3(0.0f, 2.0f, -10.0f),
+            new Vector3(0.0f, 2.0f, 0.0f),
             MathHelper.ToRadians(45.0f),
             1.0f,
             10.0f,
             30.0f
          );
-         m_Projector.OrbitUp(MathHelper.ToRadians(30.0f));
          m_Projector.UpdateView();
 
          // Set defaults
@@ -199,6 +198,14 @@ namespace ProjectionMappingGame.Components
          m_Gizmo.Initialize();
       }
 
+      public void Update(float elapsedTime)
+      {
+         // Update the building
+         m_BuildingEntity.Update(elapsedTime);
+         m_Camera.UpdateView();
+         m_Gizmo.Update(elapsedTime, m_Camera.ViewMatrix, m_Camera.ProjectionMatrix);
+      }
+
       #region Input Handling
 
       public void HandleInput(float elapsedTime)
@@ -207,22 +214,18 @@ namespace ProjectionMappingGame.Components
          MouseState mouseState = Mouse.GetState();
          KeyboardState keyboardState = Keyboard.GetState();
 
-         // Update the building
-         m_BuildingEntity.Update(elapsedTime);
-
          // Handle camera/projector input
          if (m_ProjectorAttached)
          {
             m_Camera.HandleRotation(mouseState, m_PrevMouseState, elapsedTime);
             m_Projector.HandleTranslation(keyboardState, elapsedTime);
             m_Projector.HandleRotation(mouseState, m_PrevMouseState, elapsedTime);
-            m_Projector.HandleZoom(mouseState, m_PrevMouseState, keyboardState, elapsedTime);
-
+            
             // Since the projector and camera have different translation and zoom speeds,
             // we use the results from the projector in this mode.
-            m_Camera.Target = m_Projector.Target;
-            m_Camera.Distance = m_Projector.Distance;
-            m_Camera.UpdateView();
+            //m_Camera.Target = m_Projector.;
+            //m_Camera.Distance = m_Projector.Distance;
+            
          }
          else if (m_MoveCamera)
          {
@@ -233,14 +236,12 @@ namespace ProjectionMappingGame.Components
             }
 
             // Handle gizmo input
-            m_Gizmo.Update(elapsedTime, m_Camera.ViewMatrix, m_Camera.ProjectionMatrix);
             m_Gizmo.HandleInput(mouseState, m_PrevMouseState, keyboardState, m_PrevKeyboardState);
          }
          else
          {
             m_Projector.HandleTranslation(keyboardState, elapsedTime);
             m_Projector.HandleRotation(mouseState, m_PrevMouseState, elapsedTime);
-            m_Projector.HandleZoom(mouseState, m_PrevMouseState, keyboardState, elapsedTime);
          }
 
          // Store input
@@ -296,51 +297,6 @@ namespace ProjectionMappingGame.Components
          m_Gizmo.Draw3D();
       }
 
-      public void DrawGUI(SpriteBatch spriteBatch)
-      {
-         string projStatus = (ProjectorIsOn) ? "On" : "Off";
-
-         string controlStatus = (ProjectorAttached) ? "Projector" : ((MoveCamera) ? "Editor (Camera)" : "Editor (Projector)");
-         string orbitzoomMode = (ProjectorAttached) ? "Projector" : ((MoveCamera) ? "Camera" : "Projector");
-         int column1 = m_Viewport.Width - 300;
-         int y = GameConstants.WINDOW_HEIGHT - 205;
-
-         spriteBatch.Begin();
-         spriteBatch.DrawString(m_ArialFont, "Projection Editor Controls", Vector2.One + new Vector2(m_Viewport.Width - m_ArialFont.MeasureString("Projection Editor Controls").Length(), y + 5), Color.Black);
-         spriteBatch.DrawString(m_ArialFont, "Projection Editor Controls", new Vector2(m_Viewport.Width - m_ArialFont.MeasureString("Projection Editor Controls").Length(), y + 5), Color.White);
-         spriteBatch.DrawString(m_ArialFont, "Orbit " + orbitzoomMode, Vector2.One + new Vector2(column1, y + 30), Color.Black);
-         spriteBatch.DrawString(m_ArialFont, "Orbit " + orbitzoomMode, new Vector2(column1, y + 30), Color.White);
-         spriteBatch.DrawString(m_ArialFont, "Zoom " + orbitzoomMode, Vector2.One + new Vector2(column1, y + 55), Color.Black);
-         spriteBatch.DrawString(m_ArialFont, "Zoom " + orbitzoomMode, new Vector2(column1, y + 55), Color.White);
-         spriteBatch.DrawString(m_ArialFont, "Toggle Projector", Vector2.One + new Vector2(column1, y + 80), Color.Black);
-         spriteBatch.DrawString(m_ArialFont, "Toggle Projector", new Vector2(column1, y + 80), Color.White);
-         spriteBatch.DrawString(m_ArialFont, "Toggle Controls", Vector2.One + new Vector2(column1, y + 105), Color.Black);
-         spriteBatch.DrawString(m_ArialFont, "Toggle Controls", new Vector2(column1, y + 105), Color.White);
-         spriteBatch.DrawString(m_ArialFont, "Cycle Gizmo", Vector2.One + new Vector2(column1, y + 130), Color.Black);
-         spriteBatch.DrawString(m_ArialFont, "Cycle Gizmo", new Vector2(column1, y + 130), Color.White);
-         spriteBatch.DrawString(m_ArialFont, "Left-Click & Drag", Vector2.One + new Vector2(m_Viewport.Width - m_ArialFont.MeasureString("Left-Click & Drag").Length(), y + 30), Color.Black);
-         spriteBatch.DrawString(m_ArialFont, "Left-Click & Drag", new Vector2(m_Viewport.Width - m_ArialFont.MeasureString("Left-Click & Drag").Length(), y + 30), Color.White);
-         spriteBatch.DrawString(m_ArialFont, "Scroll-Wheel", Vector2.One + new Vector2(m_Viewport.Width - m_ArialFont.MeasureString("Scroll-Wheel").Length(), y + 55), Color.Black);
-         spriteBatch.DrawString(m_ArialFont, "Scroll-Wheel", new Vector2(m_Viewport.Width - m_ArialFont.MeasureString("Scroll-Wheel").Length(), y + 55), Color.White);
-         spriteBatch.DrawString(m_ArialFont, "P", Vector2.One + new Vector2(m_Viewport.Width - m_ArialFont.MeasureString("P").Length(), y + 80), Color.Black);
-         spriteBatch.DrawString(m_ArialFont, "P", new Vector2(m_Viewport.Width - m_ArialFont.MeasureString("P").Length(), y + 80), Color.White);
-         spriteBatch.DrawString(m_ArialFont, "C", Vector2.One + new Vector2(m_Viewport.Width - m_ArialFont.MeasureString("C").Length(), y + 105), Color.Black);
-         spriteBatch.DrawString(m_ArialFont, "C", new Vector2(m_Viewport.Width - m_ArialFont.MeasureString("C").Length(), y + 105), Color.White);
-         spriteBatch.DrawString(m_ArialFont, "O", Vector2.One + new Vector2(m_Viewport.Width - m_ArialFont.MeasureString("O").Length(), y + 130), Color.Black);
-         spriteBatch.DrawString(m_ArialFont, "O", new Vector2(m_Viewport.Width - m_ArialFont.MeasureString("O").Length(), y + 130), Color.White);
-
-         spriteBatch.DrawString(m_ArialFont, "Reset", Vector2.One + new Vector2(column1, y + 155), Color.Black);
-         spriteBatch.DrawString(m_ArialFont, "Reset", new Vector2(column1, y + 155), Color.White);
-         spriteBatch.DrawString(m_ArialFont, "Back to Main Menu", Vector2.One + new Vector2(column1, y + 180), Color.Black);
-         spriteBatch.DrawString(m_ArialFont, "Back to Main Menu", new Vector2(column1, y + 180), Color.White);
-         spriteBatch.DrawString(m_ArialFont, "R", Vector2.One + new Vector2(m_Viewport.Width - m_ArialFont.MeasureString("R").Length(), y + 155), Color.Black);
-         spriteBatch.DrawString(m_ArialFont, "R", new Vector2(m_Viewport.Width - m_ArialFont.MeasureString("R").Length(), y + 155), Color.White);
-         spriteBatch.DrawString(m_ArialFont, "M", Vector2.One + new Vector2(m_Viewport.Width - m_ArialFont.MeasureString("M").Length(), y + 180), Color.Black);
-         spriteBatch.DrawString(m_ArialFont, "M", new Vector2(m_Viewport.Width - m_ArialFont.MeasureString("M").Length(), y + 180), Color.White);
-
-         spriteBatch.End();
-      }
-
       #endregion
 
       #region Rendering Utility
@@ -364,11 +320,11 @@ namespace ProjectionMappingGame.Components
          m_CameraLastPitch = m_Camera.Pitch;
 
          // Snap to projector
-         m_Camera.Target = m_Projector.Target;
+         /*m_Camera.Target = m_Projector.Target;
          m_Camera.Distance = m_Projector.Distance;
          m_Camera.Yaw = m_Projector.Yaw;
          m_Camera.Pitch = m_Projector.Pitch;
-         m_Camera.UpdateView();
+         m_Camera.UpdateView();*/
       }
 
       private void UpdateShaderParameters(Effect effect)

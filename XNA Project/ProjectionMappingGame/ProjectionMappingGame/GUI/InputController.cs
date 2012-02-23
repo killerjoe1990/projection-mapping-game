@@ -71,12 +71,20 @@ namespace ProjectionMappingGame.GUI
         protected event MouseEvent m_LeftDrag;
         protected event MouseEvent m_RightDrag;
         protected event MouseEvent m_Move;
+        protected Vector2 m_Offset;
 
         protected MouseState m_LastState;
 
         public MouseInput()
         {
+           m_Offset = Vector2.Zero;
             m_LastState = Mouse.GetState();
+        }
+
+        public MouseInput(Vector2 offset)
+        {
+           m_Offset = offset;
+           m_LastState = Mouse.GetState();
         }
 
         /// <summary>
@@ -118,7 +126,7 @@ namespace ProjectionMappingGame.GUI
 
             MouseState currentState = Mouse.GetState();
 
-            MouseEventArgs args = new MouseEventArgs(currentState.X, currentState.Y, player);
+            MouseEventArgs args = new MouseEventArgs(currentState.X + (int)m_Offset.X, currentState.Y + (int)m_Offset.Y, player);
 
             if (m_LastState.LeftButton == ButtonState.Pressed)
             {
