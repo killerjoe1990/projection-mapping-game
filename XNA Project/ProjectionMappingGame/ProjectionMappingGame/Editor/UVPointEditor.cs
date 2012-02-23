@@ -61,6 +61,9 @@ namespace ProjectionMappingGame.Editor
       bool m_DraggingVertex;
       int m_SelectedVertex;
       int m_HoveredVertex;
+      bool m_DraggingQuad;
+      int m_SelectedQuad;
+      int m_HoveredQuad;
 
       public UVPointEditor(GameDriver game, int x, int y, int w, int h)
       {
@@ -115,6 +118,9 @@ namespace ProjectionMappingGame.Editor
          m_DraggingVertex = false;
          m_SelectedVertex = -1;
          m_HoveredVertex = -1;
+         m_DraggingQuad = false;
+         m_SelectedQuad = -1;
+         m_HoveredQuad = -1;
 
          // Initialize render target
          m_RenderTarget = new RenderTarget2D(m_Game.GraphicsDevice, w, h, true, m_Game.GraphicsDevice.DisplayMode.Format, DepthFormat.Depth24);
@@ -148,11 +154,10 @@ namespace ProjectionMappingGame.Editor
                vertices[1] = m_GraphVertices[m_GraphEdges[i + 1].P1].Vertex;
                vertices[2] = m_GraphVertices[m_GraphEdges[i + 2].P1].Vertex;
                vertices[3] = m_GraphVertices[m_GraphEdges[i + 3].P1].Vertex;
-               m_Quads.Add(new OrthoQuad(vertices));
+               m_Quads.Add(new OrthoQuad(vertices, m_GraphEdges[i + 0].P1, m_GraphEdges[i + 1].P1, m_GraphEdges[i + 2].P1, m_GraphEdges[i + 3].P1));
             }
          }
       }
-
 
       #region Input Handling
 
@@ -168,12 +173,45 @@ namespace ProjectionMappingGame.Editor
          // Convert mouse position into relative viewport space
          Vector2 mousePos = new Vector2(mouseState.X - m_Viewport.X, mouseState.Y - m_Viewport.Y);
          Rectangle mouseBounds = new Rectangle((int)(mousePos.X - MOUSE_SELECTION_BUFFER), (int)(mousePos.Y - MOUSE_SELECTION_BUFFER), MOUSE_SELECTION_BUFFER * 2, MOUSE_SELECTION_BUFFER * 2);
+         int dx = mouseState.X - m_PrevMouseState.X;
+         int dy = mouseState.Y - m_PrevMouseState.Y;
 
          // Can't possibly be dragging
          if (mouseState.LeftButton == ButtonState.Released)
          {
             m_DraggingVertex = false;
+            m_DraggingQuad = false;
             m_SelectedVertex = -1;        // For now, I'm also turning off the selection...may not want to do this later
+         }
+
+         // Handle quad hovering
+         m_HoveredQuad = -1;
+         int numQuads = m_Quads.Count;
+         for (int i = 0; i < numQuads; ++i)
+         {
+            if (m_Quads[i].TestPointInsideConvexPolygon(mousePos))
+            {
+               m_HoveredQuad = i;
+               break;
+            }
+         }
+
+         // Handle quad selection; we know the mouse is over an item if it is hovered.
+         if (m_HoveredQuad >= 0 && mouseState.LeftButton == ButtonState.Pressed && m_PrevMouseState.LeftButton == ButtonState.Released)
+         {
+            // Select the hovered vertex
+            m_SelectedQuad = m_HoveredQuad;
+            m_HoveredQuad = -1;
+            m_DraggingQuad = true;
+         }
+
+         // Handle quad dragging
+         if (m_DraggingQuad && m_SelectedQuad >= 0)
+         {
+            m_GraphVertices[m_Quads[m_SelectedQuad].P0].Vertex.Position += new Vector3(dx, dy, 0.0f);
+            m_GraphVertices[m_Quads[m_SelectedQuad].P1].Vertex.Position += new Vector3(dx, dy, 0.0f);
+            m_GraphVertices[m_Quads[m_SelectedQuad].P2].Vertex.Position += new Vector3(dx, dy, 0.0f);
+            m_GraphVertices[m_Quads[m_SelectedQuad].P3].Vertex.Position += new Vector3(dx, dy, 0.0f);
          }
 
          // Handle vertex hovering
@@ -201,8 +239,6 @@ namespace ProjectionMappingGame.Editor
          // Handle vertex dragging
          if (m_DraggingVertex && m_SelectedVertex >= 0)
          {
-            int dx = mouseState.X - m_PrevMouseState.X;
-            int dy = mouseState.Y - m_PrevMouseState.Y;
             m_GraphVertices[m_SelectedVertex].Vertex.Position += new Vector3(dx, dy, 0.0f);
          }
 
@@ -240,6 +276,25 @@ namespace ProjectionMappingGame.Editor
          for (int i = 0; i < m_Quads.Count; ++i)
          {
             m_Quads[i].Draw(m_Game.GraphicsDevice, m_QuadEffect);
+         }
+
+         if (m_HoveredQuad > -1)
+         {
+            Texture2D tex = m_QuadEffect.Texture;
+            m_QuadEffect.Texture = m_WhiteTexture;
+            m_QuadEffect.Alpha = 0.5f;
+            m_Quads[m_HoveredQuad].Draw(m_Game.GraphicsDevice, m_QuadEffect);
+            m_QuadEffect.Texture = tex;
+            m_QuadEffect.Alpha = 1.0f;
+         }
+         if (m_SelectedQuad > -1)
+         {
+            Texture2D tex = m_QuadEffect.Texture;
+            m_QuadEffect.Texture = m_WhiteTexture;
+            m_QuadEffect.Alpha = 0.5f;
+            m_Quads[m_SelectedQuad].Draw(m_Game.GraphicsDevice, m_QuadEffect);
+            m_QuadEffect.Texture = tex;
+            m_QuadEffect.Alpha = 1.0f;
          }
       }
 
