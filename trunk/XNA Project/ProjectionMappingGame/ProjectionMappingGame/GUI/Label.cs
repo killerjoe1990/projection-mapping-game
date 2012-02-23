@@ -30,7 +30,6 @@ namespace ProjectionMappingGame.GUI
 
       public override void Draw(GraphicsDevice graphics, SpriteBatch spriteBatch)
       {
-         //spriteBatch.DrawString(m_Font, m_Text, Location + Vector2.One, Color.Black);
          spriteBatch.DrawString(m_Font, m_Text, Location, m_Color);
       }
 

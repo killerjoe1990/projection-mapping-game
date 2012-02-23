@@ -18,8 +18,12 @@ namespace ProjectionMappingGame.GUI
 
         protected Texture2D[] m_Images;
         protected int m_CurrentImage;
-
+        protected string m_Text;
+        protected Color m_TextColor;
+        protected Vector2 m_TextPos;
+        protected SpriteFont m_Font;
         protected bool m_BeenClicked;
+        protected bool m_HasText;
 
         protected event EventHandler m_OnClick;
 
@@ -27,7 +31,7 @@ namespace ProjectionMappingGame.GUI
         {
             int numImages = Enum.GetNames(typeof(ImageType)).Length;
             m_Images = new Texture2D[numImages];
-
+            m_HasText = false;
             m_CurrentImage = 0;
 
             for (int i = 0; i < numImages; ++i)
@@ -44,6 +48,33 @@ namespace ProjectionMappingGame.GUI
             mouse.RegisterMouseEvent(MouseEventType.LeftDrag, OnLeftDrag);
 
             m_BeenClicked = false;
+        }
+
+        public Button(Rectangle bounds, Texture2D image, MouseInput mouse, SpriteFont font, string text, Color textColor)
+        {
+           int numImages = Enum.GetNames(typeof(ImageType)).Length;
+           m_Images = new Texture2D[numImages];
+           m_HasText = true;
+           m_CurrentImage = 0;
+
+           for (int i = 0; i < numImages; ++i)
+           {
+              m_Images[i] = null;
+           }
+
+           m_Font = font;
+           m_Text = text;
+           m_TextColor = textColor;
+          m_Images[(int)ImageType.NORMAL] = image;
+
+           m_Bounds = bounds;
+
+           mouse.RegisterMouseEvent(MouseEventType.LeftClick, OnLeftClick);
+           mouse.RegisterMouseEvent(MouseEventType.Move, OnOver);
+           mouse.RegisterMouseEvent(MouseEventType.LeftDrag, OnLeftDrag);
+           m_TextPos = new Vector2((int)(m_Bounds.X + (m_Bounds.Width / 2) - (m_Font.MeasureString(m_Text).Length() / 2)), (int)(m_Bounds.Y + (m_Bounds.Height / 2) - (m_Font.MeasureString(m_Text).Y / 2)));
+           
+           m_BeenClicked = false;
         }
 
         public void SetImage(ImageType type, Texture2D img)
@@ -65,6 +96,11 @@ namespace ProjectionMappingGame.GUI
             else
             {
                 sprite.Draw(m_Images[(int)ImageType.NORMAL], m_Bounds, Color.White);
+            }
+
+            if (m_HasText)
+            {
+               sprite.DrawString(m_Font, m_Text, m_TextPos, m_TextColor);
             }
         }
 
@@ -113,6 +149,16 @@ namespace ProjectionMappingGame.GUI
             }
 
             m_BeenClicked = false;
+        }
+
+        public string Text
+        {
+           get { return m_Text; }
+           set
+           {
+              m_Text = value; 
+              m_TextPos = new Vector2((int)(m_Bounds.X + (m_Bounds.Width / 2) - (m_Font.MeasureString(m_Text).Length() / 2)), (int)(m_Bounds.Y + (m_Bounds.Height / 2) - (m_Font.MeasureString(m_Text).Y / 2)));
+           }
         }
     }
 }

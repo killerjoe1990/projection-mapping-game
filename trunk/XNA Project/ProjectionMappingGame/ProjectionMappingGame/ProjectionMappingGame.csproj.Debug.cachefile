@@ -1,17 +1,47 @@
 Content\Fonts\Arial.xnb
 Content\Fonts\gizmoFont.xnb
+Content\Fonts\Arial10.xnb
 Content\Models\plane.xnb
 Content\Models\cube.xnb
 Content\Models\sphere.xnb
 Content\Models\gizmo_rotate.xnb
 Content\Models\gizmo_scale.xnb
 Content\Models\gizmo_translate.xnb
+Content\Models\building.xnb
 Content\Shaders\ProjectiveMapping.xnb
 Content\Shaders\SolidColor.xnb
 Content\Textures\flashlight.xnb
 Content\Textures\vegeta.xnb
 Content\Textures\white.xnb
 Content\Textures\pow.xnb
-Content\Fonts\Arial10.xnb
-Content\Models\building.xnb
+Content\Tiles\Type1\BlockA0.xnb
+Content\Tiles\Type1\BlockA2.xnb
+Content\Tiles\Type1\BlockA6.xnb
+Content\Tiles\Type2\BlockB0.xnb
+Content\Tiles\Type2\BlockB1.xnb
+Content\Tiles\Type2\Platform.xnb
+Content\Sprites\Idle.xnb
+Content\Textures\Layer0_2.xnb
+Content\Sprites\Jump.xnb
+Content\Sprites\Run.xnb
+Content\Textures\GUI\Border Image.xnb
+Content\Textures\GUI\Button Template Down Hover.xnb
+Content\Textures\GUI\Button Template Down Pressed.xnb
+Content\Textures\GUI\Button Template Down.xnb
+Content\Textures\GUI\Button Template Up Hover.xnb
+Content\Textures\GUI\Button Template Up Pressed.xnb
+Content\Textures\GUI\Button Template Up.xnb
+Content\Textures\GUI\Scroll Bar Button.xnb
+Content\Textures\GUI\Scroll Bar.xnb
+Content\Textures\GUI\button.xnb
+Content\Textures\GUI\button_on_hover.xnb
+Content\Textures\GUI\move.xnb
+Content\Textures\GUI\move_on_hover.xnb
+Content\Textures\GUI\rotate.xnb
+Content\Textures\GUI\rotate_on_hover.xnb
+Content\Textures\GUI\scale.xnb
+Content\Textures\GUI\scale_on_hover.xnb
+Content\Textures\GUI\spinbox_down.xnb
+Content\Textures\GUI\spinbox_up.xnb
+Content\Textures\GUI\spinbox_fill.xnb
 Content\Shaders\Includes.inc

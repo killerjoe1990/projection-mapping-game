@@ -176,12 +176,12 @@ namespace ProjectionMappingGame.StateMachine
                break;
             case StateType.GameProjectorRender:
                gameProjector.ProjectorInput = gameplay.RenderTarget;
-               gameProjector.ConfigureProjector(
+               /*gameProjector.ConfigureProjector(
                   projectionEditor.ProjectorTarget,
                   projectionEditor.ProjectorDistance,
                   projectionEditor.ProjectorYaw,
                   projectionEditor.ProjectorPitch
-               );
+               );*/
                break;
          }
       }

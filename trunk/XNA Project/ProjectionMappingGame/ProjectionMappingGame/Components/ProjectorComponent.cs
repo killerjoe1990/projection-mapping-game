@@ -29,10 +29,13 @@ namespace ProjectionMappingGame.Components
    class ProjectorComponent
    {
       // View components
-      Vector3 m_Target;
+      Vector3 m_Position;
+      Vector3 m_LookAt;
+      Vector3 m_Up;
+      Vector3 m_LocalX, m_LocalY, m_LocalZ;
+      Vector3 m_Direction;
       Matrix m_ViewMatrix;
-      Quaternion m_Orientation;
-      float m_Pitch, m_Yaw;
+      float m_RotX, m_RotY, m_RotZ;
 
       // Projection components
       float m_Fov;
@@ -43,13 +46,9 @@ namespace ProjectionMappingGame.Components
       Texture2D m_Texture;
       bool m_IsOn;
 
-      // Distance from look at point
-      float m_Distance;
-
       // Constant fields
       const float KEYBOARD_TRANSLATE_SCALAR = 5.0f;
       const float MOUSE_MOVEMENT_SCALAR = 0.5f;
-      const float ZOOM_SCALAR = 2.0f;
 
       public ProjectorComponent(Vector3 pos, Vector3 lookAt, float fov, float ar, float near, float far)
       {
@@ -58,17 +57,16 @@ namespace ProjectionMappingGame.Components
          m_Fov = fov;
          m_NearPlane = near;
          m_FarPlane = far;
-         m_Target = lookAt;
+         m_LookAt = lookAt;
+         m_Position = pos;
 
-         // Calculate projector direction and distance
-         m_Distance = Vector3.Distance(lookAt, pos);
-         
          // Defaults
+         m_Up = Vector3.Up;
          m_IsOn = true;
-         m_Yaw = 0.0f;
-         m_Pitch = 0.0f;
-         m_Orientation = Quaternion.CreateFromAxisAngle(Vector3.Up, 0);
-
+         m_RotX = 0.0f;
+         m_RotY = 0.0f;
+         m_RotZ = 0.0f;
+         
          // Create initial projection/view matrix
          UpdateProjection();
          UpdateView();
@@ -83,8 +81,17 @@ namespace ProjectionMappingGame.Components
       public void UpdateView()
       {
          // Calculate view matrix
-         m_Orientation = Quaternion.CreateFromAxisAngle(Vector3.Up, -m_Yaw) * Quaternion.CreateFromAxisAngle(Vector3.Right, m_Pitch);
-         m_ViewMatrix = Matrix.CreateLookAt(Position, Target, Up);
+         Matrix rotationRight = Matrix.CreateRotationY(m_RotY);
+         Matrix rotationUp = Matrix.CreateRotationX(-m_RotX);
+         m_ViewMatrix = Matrix.CreateLookAt(m_Position, m_LookAt, m_Up);
+         m_ViewMatrix *= rotationRight;
+         m_ViewMatrix *= rotationUp;
+
+         // Update directions
+         m_LocalX = new Vector3(m_ViewMatrix.M11, m_ViewMatrix.M21, m_ViewMatrix.M31);
+         m_LocalY = new Vector3(m_ViewMatrix.M12, m_ViewMatrix.M22, m_ViewMatrix.M32);
+         m_LocalZ = new Vector3(m_ViewMatrix.M13, m_ViewMatrix.M23, m_ViewMatrix.M33);
+         m_Direction = -m_LocalZ;
       }
 
       public void UpdateProjection()
@@ -92,41 +99,64 @@ namespace ProjectionMappingGame.Components
          m_ProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(m_Fov, m_AspectRatio, 0.1f, 1000f);
       }
 
-      public void Zoom(float distance)
+      /// <summary>
+      /// Look up/down by adding rotation in local X axis.
+      /// Rotation is indicated by a pos/neg radian value.
+      /// </summary>
+      /// <param name="radians">Radian amount to rotate by</param>
+      public void LookUp(float radians)
       {
-         m_Distance += distance;
+         // Add to x rotation
+         m_RotX += radians;
+
+         // Reset rotation over 2pi
+         if (m_RotX > MathHelper.TwoPi)
+            m_RotX -= MathHelper.TwoPi;
+
+         // Recompute view matrix
          UpdateView();
       }
 
       /// <summary>
-      /// Orbit camera right/left around a center lookat point.
+      /// Look right/left by adding rotation in local Y axis.
+      /// Rotation is indicated by a pos/neg radian value.
       /// </summary>
-      /// <param name="angle">Randians to turn right; can be negative</param>
-      public void OrbitRight(float angle)
+      /// <param name="radians">Radian amount to rotate by</param>
+      public void LookRight(float radians)
       {
-         // Update yaw
-         m_Yaw -= angle;
+         // Add to y rotation
+         m_RotY += radians;
 
-         // Restrain yaw
-         m_Yaw = m_Yaw % MathHelper.TwoPi;
+         // Reset rotation over 2pi
+         if (m_RotY > MathHelper.TwoPi)
+            m_RotY -= MathHelper.TwoPi;
 
-         // Update view matrix to apply new yaw
+         // Recompute view matrix
          UpdateView();
       }
 
       /// <summary>
-      /// Orbit projector up/down around a center lookat point.
+      /// Translate/move by a delta value in each local axis.
       /// </summary>
-      /// <param name="angle">Randians to turn right; can be negative</param>
-      public void OrbitUp(float angle)
+      /// <param name="dx">Delta x</param>
+      /// <param name="dy">Delta y</param>
+      /// <param name="dz">Delta z</param>
+      public void Translate(float dx, float dy, float dz)
       {
-         // Update pitch
-         m_Pitch -= angle;
+         // Compute forwards direction
+         Vector3 forwards = Vector3.Normalize(Vector3.Cross(Up, m_LocalX));
 
-         // Restrain pitch
-         m_Pitch = MathHelper.Clamp(m_Pitch, -(MathHelper.PiOver2) + .0001f, (MathHelper.PiOver2) - .0001f);
+         // Calculate translation
+         Vector3 translation = Vector3.Zero;
+         translation += m_LocalX * dx;
+         translation += Up * dy;
+         translation += forwards * dz;
 
-         // Update view matrix to apply new pitch
+         // Translate all positional components
+         m_Position += translation;
+         m_LookAt += translation;
+
+         // Recompute view matrix
          UpdateView();
       }
 
@@ -155,9 +185,9 @@ namespace ProjectionMappingGame.Components
                dy = elapsedTime * (mState.Y - mStatePrev.Y) * MOUSE_MOVEMENT_SCALAR;
 
                if (dx != 0)
-                  OrbitRight(dx);  // Orbit right 'dx' radians
+                  LookRight(dx);  // Orbit right 'dx' radians
                if (dy != 0)
-                  OrbitUp(-dy);     // Orbit up 'dy' radians
+                  LookUp(-dy);     // Orbit up 'dy' radians
             }
          }
       }
@@ -177,206 +207,23 @@ namespace ProjectionMappingGame.Components
       /// <param name="elapsedTime">Elapsed time since last frame</param>
       public void HandleTranslation(KeyboardState kState, float elapsedTime)
       {
-         Vector3 moveVector = Vector3.Zero;
-
-         // Forward
-         if (kState.IsKeyDown(Keys.W))
-               moveVector = Direction;
-         // Backward
-         else if (kState.IsKeyDown(Keys.S))
-               moveVector = -Direction;
-         // Straff Left
-         else if (kState.IsKeyDown(Keys.A))
-               moveVector = -Right;
-         // Straff Right
-         else if (kState.IsKeyDown(Keys.D))
-               moveVector = Right;
-         moveVector.Y = 0.0f;
-
-         // Move Up
-         if (kState.IsKeyDown(Keys.Q))
-               moveVector = Vector3.Up;
-         // Move Down
-         else if (kState.IsKeyDown(Keys.E))
-               moveVector = -Vector3.Up;
+         // Compute direction based on keys down
+         Vector3 direction = Vector3.Zero;
+         if (kState.IsKeyDown(Keys.W)) direction.Z += 1.0f;
+         if (kState.IsKeyDown(Keys.S)) direction.Z -= 1.0f;
+         if (kState.IsKeyDown(Keys.D)) direction.X += 1.0f;
+         if (kState.IsKeyDown(Keys.A)) direction.X -= 1.0f;
+         if (kState.IsKeyDown(Keys.Q)) direction.Y -= 1.0f;
+         if (kState.IsKeyDown(Keys.E)) direction.Y += 1.0f;
 
          // Apply movement
-         m_Target += (moveVector * KEYBOARD_TRANSLATE_SCALAR * elapsedTime);
-
-         // Re-Compute view matrix
-         UpdateView();
-      }
-
-      /// <summary>
-      /// Handle projector zoom based off keyboard or mouse scroll.
-      /// </summary>
-      /// <param name="mState">Current frame's mouse state</param>
-      /// <param name="mStatePrev">Previous frame's mouse state</param>
-      /// <param name="kState">Current frame's keyboard state</param>
-      /// <param name="elapsedTime">Elapsed time since last frame.</param>
-      public void HandleZoom(MouseState mState, MouseState mStatePrev, KeyboardState kState, float elapsedTime)
-      {
-         // Via mouse
-         if ((mStatePrev.ScrollWheelValue - mState.ScrollWheelValue) != 0)
-         {
-            //float scrollWheelChange = (float)((mStatePrev.ScrollWheelValue - mState.ScrollWheelValue) / 100.0f);
-            float scrollWheelChange = (mStatePrev.ScrollWheelValue - mState.ScrollWheelValue < 0) ? -1.0f : 1.0f;
-            m_Distance += scrollWheelChange * ZOOM_SCALAR * elapsedTime;
-            if (m_Distance < .001f)
-               m_Distance = .001f;
-         }
-         // Via keyboard
-         else if (kState.IsKeyDown(Keys.PageDown))
-            m_Distance += ZOOM_SCALAR * elapsedTime;
-         else if (kState.IsKeyDown(Keys.PageUp))
-            m_Distance += ZOOM_SCALAR * elapsedTime;
-
-         // Re-Compute view matrix
-         UpdateView();
-      }
-
-      #endregion
-
-      #region Calculated Projector Local Space Axis
-
-      /// <summary>
-      /// Get the forward direction vector of the projector.
-      /// </summary>
-      public Vector3 Direction
-      {
-         get
-         {
-               //R v R' where v = (0,0,-1,0)
-               Vector3 dir = Vector3.Zero;
-               dir.X = -2.0f * ((m_Orientation.X * m_Orientation.Z) + (m_Orientation.W * m_Orientation.Y));
-               dir.Y = 2.0f * ((m_Orientation.W * m_Orientation.X) - (m_Orientation.Y * m_Orientation.Z));
-               dir.Z = ((m_Orientation.X * m_Orientation.X) + (m_Orientation.Y * m_Orientation.Y)) -
-                     ((m_Orientation.Z * m_Orientation.Z) + (m_Orientation.W * m_Orientation.W));
-               return Vector3.Normalize(dir);
-         }
-      }
-
-      /// <summary>
-      /// Get the right direction vector of the projector.
-      /// </summary>
-      public Vector3 Right
-      {
-         get
-         {
-               //R v R' where v = (1,0,0,0)
-               Vector3 right = Vector3.Zero;
-               right.X = ((m_Orientation.X * m_Orientation.X) + (m_Orientation.W * m_Orientation.W)) -
-                        ((m_Orientation.Z * m_Orientation.Z) + (m_Orientation.Y * m_Orientation.Y));
-               right.Y = 2.0f * ((m_Orientation.X * m_Orientation.Y) + (m_Orientation.Z * m_Orientation.W));
-               right.Z = 2.0f * ((m_Orientation.X * m_Orientation.Z) - (m_Orientation.Y * m_Orientation.W));
-               return Vector3.Normalize(right);
-         }
-      }
-
-      /// <summary>
-      /// Get the up direction vector of the projector.
-      /// </summary>
-      public Vector3 Up
-      {
-         get
-         {
-               //R v R' where v = (0,1,0,0)
-               Vector3 up = Vector3.Zero;
-               up.X = 2.0f * ((m_Orientation.X * m_Orientation.Y) - (m_Orientation.Z * m_Orientation.W));
-               up.Y = ((m_Orientation.Y * m_Orientation.Y) + (m_Orientation.W * m_Orientation.W)) -
-                     ((m_Orientation.Z * m_Orientation.Z) + (m_Orientation.X * m_Orientation.X));
-               up.Z = 2.0f * ((m_Orientation.Y * m_Orientation.Z) + (m_Orientation.X * m_Orientation.W));
-               return Vector3.Normalize(up);
-         }
+         Vector3 translation = direction * KEYBOARD_TRANSLATE_SCALAR * elapsedTime;
+         Translate(translation.X, translation.Y, translation.Z);
       }
 
       #endregion
 
       #region Public Access TV
-
-      public bool IsOn
-      {
-         get { return m_IsOn; }
-         set { m_IsOn = value; }
-      }
-
-      public Texture2D Texture
-      {
-         get { return m_Texture; }
-         set { m_Texture = value; }
-      }
-
-      /// <summary>
-      /// Accessor/Mutator projector's look at point.
-      /// </summary>
-      public Vector3 Target
-      {
-         get { return m_Target; }
-         set { m_Target = value; }
-      }
-
-      /// <summary>
-      /// Accessor/Mutator for current distance from look at point.
-      /// </summary>
-      public float Distance
-      {
-         get { return m_Distance; }
-         set { m_Distance = value; }
-      }
-
-      public float Pitch
-      {
-         get { return m_Pitch; }
-         set { m_Pitch = value; }
-      }
-
-      public float Yaw
-      {
-         get { return m_Yaw; }
-         set { m_Yaw = value; }
-      }
-
-      /// <summary>
-      /// </summary>
-      public float Fov
-      {
-         get { return m_Fov; }
-         set { m_Fov = value; }
-      }
-
-      /// <summary>
-      /// </summary>
-      public float NearPlane
-      {
-         get { return m_NearPlane; }
-         set { m_NearPlane = value; }
-      }
-
-      /// <summary>
-      /// </summary>
-      public float FarPlane
-      {
-         get { return m_FarPlane; }
-         set { m_FarPlane = value; }
-      }
-
-      /// <summary>
-      /// </summary>
-      public float AspectRatio
-      {
-         get { return m_AspectRatio; }
-         set { m_AspectRatio = value; }
-      }
-
-      /// <summary>
-      /// Accessor for the projector's calculated position.  This is calculated
-      /// by adding the projector's inverse direction, scaled by it's zoom distance,
-      /// to it's target point.
-      /// </summary>
-      public Vector3 Position
-      {
-         get { return Target - (Direction * Distance); }
-      }
 
       /// <summary>
       /// Accessor for the projector's view matrix.
@@ -393,6 +240,105 @@ namespace ProjectionMappingGame.Components
       {
          get { return m_ProjectionMatrix; }
       }
+
+      public Vector3 Up
+      {
+         get { return m_Up; }
+      }
+
+      public Vector3 Right
+      {
+         get { return m_LocalX; }
+      }
+
+      public Vector3 Direction
+      {
+         get { return m_Direction; }
+      }
+
+      public bool IsOn
+      {
+         get { return m_IsOn; }
+         set { m_IsOn = value; }
+      }
+
+      public Texture2D Texture
+      {
+         get { return m_Texture; }
+         set { m_Texture = value; }
+      }
+
+      /// <summary>
+      /// </summary>
+      public float RotX
+      {
+         get { return m_RotX; }
+         set { m_RotX = value; UpdateView(); }
+      }
+
+      /// <summary>
+      /// </summary>
+      public float RotY
+      {
+         get { return m_RotY; }
+         set { m_RotY = value; UpdateView(); }
+      }
+
+      /// <summary>
+      /// </summary>
+      public float RotZ
+      {
+         get { return m_RotZ; }
+         set { m_RotZ = value; UpdateView(); }
+      }
+
+      /// <summary>
+      /// </summary>
+      public float Fov
+      {
+         get { return m_Fov; }
+         set { m_Fov = value; UpdateProjection(); }
+      }
+
+      /// <summary>
+      /// </summary>
+      public float NearPlane
+      {
+         get { return m_NearPlane; }
+         set { m_NearPlane = value; UpdateProjection(); }
+      }
+
+      /// <summary>
+      /// </summary>
+      public float FarPlane
+      {
+         get { return m_FarPlane; }
+         set { m_FarPlane = value; UpdateProjection(); }
+      }
+
+      /// <summary>
+      /// </summary>
+      public float AspectRatio
+      {
+         get { return m_AspectRatio; }
+         set { m_AspectRatio = value; UpdateProjection(); }
+      }
+
+      /// <summary>
+      /// </summary>
+      public Vector3 Position
+      {
+         get { return m_Position; }
+         set
+         {
+            Vector3 translation = value - m_Position;
+            m_Position += translation;
+            m_LookAt += translation;
+            UpdateView();
+         }
+      }
+
+      
 
       #endregion
    }

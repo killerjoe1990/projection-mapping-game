@@ -28,6 +28,7 @@ namespace ProjectionMappingGame.GUI
         string m_EnteredNumber;
 
         KeyboardInput m_Keyboard;
+        protected event EventHandler m_OnValueChanged;
 
         public NumUpDown(Rectangle bounds, Texture2D background, Texture2D upButton, Texture2D downButton, SpriteFont font, Color color, float min, float max, float step, string precision, MouseInput mouse)
         {
@@ -65,6 +66,11 @@ namespace ProjectionMappingGame.GUI
             m_EnteredNumber = "";
         }
 
+        public void RegisterOnValueChanged(EventHandler handler)
+        {
+           m_OnValueChanged += handler;
+        }
+
         public float Value
         {
             get
@@ -96,10 +102,12 @@ namespace ProjectionMappingGame.GUI
         public void OnUpClick(Object sender, EventArgs args)
         {
             m_Current = MathHelper.Clamp(m_Current + m_StepSize, m_Min, m_Max);
+            m_OnValueChanged(this, new EventArgs());
         }
         public void OnDownClick(Object sender, EventArgs args)
         {
             m_Current = MathHelper.Clamp(m_Current - m_StepSize, m_Min, m_Max);
+            m_OnValueChanged(this, new EventArgs());
         }
 
         public void OnKeyPressed(Object sender, Keys[] args)
@@ -173,18 +181,19 @@ namespace ProjectionMappingGame.GUI
 
         public override void Draw(GraphicsDevice graphics, SpriteBatch sprite)
         {
-            Rectangle num = new Rectangle(m_Bounds.X, m_Bounds.Y, (int)(m_Bounds.Width * NUM_BUTTON_RATIO), m_Bounds.Height);
+            Rectangle num = new Rectangle(m_Bounds.X, m_Bounds.Y, m_Bounds.Width, m_Bounds.Height);
             sprite.Draw(m_BackgroundImg, num, Color.White);
 
             m_Up.Draw(graphics, sprite);
             m_Down.Draw(graphics, sprite);
 
-            float x, y;
-            Vector2 dim = m_Font.MeasureString(m_Current.ToString(m_Precision));
-            x = num.X + ((num.Width - dim.X) / 2.0f);
-            y = num.Y + ((num.Height - dim.Y) / 2.0f);
+            int x, y;
+            string val = String.Format(m_Precision, m_Current);
+            Vector2 dim = m_Font.MeasureString(val);
+            x = (int)(num.X + 4);
+            y = (int)(num.Y + 2);
 
-            sprite.DrawString(m_Font, m_Current.ToString(m_Precision), new Vector2(x, y), m_Color);
+            sprite.DrawString(m_Font, val, new Vector2(x, y), m_Color);
         }
     }
 }

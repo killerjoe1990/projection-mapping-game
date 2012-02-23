@@ -114,7 +114,6 @@
     <Compile Include="Components\ProjectorComponent.cs" />
     <Compile Include="Components\ProjectorPreviewComponent.cs" />
     <Compile Include="Editor\EditorEntity.cs" />
-    <Compile Include="Editor\EditorMenu.cs" />
     <Compile Include="Editor\UVPointEditor.cs" />
     <Compile Include="Editor\UVGridEditor.cs" />
     <Compile Include="GameConstants.cs" />
@@ -127,7 +126,6 @@
     <Compile Include="GUI\InputController.cs" />
     <Compile Include="GUI\Label.cs" />
     <Compile Include="GUI\NumUpDown.cs" />
-    <Compile Include="Input\InputController.cs" />
     <Compile Include="GUI\Slider.cs" />
     <Compile Include="GUI\UIElement.cs" />
     <Compile Include="GUI\ViewPane.cs" />
@@ -184,7 +182,9 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Input\" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />
   <!--

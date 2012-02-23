@@ -24,7 +24,7 @@ namespace ProjectionMappingGame.Components
       private SpriteFont font;
 
       public bool Enabled;
-      private bool precisionMode = true;
+      private bool precisionMode = false;
 
       private Matrix view;
       private Matrix projection;
@@ -581,7 +581,7 @@ namespace ProjectionMappingGame.Components
                   float delta = (mouseState.X) - (prevMouseState.X);
                   
                   //delta *= (inputScale * 2.0f);
-                  delta *= 0.1f;
+                  delta *= 0.01f;
 
                   if (SnapEnabled)
                   {
@@ -604,7 +604,6 @@ namespace ProjectionMappingGame.Components
                      delta *= precisionModeScale;
                   }
 
-                  Console.WriteLine(delta);
                   // rotation matrix to transform - if more than one objects selected, always use world-space.
                   Matrix rot = Matrix.Identity;
                   rot.Forward = sceneWorld.Forward;
