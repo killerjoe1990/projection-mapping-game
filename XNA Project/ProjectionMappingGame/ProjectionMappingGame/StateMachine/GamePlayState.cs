@@ -81,11 +81,16 @@ namespace ProjectionMappingGame.StateMachine
               m_Players[i] = null;
           }
 
-          m_Players[(int)PlayerIndex.One] = new Game.Player(m_PlayerIdleTex, new Rectangle(GameConstants.WINDOW_WIDTH / (GameConstants.MAX_PLAYERS + 1), (int)START_Y, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y),
-              m_Gamepad, m_Keyboard, PlayerIndex.One);
+          m_Players[(int)PlayerIndex.One] = new Game.Player(m_PlayerIdleTex, new Rectangle(GameConstants.WINDOW_WIDTH / (GameConstants.MAX_PLAYERS + 1), (int)START_Y, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Keyboard, PlayerIndex.One);
 
-          m_Players[0].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_FRAMERATE, true));
-          m_Players[0].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_FRAMERATE, false));
+          m_Players[(int)PlayerIndex.Two] = new Game.Player(m_PlayerIdleTex, new Rectangle(GameConstants.WINDOW_WIDTH / (GameConstants.MAX_PLAYERS + 1) + 50, (int)START_Y, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y),
+              m_Gamepad, PlayerIndex.One);
+
+          m_Players[(int)PlayerIndex.One].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_FRAMERATE, true));
+          m_Players[(int)PlayerIndex.One].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_FRAMERATE, false));
+
+          m_Players[(int)PlayerIndex.Two].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_FRAMERATE, true));
+          m_Players[(int)PlayerIndex.Two].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_FRAMERATE, false));
 
           m_Platforms.Clear();
 
@@ -157,8 +162,19 @@ namespace ProjectionMappingGame.StateMachine
               if (player != null)
               {
                   player.CheckCollisions(m_Platforms, elapsedTime);
+
+                  foreach (Game.Player p in m_Players)
+                  {
+                      if (p != null && p != player)
+                      {
+                          player.CheckCollision(p, elapsedTime);
+                      }
+                  }
+
                   player.Update(elapsedTime);
               }
+
+              
           }
       }
 
@@ -201,7 +217,7 @@ namespace ProjectionMappingGame.StateMachine
                 m_Gamepad.HandleInput(PlayerIndex.Four);
                 break;
           }
-#else
+#endif
           switch (m_NumPlayers)
           {
               case 1:
@@ -223,7 +239,6 @@ namespace ProjectionMappingGame.StateMachine
                 m_Gamepad.HandleInput(PlayerIndex.Four);
                 break;
           }
-#endif
       }
 
       public void OnKeyRelease(object sender, Keys[] keys)

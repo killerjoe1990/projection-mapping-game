@@ -253,7 +253,8 @@ namespace ProjectionMappingGame.StateMachine
 
       public override void LoadContent(ContentManager content)
       {
-         // Load font
+          #region FONTS
+          // Load font
          m_ArialFont = content.Load<SpriteFont>("Fonts/Arial");
          m_ArialFont10 = content.Load<SpriteFont>("Fonts/Arial10");
          m_AppHeaderLabel.Font = m_ArialFont10;
@@ -288,7 +289,9 @@ namespace ProjectionMappingGame.StateMachine
          m_ProjectorRotationXLabel.Font = m_ArialFont10;
          m_ProjectorRotationYLabel.Font = m_ArialFont10;
          m_ProjectorRotationZLabel.Font = m_ArialFont10;
+          #endregion
 
+         #region TEXTURES
          // Load textures
          m_WhiteTexture = content.Load<Texture2D>("Textures/white");
          m_ButtonTexture = content.Load<Texture2D>("Textures/GUI/button");
@@ -306,6 +309,7 @@ namespace ProjectionMappingGame.StateMachine
          m_SpinBoxFillTexture = content.Load<Texture2D>("Textures/GUI/spinbox_fill");
          m_SpinBoxUpTexture = content.Load<Texture2D>("Textures/GUI/spinbox_up");
          m_SpinBoxDownTexture = content.Load<Texture2D>("Textures/GUI/spinbox_down");
+        #endregion
 
          // Load the projector preview's content
          m_UVGridEditor.LoadContent(content);
@@ -318,6 +322,7 @@ namespace ProjectionMappingGame.StateMachine
          
          int menuColumn2X = (GUI_TOOLBAR_WIDTH / 2) + GUI_MENU_COLUMN_1_X;
 
+         #region SPINBOXES
          // Initialize spinboxes
          m_BuildingPositionXSpinBox = new NumUpDown(new Rectangle(menuColumn2X, GUI_BUILDING_Y + GUI_MENU_ITEM_HEIGHT * 3 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, -100.0f, 100.0f, 0.1f, "{0:0.00}", m_MouseInput);
          m_BuildingPositionYSpinBox = new NumUpDown(new Rectangle(menuColumn2X, GUI_BUILDING_Y + GUI_MENU_ITEM_HEIGHT * 4 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, -100.0f, 100.0f, 0.1f, "{0:0.00}", m_MouseInput);
@@ -354,7 +359,9 @@ namespace ProjectionMappingGame.StateMachine
          m_ProjectorRotationZSpinBox.RegisterOnValueChanged(ProjectorRotationZ_OnValueChanged);
          m_ProjectorFovSpinBox.RegisterOnValueChanged(ProjectorFOV_OnValueChanged);
          m_ProjectorAspectRatioSpinBox.RegisterOnValueChanged(ProjectorAspectRatio_OnValueChanged);
+        #endregion
 
+         #region BUTTONS
          // Initialize buttons
          int toolbuttonpadding = 2;
          m_ModeButton = new Button(new Rectangle(GUI_MENU_COLUMN_1_X_TABBED, GUI_APP_Y + GUI_MENU_ITEM_HEIGHT * 2, GUI_QUIT_BUTTON_WIDTH, GUI_QUIT_BUTTON_HEIGHT), m_ButtonTexture, m_MouseInput, m_ArialFont10, "Mode", Color.Black);
@@ -389,6 +396,7 @@ namespace ProjectionMappingGame.StateMachine
          m_ProjectorEnabledButton.SetImage(Button.ImageType.OVER, m_ButtonTextureOnHover);
          m_ProjectorEnabledButton.SetImage(Button.ImageType.CLICK, m_ButtonTextureOnPress);
          m_ProjectorEnabledButton.RegisterOnClick(ProjectorEnabledButton_OnClick);
+        #endregion
       }
 
       public override void Update(float elapsedTime)

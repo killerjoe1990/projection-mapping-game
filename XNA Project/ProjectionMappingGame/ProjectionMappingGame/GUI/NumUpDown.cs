@@ -129,43 +129,6 @@ namespace ProjectionMappingGame.GUI
                             m_EnteredNumber += '.';
                         }
                     }
-                    /*switch (k)
-                    {
-                        case Keys.D1:
-                            m_EnteredNumber += '1';
-                            break;
-                        case Keys.D2:
-                            m_EnteredNumber += '2';
-                            break;
-                        case Keys.D3:
-                            m_EnteredNumber += '3';
-                            break;
-                        case Keys.D4:
-                            m_EnteredNumber += '4';
-                            break;
-                        case Keys.D5:
-                            m_EnteredNumber += '5';
-                            break;
-                        case Keys.D6:
-                            m_EnteredNumber += '6';
-                            break;
-                        case Keys.D7:
-                            m_EnteredNumber += '7';
-                            break;
-                        case Keys.D8:
-                            m_EnteredNumber += '8';
-                            break;
-                        case Keys.D9:
-                            m_EnteredNumber += '9';
-                            break;
-                        case Keys.D0:
-                            m_EnteredNumber += '0';
-                            break;
-                        case Keys.Decimal:
-                            m_EnteredNumber += '.';
-                            break;
-                    }
-                     * */
                 }
             }
         }
