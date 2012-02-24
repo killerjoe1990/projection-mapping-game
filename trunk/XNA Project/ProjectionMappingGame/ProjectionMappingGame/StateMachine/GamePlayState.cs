@@ -237,7 +237,6 @@ namespace ProjectionMappingGame.StateMachine
           if (button == GUI.GamepadInput.Buttons.START)
           {
               // JOHANNES: ADD CODE HERE TO PUSH YOUR STATE ONTO STACK
-              Console.WriteLine("START"); // delete this.
           }
       }
       public void OnButtonUpP2(object sender, GUI.GamepadInput.Buttons button)
@@ -245,7 +244,6 @@ namespace ProjectionMappingGame.StateMachine
           if (button == GUI.GamepadInput.Buttons.START)
           {
               // JOHANNES: ADD CODE HERE TO PUSH YOUR STATE ONTO STACK
-              int ini = 0; // delete this.
           }
       }
       public void OnButtonUpP3(object sender, GUI.GamepadInput.Buttons button)
@@ -253,7 +251,6 @@ namespace ProjectionMappingGame.StateMachine
           if (button == GUI.GamepadInput.Buttons.START)
           {
               // JOHANNES: ADD CODE HERE TO PUSH YOUR STATE ONTO STACK
-              int ini = 0; // delete this.
           }
       }
       public void OnButtonUpP4(object sender, GUI.GamepadInput.Buttons button)
@@ -261,7 +258,6 @@ namespace ProjectionMappingGame.StateMachine
           if (button == GUI.GamepadInput.Buttons.START)
           {
               // JOHANNES: ADD CODE HERE TO PUSH YOUR STATE ONTO STACK
-              int ini = 0; // delete this.
           }
       }
 
@@ -272,6 +268,11 @@ namespace ProjectionMappingGame.StateMachine
               if (k == Keys.Enter)
               {
                   FiniteStateMachine.GetInstance().SetState(StateType.MainMenu);
+              }
+
+              if (k == Keys.Back)
+              {
+                  // JOHANNES: ADD CODE HERE TO PUSH YOUR STATE ONTO STACK
               }
           }
       }
