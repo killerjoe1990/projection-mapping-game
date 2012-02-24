@@ -22,6 +22,8 @@ namespace ProjectionMappingGame.Game
         Vector2 m_Impulse;
         PlayerIndex m_Player;
 
+        float m_SnapY;
+
         float m_Move;
         bool m_OnGround;
 
@@ -41,6 +43,8 @@ namespace ProjectionMappingGame.Game
             m_Animations[(int)Animations.IDLE] = m_CurrentAnimation;
 
             m_OnGround = false;
+
+            m_SnapY = 0;
         }
 
         public Player(Texture2D image, Rectangle bounds, GUI.GamepadInput gamepad, PlayerIndex player)
@@ -60,6 +64,8 @@ namespace ProjectionMappingGame.Game
             m_Animations[(int)Animations.IDLE] = m_CurrentAnimation;
 
             m_OnGround = false;
+
+            m_SnapY = 0;
         }
 
         public Player(Texture2D image, Rectangle bounds, GUI.GamepadInput gamepad, GUI.KeyboardInput keyboard, PlayerIndex player)
@@ -90,15 +96,18 @@ namespace ProjectionMappingGame.Game
 
         private void onKeyDown(object sender, Keys[] keys)
         {
-            if(keys.Contains(Keys.Space) && m_OnGround)
+            if(keys.Contains(Keys.Space))// && m_OnGround)
             {
-                m_Impulse += Vector2.UnitY * GameConstants.JUMP_IMPULSE;
-
-                if (m_Animations[(int)Animations.JUMP] != null)
+                if(m_OnGround)
                 {
-                    //m_CurrentAnimation.Reset();
-                    m_CurrentAnimation = m_Animations[(int)Animations.JUMP];
-                    m_CurrentAnimation.Reset();
+                     m_Impulse += Vector2.UnitY * GameConstants.JUMP_IMPULSE;
+
+                    if (m_Animations[(int)Animations.JUMP] != null)
+                    {
+                        //m_CurrentAnimation.Reset();
+                        m_CurrentAnimation = m_Animations[(int)Animations.JUMP];
+                        m_CurrentAnimation.Reset();
+                    }
                 }
             }
         }
@@ -165,7 +174,7 @@ namespace ProjectionMappingGame.Game
                 m_Velocity.Y += GameConstants.GRAVITY * deltaTime;
             }
 
-            if (m_Velocity.X < 0.001f && m_Velocity.X > -0.001f && m_OnGround)
+            if (m_Velocity.X < 0.00001f && m_Velocity.X > -0.00001f && m_OnGround)
             {
                 //m_CurrentAnimation.Reset();
                 m_CurrentAnimation = m_Animations[(int)Animations.IDLE];
@@ -174,6 +183,11 @@ namespace ProjectionMappingGame.Game
             m_Move = 0;
 
             base.Update(deltaTime);
+
+            if (m_OnGround)
+            {
+                m_Position.Y = m_SnapY;
+            }
         }
 
         public void CheckCollisions(List<Platform> platforms, float deltaTime)
@@ -189,38 +203,39 @@ namespace ProjectionMappingGame.Game
                     nextVelocity.X = m_Move * GameConstants.MOVE_SPEED * deltaTime;
                     nextVelocity.Y += GameConstants.GRAVITY * deltaTime;
                     Vector2 nextPosition = m_Position + nextVelocity * deltaTime;
+                    Vector2 platPos = t.Position;
                     Rectangle platBounds = t.Bounds;
 
                     switch (t.Type)
                     {
                         case PlatformTypes.Impassable:
-                            if (CheckTop(nextPosition, platBounds))
+                            if (CheckTop(nextPosition, platPos, platBounds))
                             {
                                 m_Velocity.Y = 0;
                                 m_Impulse.Y = 0;
                             }
-                            if (CheckBot(nextPosition, platBounds))
+                            if (CheckBot(nextPosition, platPos, platBounds))
                             {
-                                m_Velocity.Y = 0;
-                                m_Position.Y = t.Position.Y - m_Bounds.Height - 0.01f;
+                                m_Velocity.Y = t.Velocity.Y;
+                                m_SnapY = t.Position.Y - m_Bounds.Height - 0.00001f;
                                 m_OnGround = true;
                             }
-                            if (CheckLeft(nextPosition, platBounds))
+                            if (CheckLeft(nextPosition, platPos, platBounds))
                             {
                                 m_Velocity.X = 0;
                                 m_Move = (m_Move < 0) ? 0 : m_Move;
                             }
-                            if (CheckRight(nextPosition, platBounds))
+                            if (CheckRight(nextPosition, platPos, platBounds))
                             {
                                 m_Velocity.X = 0;
                                 m_Move = (m_Move > 0) ? 0 : m_Move;
                             }
                             break;
                         case PlatformTypes.Platform:
-                            if (CheckBot(nextPosition, platBounds))
+                            if (CheckBot(nextPosition, platPos, platBounds))
                             {
-                                m_Velocity.Y = 0;
-                                m_Position.Y = t.Position.Y - m_Bounds.Height - 0.01f;
+                                m_Velocity.Y = t.Velocity.Y;
+                                m_SnapY = t.Position.Y - m_Bounds.Height - 0.00001f;
                                 m_OnGround = true;
                             }
                             break;
@@ -234,17 +249,35 @@ namespace ProjectionMappingGame.Game
 
         public void CheckCollision(Player player, float deltaTime)
         {
+            Vector2 otherPos = player.Position;
+            Rectangle otherBound = player.Bounds;
 
+            Vector2 nextVelocity;
+
+            nextVelocity = m_Velocity + m_Impulse * deltaTime;
+            nextVelocity.X = m_Move * GameConstants.MOVE_SPEED * deltaTime;
+            nextVelocity.Y += GameConstants.GRAVITY * deltaTime;
+            Vector2 nextPosition = m_Position + nextVelocity * deltaTime;
+
+            if (CheckTop(nextPosition, otherPos, otherBound))
+            {
+                m_Impulse -= Vector2.UnitY * GameConstants.BOUNCE_IMPULSE;
+            }
+            if (CheckBot(nextPosition, otherPos, otherBound))
+            {
+                m_Impulse += Vector2.UnitY * GameConstants.BOUNCE_IMPULSE;
+                m_Velocity.Y = 0;
+            }
         }
 
-        private bool CheckTop(Vector2 newPos, Rectangle rec)
+        private bool CheckTop(Vector2 newPos, Vector2 pos, Rectangle rec)
         {
-            if (newPos.Y <= rec.Y + rec.Height
-                && m_Bounds.Y > rec.Y + rec.Height 
-                && ((rec.X > m_Position.X
-                && rec.X < m_Position.X + m_Bounds.Width)
-                || (rec.X + rec.Width > m_Position.X
-                && rec.X + rec.Width < m_Position.X + m_Bounds.Width)))
+            if (newPos.Y <= pos.Y + rec.Height
+                && m_Bounds.Y > pos.Y + rec.Height 
+                && ((pos.X > m_Position.X
+                && pos.X < m_Position.X + m_Bounds.Width)
+                || (pos.X + rec.Width > m_Position.X
+                && pos.X + rec.Width < m_Position.X + m_Bounds.Width)))
             {
                 return true;
             }
@@ -254,14 +287,14 @@ namespace ProjectionMappingGame.Game
             }
         }
 
-        private bool CheckBot(Vector2 newPos, Rectangle rec)
+        private bool CheckBot(Vector2 newPos, Vector2 pos, Rectangle rec)
         {
-            if (newPos.Y + m_Bounds.Height >= rec.Y
-                && m_Position.Y + m_Bounds.Height < rec.Y
-                && ((rec.X > m_Position.X
-                && rec.X < newPos.X + m_Bounds.Width)
-                || (rec.X + rec.Width > m_Position.X
-                && rec.X + rec.Width < m_Position.X + m_Bounds.Width)))
+            if (newPos.Y + m_Bounds.Height >= pos.Y
+                && m_Position.Y + m_Bounds.Height < pos.Y
+                && ((pos.X > m_Position.X
+                && pos.X < m_Position.X + m_Bounds.Width)
+                || (pos.X + rec.Width > m_Position.X
+                && pos.X + rec.Width < m_Position.X + m_Bounds.Width)))
             {
                 return true;
             }
@@ -271,14 +304,14 @@ namespace ProjectionMappingGame.Game
             }
         }
 
-        private bool CheckLeft(Vector2 newPos, Rectangle rec)
+        private bool CheckLeft(Vector2 newPos, Vector2 pos, Rectangle rec)
         {
-            if (newPos.X <= rec.X + rec.Width
-                && m_Position.X > rec.X + rec.Width
-                && ((rec.Y > m_Position.Y
-                && rec.Y < m_Position.Y + m_Bounds.Height)
-                || (rec.Y + rec.Height > m_Position.Y
-                && rec.Y + rec.Height < m_Position.Y + m_Bounds.Height)))
+            if (newPos.X <= pos.X + rec.Width
+                && m_Position.X > pos.X + rec.Width
+                && ((pos.Y > m_Position.Y
+                && pos.Y < m_Position.Y + m_Bounds.Height)
+                || (pos.Y + rec.Height > m_Position.Y
+                && pos.Y + rec.Height < m_Position.Y + m_Bounds.Height)))
             {
                 return true;
             }
@@ -288,14 +321,14 @@ namespace ProjectionMappingGame.Game
             }
         }
 
-        private bool CheckRight(Vector2 newPos, Rectangle rec)
+        private bool CheckRight(Vector2 newPos, Vector2 pos, Rectangle rec)
         {
-            if (newPos.X + m_Bounds.Width >= rec.X
-                && m_Position.X + m_Bounds.Width < rec.X
-                && ((rec.Y > m_Position.Y
-                && rec.Y < m_Position.Y + m_Bounds.Height)
-                || (rec.Y + rec.Height > m_Position.Y
-                && rec.Y + rec.Height < m_Position.Y + m_Bounds.Height)))
+            if (newPos.X + m_Bounds.Width >= pos.X
+                && m_Position.X + m_Bounds.Width < pos.X
+                && ((pos.Y > m_Position.Y
+                && pos.Y < m_Position.Y + m_Bounds.Height)
+                || (pos.Y + rec.Height > m_Position.Y
+                && pos.Y + rec.Height < m_Position.Y + m_Bounds.Height)))
             {
                 return true;
             }
