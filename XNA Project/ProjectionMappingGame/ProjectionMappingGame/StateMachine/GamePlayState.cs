@@ -63,6 +63,11 @@ namespace ProjectionMappingGame.StateMachine
           m_Keyboard.RegisterKeyPress(OnKeyRelease);
         #endif
           m_Gamepad = new GUI.GamepadInput();
+          m_Gamepad.RegisterButtonEvent(GUI.GamepadEventType.BUTTON_UP, OnButtonUpP1, PlayerIndex.One);
+          m_Gamepad.RegisterButtonEvent(GUI.GamepadEventType.BUTTON_UP, OnButtonUpP2, PlayerIndex.Two);
+          m_Gamepad.RegisterButtonEvent(GUI.GamepadEventType.BUTTON_UP, OnButtonUpP3, PlayerIndex.Three);
+          m_Gamepad.RegisterButtonEvent(GUI.GamepadEventType.BUTTON_UP, OnButtonUpP4, PlayerIndex.Four);
+
 
           m_Players = new Game.Player[GameConstants.MAX_PLAYERS];
 
@@ -186,35 +191,21 @@ namespace ProjectionMappingGame.StateMachine
           {
               case 1:
                 m_Keyboard.HandleInput(PlayerIndex.One);
-
-                m_Gamepad.HandleInput(PlayerIndex.One);
                 break;
               case 2:
                 m_Keyboard.HandleInput(PlayerIndex.One);
                 m_Keyboard.HandleInput(PlayerIndex.Two);
-
-                m_Gamepad.HandleInput(PlayerIndex.One);
-                m_Gamepad.HandleInput(PlayerIndex.Two);
                 break;
               case 3:
                 m_Keyboard.HandleInput(PlayerIndex.One);
                 m_Keyboard.HandleInput(PlayerIndex.Two);
                 m_Keyboard.HandleInput(PlayerIndex.Three);
-
-                m_Gamepad.HandleInput(PlayerIndex.One);
-                m_Gamepad.HandleInput(PlayerIndex.Two);
-                m_Gamepad.HandleInput(PlayerIndex.Three);
                 break;
               case 4:
                 m_Keyboard.HandleInput(PlayerIndex.One);
                 m_Keyboard.HandleInput(PlayerIndex.Two);
                 m_Keyboard.HandleInput(PlayerIndex.Three);
                 m_Keyboard.HandleInput(PlayerIndex.Four);
-
-                m_Gamepad.HandleInput(PlayerIndex.One);
-                m_Gamepad.HandleInput(PlayerIndex.Two);
-                m_Gamepad.HandleInput(PlayerIndex.Three);
-                m_Gamepad.HandleInput(PlayerIndex.Four);
                 break;
           }
 #endif
@@ -238,6 +229,39 @@ namespace ProjectionMappingGame.StateMachine
                 m_Gamepad.HandleInput(PlayerIndex.Three);
                 m_Gamepad.HandleInput(PlayerIndex.Four);
                 break;
+          }
+      }
+
+      public void OnButtonUpP1(object sender, GUI.GamepadInput.Buttons button)
+      {
+          if (button == GUI.GamepadInput.Buttons.START)
+          {
+              // JOHANNES: ADD CODE HERE TO PUSH YOUR STATE ONTO STACK
+              Console.WriteLine("START"); // delete this.
+          }
+      }
+      public void OnButtonUpP2(object sender, GUI.GamepadInput.Buttons button)
+      {
+          if (button == GUI.GamepadInput.Buttons.START)
+          {
+              // JOHANNES: ADD CODE HERE TO PUSH YOUR STATE ONTO STACK
+              int ini = 0; // delete this.
+          }
+      }
+      public void OnButtonUpP3(object sender, GUI.GamepadInput.Buttons button)
+      {
+          if (button == GUI.GamepadInput.Buttons.START)
+          {
+              // JOHANNES: ADD CODE HERE TO PUSH YOUR STATE ONTO STACK
+              int ini = 0; // delete this.
+          }
+      }
+      public void OnButtonUpP4(object sender, GUI.GamepadInput.Buttons button)
+      {
+          if (button == GUI.GamepadInput.Buttons.START)
+          {
+              // JOHANNES: ADD CODE HERE TO PUSH YOUR STATE ONTO STACK
+              int ini = 0; // delete this.
           }
       }
 
