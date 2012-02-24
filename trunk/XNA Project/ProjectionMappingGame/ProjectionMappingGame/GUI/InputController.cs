@@ -298,7 +298,7 @@ namespace ProjectionMappingGame.GUI
             RT
         }
 
-        public delegate void GamepadButtonEvent(object sender, Buttons buttons);
+        public delegate void GamepadButtonEvent(object sender, Buttons button);
         public delegate void GamepadAxisEvent(object sender, Axis axis, float degree);
 
         GamepadButtonEvent[] m_ButtonDown;
@@ -331,7 +331,7 @@ namespace ProjectionMappingGame.GUI
                     m_ButtonDown[(int)player] += handler;
                     break;
                 case GamepadEventType.BUTTON_UP:
-                    m_ButtonDown[(int)player] += handler;
+                    m_ButtonUp[(int)player] += handler;
                     break;
                 case GamepadEventType.BUTTON_HOLD:
                     m_ButtonHold[(int)player] += handler;
@@ -355,6 +355,43 @@ namespace ProjectionMappingGame.GUI
 
             if (padState.IsConnected)
             {
+
+                #region Check LS Axis
+
+                if ((padState.ThumbSticks.Left.X >= AXIS_BUFFER || padState.ThumbSticks.Left.X <= -AXIS_BUFFER) && m_AxisChange[(int)player] != null)
+                {
+                    m_AxisChange[(int)player](this, Axis.LS_X, padState.ThumbSticks.Left.X);
+                }
+                if ((padState.ThumbSticks.Left.Y >= AXIS_BUFFER || padState.ThumbSticks.Left.Y <= -AXIS_BUFFER) && m_AxisChange[(int)player] != null)
+                {
+                    m_AxisChange[(int)player](this, Axis.LS_Y, padState.ThumbSticks.Left.Y);
+                }
+
+                #endregion
+
+                #region Check RS Axis
+
+                if ((padState.ThumbSticks.Right.X >= AXIS_BUFFER || padState.ThumbSticks.Right.X <= -AXIS_BUFFER) && m_AxisChange[(int)player] != null)
+                {
+                    m_AxisChange[(int)player](this, Axis.RS_X, padState.ThumbSticks.Right.X);
+                }
+                if ((padState.ThumbSticks.Right.Y >= AXIS_BUFFER || padState.ThumbSticks.Right.Y <= -AXIS_BUFFER) && m_AxisChange[(int)player] != null)
+                {
+                    m_AxisChange[(int)player](this, Axis.RS_Y, padState.ThumbSticks.Right.Y); ;
+                }
+
+                #endregion
+
+                #region Check Trigger Axis
+                if (padState.Triggers.Left >= AXIS_BUFFER && m_AxisChange[(int)player] != null)
+                {
+                    m_AxisChange[(int)player](this, Axis.LT, padState.Triggers.Left); ;
+                }
+                if (padState.Triggers.Right >= AXIS_BUFFER && m_AxisChange[(int)player] != null)
+                {
+                    m_AxisChange[(int)player](this, Axis.RT, padState.Triggers.Right); ;
+                }
+                #endregion
 
                 #region Check A
                 if (padState.Buttons.A == ButtonState.Pressed)
@@ -686,44 +723,6 @@ namespace ProjectionMappingGame.GUI
                 }
                 #endregion
 
-
-
-                #region Check LS Axis
-
-                if ((padState.ThumbSticks.Left.X >= AXIS_BUFFER || padState.ThumbSticks.Left.X <= -AXIS_BUFFER) && m_AxisChange[(int)player] != null)
-                {
-                    m_AxisChange[(int)player](this, Axis.LS_X, padState.ThumbSticks.Left.X);
-                }
-                if ((padState.ThumbSticks.Left.Y >= AXIS_BUFFER || padState.ThumbSticks.Left.Y <= -AXIS_BUFFER) && m_AxisChange[(int)player] != null)
-                {
-                    m_AxisChange[(int)player](this, Axis.LS_Y, padState.ThumbSticks.Left.Y);
-                }
-
-                #endregion
-
-                #region Check RS Axis
-
-                if ((padState.ThumbSticks.Right.X >= AXIS_BUFFER || padState.ThumbSticks.Right.X <= -AXIS_BUFFER) && m_AxisChange[(int)player] != null)
-                {
-                    m_AxisChange[(int)player](this, Axis.RS_X, padState.ThumbSticks.Right.X);
-                }
-                if ((padState.ThumbSticks.Right.Y >= AXIS_BUFFER || padState.ThumbSticks.Right.Y <= -AXIS_BUFFER) && m_AxisChange[(int)player] != null)
-                {
-                    m_AxisChange[(int)player](this, Axis.RS_Y, padState.ThumbSticks.Right.Y); ;
-                }
-
-                #endregion
-
-                #region Check Trigger Axis
-                if (padState.Triggers.Left >= AXIS_BUFFER && m_AxisChange[(int)player] != null)
-                {
-                    m_AxisChange[(int)player](this, Axis.LT, padState.Triggers.Left); ;
-                }
-                if (padState.Triggers.Right >= AXIS_BUFFER && m_AxisChange[(int)player] != null)
-                {
-                    m_AxisChange[(int)player](this, Axis.RT, padState.Triggers.Right); ;
-                }
-                #endregion
                 m_LastState[(int)player] = padState;
 
             }
