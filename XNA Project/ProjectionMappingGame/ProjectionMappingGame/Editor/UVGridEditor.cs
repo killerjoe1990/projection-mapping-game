@@ -200,7 +200,7 @@ namespace ProjectionMappingGame.Editor
       {
          // Render the render target texture under the grid
          spriteBatch.Begin();
-         spriteBatch.Draw(m_RenderTarget, m_Viewport.Bounds, Color.White);
+         spriteBatch.Draw(m_RenderTarget, new Rectangle(0, 0, m_Viewport.Bounds.Width, m_Viewport.Bounds.Height), Color.White);
          spriteBatch.End();
 
          if (m_DropPoints.Count > 0)

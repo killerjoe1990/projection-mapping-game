@@ -29,7 +29,7 @@ namespace ProjectionMappingGame.Game
 
             m_LastSpawnY = -GameConstants.TILE_DIM;
 
-            m_WindowTilesWide = GameConstants.WINDOW_WIDTH / GameConstants.TILE_DIM;
+            m_WindowTilesWide = GameConstants.DEFAULT_WINDOW_WIDTH / GameConstants.TILE_DIM;
 
             m_PlatTextures = platformTextures;
         }

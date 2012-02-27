@@ -107,7 +107,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Editor\BuildingEntity.cs" />
+    <Compile Include="Components\ColorPickerComponent.cs" />
+    <Compile Include="Editor\ModelEntity.cs" />
     <Compile Include="Components\CameraComponent.cs" />
     <Compile Include="Components\GizmoComponent.cs" />
     <Compile Include="Components\PointLightComponent.cs" />
@@ -126,6 +127,8 @@
     <Compile Include="GUI\InputController.cs" />
     <Compile Include="GUI\Label.cs" />
     <Compile Include="GUI\NumUpDown.cs" />
+    <Compile Include="GUI\Panel.cs" />
+    <Compile Include="GUI\ScrollView.cs" />
     <Compile Include="GUI\Slider.cs" />
     <Compile Include="GUI\UIElement.cs" />
     <Compile Include="GUI\ViewPane.cs" />

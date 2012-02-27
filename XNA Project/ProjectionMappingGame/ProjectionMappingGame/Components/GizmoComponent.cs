@@ -221,7 +221,11 @@ namespace ProjectionMappingGame.Components
       private Vector3 translationScaleSnapDelta;
       private float rotationSnapDelta;
 
-
+      private event EventHandler m_OnSelectEvent = null;
+      public void RegisterOnSelect(EventHandler handler)
+      {
+         m_OnSelectEvent += handler;
+      }
 
       public GizmoComponent(ProjectionPreviewComponent preview, ContentManager content, GraphicsDevice graphics)
          : this(preview, content, graphics, Matrix.Identity) { }
@@ -933,12 +937,15 @@ namespace ProjectionMappingGame.Components
                if (!Selection.Contains(entity))
                {
                   Selection.Add(entity);
+                  m_OnSelectEvent(this, new EventArgs());
                   break;
                }
                else
                {
                   if (removeFromSelection)
+                  {
                      Selection.Remove(entity);
+                  }
                }
             }
          }

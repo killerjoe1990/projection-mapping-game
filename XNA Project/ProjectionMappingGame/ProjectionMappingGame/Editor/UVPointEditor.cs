@@ -134,6 +134,9 @@ namespace ProjectionMappingGame.Editor
          m_DraggingVertex = false;
          m_SelectedVertex = -1;
          m_HoveredVertex = -1;
+         m_DraggingQuad = false;
+         m_SelectedQuad = -1;
+         m_HoveredQuad = -1;
       }
 
       public void LoadContent(ContentManager content)
@@ -186,23 +189,29 @@ namespace ProjectionMappingGame.Editor
 
          // Handle quad hovering
          m_HoveredQuad = -1;
-         int numQuads = m_Quads.Count;
-         for (int i = 0; i < numQuads; ++i)
+         if (!m_DraggingVertex)
          {
-            if (m_Quads[i].TestPointInsideConvexPolygon(mousePos))
+            int numQuads = m_Quads.Count;
+            for (int i = 0; i < numQuads; ++i)
             {
-               m_HoveredQuad = i;
-               break;
+               if (m_Quads[i].TestPointInsideConvexPolygon(mousePos))
+               {
+                  m_HoveredQuad = i;
+                  break;
+               }
             }
          }
 
          // Handle quad selection; we know the mouse is over an item if it is hovered.
          if (m_HoveredQuad >= 0 && mouseState.LeftButton == ButtonState.Pressed && m_PrevMouseState.LeftButton == ButtonState.Released)
          {
-            // Select the hovered vertex
+            // Select the hovered quad
             m_SelectedQuad = m_HoveredQuad;
             m_HoveredQuad = -1;
             m_DraggingQuad = true;
+            m_DraggingVertex = false;
+            m_SelectedVertex = -1;
+            m_HoveredVertex = -1;
          }
 
          // Handle quad dragging
@@ -234,6 +243,9 @@ namespace ProjectionMappingGame.Editor
             m_SelectedVertex = m_HoveredVertex;
             m_HoveredVertex = -1;
             m_DraggingVertex = true;
+            m_DraggingQuad = false;
+            m_SelectedQuad = -1;
+            m_HoveredQuad = -1;
          }
 
          // Handle vertex dragging
@@ -251,7 +263,7 @@ namespace ProjectionMappingGame.Editor
 
       #region Rendering
 
-      public void Draw(SpriteBatch spriteBatch)
+      public void DrawRenderTarget()
       {
          Color clear = new Color(0.0f, 0.0f, 0.0f, 0.0f);
 
@@ -259,13 +271,16 @@ namespace ProjectionMappingGame.Editor
          m_Game.GraphicsDevice.SetRenderTarget(m_RenderTarget);
          m_Game.GraphicsDevice.Clear(clear);
          RenderQuads();
-         
+
          // Extract and store the contents of the render target in a texture
          m_Game.GraphicsDevice.SetRenderTarget(null);
          m_Game.GraphicsDevice.Clear(Color.CornflowerBlue);
          m_Game.GraphicsDevice.Viewport = m_Viewport;
          m_RenderTargetTexture = (Texture2D)m_RenderTarget;
+      }
 
+      public void Draw(SpriteBatch spriteBatch)
+      {
          // Now render the quads to the screen buffer
          RenderQuads();
          RenderGraphOverlay(spriteBatch);

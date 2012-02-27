@@ -29,8 +29,10 @@ namespace ProjectionMappingGame
       public const bool DEBUG_MODE = true;
 
       // Window
-      public const int WINDOW_WIDTH = 1280;
-      public const int WINDOW_HEIGHT = 720;
+      public static int WindowWidth = DEFAULT_WINDOW_WIDTH;
+      public static int WindowHeight = DEFAULT_WINDOW_HEIGHT;
+      public const int DEFAULT_WINDOW_WIDTH = 1280;
+      public const int DEFAULT_WINDOW_HEIGHT = 720;
 
       // FSM
       public const StateType DEFAULT_STATE = StateType.MainMenu;

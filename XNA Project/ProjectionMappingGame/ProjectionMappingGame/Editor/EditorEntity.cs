@@ -71,7 +71,7 @@ namespace ProjectionMappingGame.Editor
       /// </summary>
       public BoundingBox BoundingBox
       {
-         get { return new BoundingBox(m_Position - m_Scale, m_Position + m_Scale); }
+         get { return new BoundingBox(m_Position - (m_Scale * 0.5f), m_Position + (m_Scale * 0.5f)); }
       }
 
       /// <summary>
