@@ -86,9 +86,9 @@ namespace ProjectionMappingGame.StateMachine
               m_Players[i] = null;
           }
 
-          m_Players[(int)PlayerIndex.One] = new Game.Player(m_PlayerIdleTex, new Rectangle(GameConstants.WindowWidth / (GameConstants.MAX_PLAYERS + 1), (int)START_Y, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Keyboard, PlayerIndex.One);
+          m_Players[(int)PlayerIndex.One] = new Game.Player(m_PlayerIdleTex, new Rectangle(GameConstants.WINDOW_WIDTH / (GameConstants.MAX_PLAYERS + 1), (int)START_Y, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Keyboard, PlayerIndex.One);
 
-          m_Players[(int)PlayerIndex.Two] = new Game.Player(m_PlayerIdleTex, new Rectangle(GameConstants.WindowWidth / (GameConstants.MAX_PLAYERS + 1) + 50, (int)START_Y, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y),
+          m_Players[(int)PlayerIndex.Two] = new Game.Player(m_PlayerIdleTex, new Rectangle(GameConstants.WINDOW_WIDTH / (GameConstants.MAX_PLAYERS + 1) + 50, (int)START_Y, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y),
               m_Gamepad, PlayerIndex.One);
 
           m_Players[(int)PlayerIndex.One].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_FRAMERATE, true));
@@ -99,7 +99,7 @@ namespace ProjectionMappingGame.StateMachine
 
           m_Platforms.Clear();
 
-          m_Platforms.Add(new Game.Platform(new Vector2(GameConstants.DEFAULT_WINDOW_WIDTH / (GameConstants.MAX_PLAYERS + 1), 200), Vector2.Zero, 5, Game.PlatformTypes.Impassable, m_PlatformTex[1]));
+          m_Platforms.Add(new Game.Platform(new Vector2(GameConstants.WINDOW_WIDTH / (GameConstants.MAX_PLAYERS + 1), 200), Vector2.Zero, 5, Game.PlatformTypes.Impassable, m_PlatformTex[1]));
       }
 
       public void AddPlayer(Game.Player player, PlayerIndex playerNumber)
@@ -237,6 +237,7 @@ namespace ProjectionMappingGame.StateMachine
           if (button == GUI.GamepadInput.Buttons.START)
           {
               // JOHANNES: ADD CODE HERE TO PUSH YOUR STATE ONTO STACK
+              FiniteStateMachine.GetInstance().ChangeState(StateType.Player1Menu);
           }
       }
       public void OnButtonUpP2(object sender, GUI.GamepadInput.Buttons button)
@@ -244,6 +245,7 @@ namespace ProjectionMappingGame.StateMachine
           if (button == GUI.GamepadInput.Buttons.START)
           {
               // JOHANNES: ADD CODE HERE TO PUSH YOUR STATE ONTO STACK
+              //FiniteStateMachine.GetInstance().ChangeState(StateType.Player2Menu);
           }
       }
       public void OnButtonUpP3(object sender, GUI.GamepadInput.Buttons button)
@@ -251,6 +253,7 @@ namespace ProjectionMappingGame.StateMachine
           if (button == GUI.GamepadInput.Buttons.START)
           {
               // JOHANNES: ADD CODE HERE TO PUSH YOUR STATE ONTO STACK
+              //FiniteStateMachine.GetInstance().ChangeState(StateType.Player3Menu);
           }
       }
       public void OnButtonUpP4(object sender, GUI.GamepadInput.Buttons button)
@@ -258,6 +261,7 @@ namespace ProjectionMappingGame.StateMachine
           if (button == GUI.GamepadInput.Buttons.START)
           {
               // JOHANNES: ADD CODE HERE TO PUSH YOUR STATE ONTO STACK
+              //FiniteStateMachine.GetInstance().ChangeState(StateType.Player4Menu);
           }
       }
 
@@ -273,6 +277,10 @@ namespace ProjectionMappingGame.StateMachine
               if (k == Keys.Back)
               {
                   // JOHANNES: ADD CODE HERE TO PUSH YOUR STATE ONTO STACK
+                  FiniteStateMachine.GetInstance().ChangeState(StateType.Player1Menu);
+                  //FiniteStateMachine.GetInstance().ChangeState(StateType.Player2Menu);
+                  //FiniteStateMachine.GetInstance().ChangeState(StateType.Player3Menu);
+                  //FiniteStateMachine.GetInstance().ChangeState(StateType.Player4Menu);
               }
           }
       }
@@ -283,7 +291,7 @@ namespace ProjectionMappingGame.StateMachine
 
          // Render anything here
          //spriteBatch.DrawString(m_ArialFont, "Game Play: press enter to go back to main menu", new Vector2(5, 5), Color.Black);
-         spriteBatch.Draw(m_Background, new Rectangle(0, 0, GameConstants.DEFAULT_WINDOW_WIDTH, GameConstants.DEFAULT_WINDOW_HEIGHT), Color.White);
+         spriteBatch.Draw(m_Background, new Rectangle(0, 0, GameConstants.WINDOW_WIDTH, GameConstants.WINDOW_HEIGHT), Color.White);
          
          foreach (Game.Platform platform in m_Platforms)
          {
