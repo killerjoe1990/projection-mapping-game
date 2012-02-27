@@ -49,7 +49,7 @@ namespace ProjectionMappingGame.StateMachine
          m_GraphicsDevice = game.GraphicsDevice;
 
          // Initialize projector
-         m_ProjectorPreview = new ProjectionPreviewComponent(game, 0, 0, GameConstants.WINDOW_WIDTH, GameConstants.WINDOW_HEIGHT);
+         m_ProjectorPreview = new ProjectionPreviewComponent(game, 0, 0, GameConstants.DEFAULT_WINDOW_WIDTH, GameConstants.DEFAULT_WINDOW_HEIGHT);
          m_ProjectorPreview.RenderFrustum = false;
 
          // Initialize input

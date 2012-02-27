@@ -185,7 +185,7 @@ namespace ProjectionMappingGame.Components
                dy = elapsedTime * (mState.Y - mStatePrev.Y) * MOUSE_MOVEMENT_SCALAR;
 
                if (dx != 0)
-                  LookRight(dx);  // Orbit right 'dx' radians
+                  LookRight(-dx);  // Orbit right 'dx' radians
                if (dy != 0)
                   LookUp(-dy);     // Orbit up 'dy' radians
             }
@@ -218,6 +218,7 @@ namespace ProjectionMappingGame.Components
 
          // Apply movement
          Vector3 translation = direction * KEYBOARD_TRANSLATE_SCALAR * elapsedTime;
+         Console.WriteLine(translation.ToString());
          Translate(translation.X, translation.Y, translation.Z);
       }
 

@@ -62,10 +62,12 @@ namespace ProjectionMappingGame
       {
          // Initialize graphics device
          m_GraphicsManager = new GraphicsDeviceManager(this);
-         m_GraphicsManager.PreferredBackBufferWidth = GameConstants.WINDOW_WIDTH;
-         m_GraphicsManager.PreferredBackBufferHeight = GameConstants.WINDOW_HEIGHT;
+         m_GraphicsManager.PreferredBackBufferWidth = GameConstants.DEFAULT_WINDOW_WIDTH;
+         m_GraphicsManager.PreferredBackBufferHeight = GameConstants.DEFAULT_WINDOW_HEIGHT;
          m_GraphicsManager.PreferMultiSampling = true;
          m_GraphicsManager.ApplyChanges();
+         //Window.AllowUserResizing = true;
+         //Window.ClientSizeChanged += new EventHandler<EventArgs>(Window_ClientSizeChanged);
 
          // Set content manager's root directory for asset loading.
          // This should only be set once; right here.
@@ -73,6 +75,12 @@ namespace ProjectionMappingGame
 
          // Show mouse
          this.IsMouseVisible = true;
+      }
+
+      void Window_ClientSizeChanged(object sender, EventArgs e)
+      {
+         GameConstants.WindowWidth = Window.ClientBounds.Width;
+         GameConstants.WindowHeight = Window.ClientBounds.Height;
       }
 
       /// <summary>

@@ -151,6 +151,12 @@ namespace ProjectionMappingGame.GUI
             m_BeenClicked = false;
         }
 
+        public Vector2 TextPos
+        {
+           get { return m_TextPos; }
+           set { m_TextPos = value; }
+        }
+
         public string Text
         {
            get { return m_Text; }
