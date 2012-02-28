@@ -494,6 +494,12 @@ namespace ProjectionMappingGame.Editor
          get { return m_RenderTargetTexture; }
       }
 
+      public void DeselectAllQuads()
+      {
+         m_SelectedQuad = -1;
+         m_HoveredQuad = -1;
+      }
+
       #endregion
    }
 }

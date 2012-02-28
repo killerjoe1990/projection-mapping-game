@@ -35,7 +35,7 @@ namespace ProjectionMappingGame
       public const int DEFAULT_WINDOW_HEIGHT = 720;
 
       // FSM
-      public const StateType DEFAULT_STATE = StateType.MainMenu;
+      public const StateType DEFAULT_STATE = StateType.ProjectionEditor;
 
        // Physics
       public const float GRAVITY = 1000.0f;

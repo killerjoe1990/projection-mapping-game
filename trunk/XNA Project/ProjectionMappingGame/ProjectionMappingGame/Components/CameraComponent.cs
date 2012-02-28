@@ -320,6 +320,15 @@ namespace ProjectionMappingGame.Components
       }
 
       /// <summary>
+      /// Accessor/Mutator for current projection matrix aspect ratio component.
+      /// </summary>
+      public float AspectRatio
+      {
+         get { return m_AspectRatio; }
+         set { m_AspectRatio = value; }
+      }
+
+      /// <summary>
       /// Accessor for the camera's calculated position.  This is calculated
       /// by adding the camera's inverse direction, scaled by it's zoom distance,
       /// to it's target point.

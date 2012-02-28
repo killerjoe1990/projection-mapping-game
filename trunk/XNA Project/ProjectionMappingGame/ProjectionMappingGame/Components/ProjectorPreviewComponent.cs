@@ -146,7 +146,7 @@ namespace ProjectionMappingGame.Components
             new Vector3(0.0f, 2.0f, 10.0f),
             new Vector3(0.0f, 2.0f, 0.0f),
             MathHelper.ToRadians(45.0f),
-            1.0f,
+            (float)GameConstants.WindowWidth / (float)GameConstants.WindowHeight,
             10.0f,
             30.0f
          );
@@ -498,6 +498,7 @@ namespace ProjectionMappingGame.Components
       public Viewport Viewport
       {
          get { return m_Viewport; }
+         set { m_Viewport = value; }
       }
 
       public Texture2D ProjectorTexture

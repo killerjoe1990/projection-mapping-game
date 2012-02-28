@@ -141,7 +141,6 @@
     <Compile Include="PrimitivesExt\OrientedQuad.cs" />
     <Compile Include="StateMachine\FiniteStateMachine.cs" />
     <Compile Include="StateMachine\GamePlayState.cs" />
-    <Compile Include="StateMachine\GameProjectorRenderState.cs" />
     <Compile Include="StateMachine\GameState.cs" />
     <Compile Include="StateMachine\MainMenuState.cs" />
     <Compile Include="StateMachine\Player1MenuState.cs" />
