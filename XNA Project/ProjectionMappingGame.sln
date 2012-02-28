@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectionMappingGame", "ProjectionMappingGame\ProjectionMappingGame\ProjectionMappingGame.csproj", "{39363109-4555-4F65-BA99-38F0E2E05348}"
 EndProject
-Project("{96E2B04D-8817-42C6-938A-82C39BA4D311}") = "ProjectionMappingGameContent", "ProjectionMappingGame\ProjectionMappingGameContent\ProjectionMappingGameContent.contentproj", "{68F3C186-8015-4322-A954-0EA247924894}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectionMappingGameContent", "ProjectionMappingGame\ProjectionMappingGameContent\ProjectionMappingGameContent.contentproj", "{68F3C186-8015-4322-A954-0EA247924894}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
