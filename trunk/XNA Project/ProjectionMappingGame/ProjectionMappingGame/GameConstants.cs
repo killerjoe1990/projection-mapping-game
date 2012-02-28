@@ -52,7 +52,8 @@ namespace ProjectionMappingGame
       public const int PLAYER_DIM_Y = 75;
       public const float JUMP_IMPULSE = -35000;
       public const float MOVE_SPEED = 7000;
-      public const float BOUNCE_IMPULSE = -25000;
+      public const float BOUNCE_IMPULSE_UP = -25000;
+      public const float BOUNCE_IMPULSE_DOWN = 30000;
 
        //animation
       public const float PLAYER_FRAMERATE = 10;

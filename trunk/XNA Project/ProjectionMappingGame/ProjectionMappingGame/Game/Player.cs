@@ -89,6 +89,24 @@ namespace ProjectionMappingGame.Game
             m_OnGround = false;
         }
 
+        public Vector2 GetNextPosition(float deltaTime)
+        {
+            Vector2 pos = m_Position;
+            Vector2 vel = m_Velocity;
+            vel += m_Impulse * deltaTime;
+            if (!m_OnGround)
+            {
+                vel.Y += GameConstants.GRAVITY * deltaTime;
+            }
+
+            vel.X = m_Move * GameConstants.MOVE_SPEED * deltaTime;
+
+            pos += vel * deltaTime;
+
+            return pos;
+
+        }
+
         public void AddAnimation(Animations type, Animation anim)
         {
             m_Animations[(int)type] = anim;
@@ -249,7 +267,7 @@ namespace ProjectionMappingGame.Game
 
         public void CheckCollision(Player player, float deltaTime)
         {
-            Vector2 otherPos = player.Position;
+            Vector2 otherPos = player.GetNextPosition(deltaTime);
             Rectangle otherBound = player.Bounds;
 
             Vector2 nextVelocity;
@@ -261,11 +279,12 @@ namespace ProjectionMappingGame.Game
 
             if (CheckTop(nextPosition, otherPos, otherBound))
             {
-                m_Impulse -= Vector2.UnitY * GameConstants.BOUNCE_IMPULSE;
+                m_Impulse += Vector2.UnitY * GameConstants.BOUNCE_IMPULSE_DOWN;
+                //m_Velocity.Y = 0;
             }
             if (CheckBot(nextPosition, otherPos, otherBound))
             {
-                m_Impulse += Vector2.UnitY * GameConstants.BOUNCE_IMPULSE;
+                m_Impulse += Vector2.UnitY * GameConstants.BOUNCE_IMPULSE_UP;
                 m_Velocity.Y = 0;
             }
         }
@@ -273,11 +292,11 @@ namespace ProjectionMappingGame.Game
         private bool CheckTop(Vector2 newPos, Vector2 pos, Rectangle rec)
         {
             if (newPos.Y <= pos.Y + rec.Height
-                && m_Bounds.Y > pos.Y + rec.Height 
-                && ((pos.X > m_Position.X
-                && pos.X < m_Position.X + m_Bounds.Width)
-                || (pos.X + rec.Width > m_Position.X
-                && pos.X + rec.Width < m_Position.X + m_Bounds.Width)))
+                && m_Position.Y > pos.Y + rec.Height 
+                && ((pos.X > newPos.X
+                && pos.X < newPos.X + m_Bounds.Width)
+                || (pos.X + rec.Width > newPos.X
+                && pos.X + rec.Width < newPos.X + m_Bounds.Width)))
             {
                 return true;
             }
@@ -291,10 +310,10 @@ namespace ProjectionMappingGame.Game
         {
             if (newPos.Y + m_Bounds.Height >= pos.Y
                 && m_Position.Y + m_Bounds.Height < pos.Y
-                && ((pos.X > m_Position.X
-                && pos.X < m_Position.X + m_Bounds.Width)
-                || (pos.X + rec.Width > m_Position.X
-                && pos.X + rec.Width < m_Position.X + m_Bounds.Width)))
+                && ((pos.X > newPos.X
+                && pos.X < newPos.X + m_Bounds.Width)
+                || (pos.X + rec.Width > newPos.X
+                && pos.X + rec.Width < newPos.X + m_Bounds.Width)))
             {
                 return true;
             }
@@ -308,10 +327,10 @@ namespace ProjectionMappingGame.Game
         {
             if (newPos.X <= pos.X + rec.Width
                 && m_Position.X > pos.X + rec.Width
-                && ((pos.Y > m_Position.Y
-                && pos.Y < m_Position.Y + m_Bounds.Height)
-                || (pos.Y + rec.Height > m_Position.Y
-                && pos.Y + rec.Height < m_Position.Y + m_Bounds.Height)))
+                && ((pos.Y > newPos.Y
+                && pos.Y < newPos.Y + m_Bounds.Height)
+                || (pos.Y + rec.Height > newPos.Y
+                && pos.Y + rec.Height < newPos.Y + m_Bounds.Height)))
             {
                 return true;
             }
@@ -325,10 +344,10 @@ namespace ProjectionMappingGame.Game
         {
             if (newPos.X + m_Bounds.Width >= pos.X
                 && m_Position.X + m_Bounds.Width < pos.X
-                && ((pos.Y > m_Position.Y
-                && pos.Y < m_Position.Y + m_Bounds.Height)
-                || (pos.Y + rec.Height > m_Position.Y
-                && pos.Y + rec.Height < m_Position.Y + m_Bounds.Height)))
+                && ((pos.Y > newPos.Y
+                && pos.Y < newPos.Y + m_Bounds.Height)
+                || (pos.Y + rec.Height > newPos.Y
+                && pos.Y + rec.Height < newPos.Y + m_Bounds.Height)))
             {
                 return true;
             }
