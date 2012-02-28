@@ -31,7 +31,6 @@ namespace ProjectionMappingGame.StateMachine
       MainMenu,
       GamePlay,
       ProjectionEditor,
-      GameProjectorRender,
       Player1Menu,
       Count
    };
@@ -45,12 +44,12 @@ namespace ProjectionMappingGame.StateMachine
          StateType.MainMenu,
          StateType.GamePlay,
          StateType.ProjectionEditor,
-         StateType.GameProjectorRender,
          StateType.Player1Menu
       };
 
       // Properties
       public static int NUM_STATES = (int)StateType.Count;
+      bool m_GamePlayMode;
 
       /// <summary>
       /// Default constructor for type FiniteStateMachine.
@@ -62,6 +61,8 @@ namespace ProjectionMappingGame.StateMachine
 
          // Allocate space for all game states
          m_States = new GameState[NUM_STATES];
+
+         m_GamePlayMode = false;
       }
 
       #region Singleton Components
@@ -93,7 +94,6 @@ namespace ProjectionMappingGame.StateMachine
          m_States[(int)StateType.MainMenu] = new MainMenuState(game);
          m_States[(int)StateType.GamePlay] = new GamePlayState(game);
          m_States[(int)StateType.ProjectionEditor] = new ProjectionEditorState(game);
-         m_States[(int)StateType.GameProjectorRender] = new GameProjectorRenderState(game);
          m_States[(int)StateType.Player1Menu] = new Player1MenuState(game);
 
          // Load the start state into the stack
@@ -115,15 +115,34 @@ namespace ProjectionMappingGame.StateMachine
 
          Player1MenuState player1Menu = (Player1MenuState)m_States[(int)StateType.Player1Menu];
          GamePlayState gameplay = (GamePlayState)m_States[(int)StateType.GamePlay];
-         GameProjectorRenderState gameProjector = (GameProjectorRenderState)m_States[(int)StateType.GameProjectorRender];
          ProjectionEditorState projectionEditor = (ProjectionEditorState)m_States[(int)StateType.ProjectionEditor];
          projectionEditor.ProjectorInput = gameplay.RenderTarget;
-         gameProjector.ProjectorInput = gameplay.RenderTarget;
       }
 
       #endregion
 
       #region State Changing
+
+      public void StartGame()
+      {
+         GamePlayState gameplay = (GamePlayState)m_States[(int)StateType.GamePlay];
+         gameplay.RenderTargetMode = true;
+         gameplay.Reset();
+         m_GamePlayMode = true;
+         m_ActiveStates.Clear();
+         m_ActiveStates.Push((int)StateType.GamePlay);
+         m_ActiveStates.Push((int)StateType.ProjectionEditor);
+      }
+
+      public void QuitGame()
+      {
+         GamePlayState gameplay = (GamePlayState)m_States[(int)StateType.GamePlay];
+         gameplay.RenderTargetMode = false;
+         gameplay.Reset();
+         m_GamePlayMode = false;
+         m_ActiveStates.Clear();
+         m_ActiveStates.Push((int)StateType.ProjectionEditor);
+      }
 
       /// <summary>
       /// Add a state to the stack and set it as the current state.
@@ -163,7 +182,6 @@ namespace ProjectionMappingGame.StateMachine
       {
          MainMenuState mainMenu = (MainMenuState)m_States[(int)StateType.MainMenu];
          GamePlayState gameplay = (GamePlayState)m_States[(int)StateType.GamePlay];
-         GameProjectorRenderState gameProjector = (GameProjectorRenderState)m_States[(int)StateType.GameProjectorRender];
          ProjectionEditorState projectionEditor = (ProjectionEditorState)m_States[(int)StateType.ProjectionEditor];
          Player1MenuState player1Menu = (Player1MenuState)m_States[(int)StateType.Player1Menu];
 
@@ -182,15 +200,6 @@ namespace ProjectionMappingGame.StateMachine
             case StateType.ProjectionEditor:
                projectionEditor.ProjectorInput = gameplay.RenderTarget;
                break;
-            case StateType.GameProjectorRender:
-               gameProjector.ProjectorInput = gameplay.RenderTarget;
-               /*gameProjector.ConfigureProjector(
-                  projectionEditor.ProjectorTarget,
-                  projectionEditor.ProjectorDistance,
-                  projectionEditor.ProjectorYaw,
-                  projectionEditor.ProjectorPitch
-               );*/
-               break;
          }
       }
 
@@ -204,6 +213,13 @@ namespace ProjectionMappingGame.StateMachine
       /// <param name="elapsedTime">Elapsed time between frames.</param>
       public void Update(float elapsedTime)
       {
+         if (m_GamePlayMode)
+         {
+            GamePlayState gameplay = (GamePlayState)m_States[(int)StateType.GamePlay];
+            ProjectionEditorState projectionEditor = (ProjectionEditorState)m_States[(int)StateType.ProjectionEditor];
+            projectionEditor.ProjectorInput = gameplay.RenderTarget;
+         }
+
          // Render all active and updatable states
          int[] activeStates = m_ActiveStates.ToArray();
          for (int i = activeStates.Length - 1; i >= 0; --i)

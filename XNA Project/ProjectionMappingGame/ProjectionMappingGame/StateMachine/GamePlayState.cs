@@ -35,7 +35,9 @@ namespace ProjectionMappingGame.StateMachine
       SpriteFont m_ArialFont;
       
       // Render target
-      Texture2D m_RenderTarget;
+      bool m_RenderTargetMode;
+      Texture2D m_RenderTargetTexture;
+      RenderTarget2D m_RenderTarget;
 
       Texture2D m_PlayerIdleTex;
       Texture2D m_PlayerRunTex;
@@ -75,8 +77,9 @@ namespace ProjectionMappingGame.StateMachine
 
           m_Platforms = new List<Game.Platform>();
 
-          
-          
+          // Initialize render target
+          m_RenderTargetMode = false;
+          m_RenderTarget = new RenderTarget2D(m_Game.GraphicsDevice, GameConstants.WindowWidth, GameConstants.WindowHeight, true, m_Game.GraphicsDevice.DisplayMode.Format, DepthFormat.Depth24);
       }
 
       public override void Reset()
@@ -121,10 +124,8 @@ namespace ProjectionMappingGame.StateMachine
          m_PlayerRunTex = content.Load<Texture2D>("Sprites/Run");
          m_PlayerJumpTex = content.Load<Texture2D>("Sprites/Jump");
 
-         
-
          // TEMPORARY LOAD FOR RENDER TARGET
-         m_RenderTarget = content.Load<Texture2D>("Textures/pow");
+         m_RenderTargetTexture = content.Load<Texture2D>("Textures/default_editor_input");
 
          m_Background = content.Load<Texture2D>("Textures/Layer0_2");
 
@@ -287,23 +288,46 @@ namespace ProjectionMappingGame.StateMachine
 
       public override void Draw(SpriteBatch spriteBatch)
       {
+         if (m_RenderTargetMode)
+         {
+            Color clear = new Color(0.0f, 0.0f, 0.0f, 0.0f);
+
+            // Render the quads into the render target
+            m_Game.GraphicsDevice.SetRenderTarget(m_RenderTarget);
+            m_Game.GraphicsDevice.Clear(clear);
+
+            RenderGame(spriteBatch);
+
+            // Extract and store the contents of the render target in a texture
+            m_Game.GraphicsDevice.SetRenderTarget(null);
+            m_Game.GraphicsDevice.Clear(Color.CornflowerBlue);
+            m_RenderTargetTexture = (Texture2D)m_RenderTarget;
+         }
+         else
+         {
+            RenderGame(spriteBatch); 
+         } 
+      }
+
+      private void RenderGame(SpriteBatch spriteBatch)
+      {
          spriteBatch.Begin();
 
          // Render anything here
          //spriteBatch.DrawString(m_ArialFont, "Game Play: press enter to go back to main menu", new Vector2(5, 5), Color.Black);
          spriteBatch.Draw(m_Background, new Rectangle(0, 0, GameConstants.DEFAULT_WINDOW_WIDTH, GameConstants.DEFAULT_WINDOW_HEIGHT), Color.White);
-         
+
          foreach (Game.Platform platform in m_Platforms)
          {
-             platform.Draw(spriteBatch);
+            platform.Draw(spriteBatch);
          }
 
          foreach (Game.Player player in m_Players)
          {
-             if (player != null)
-             {
-                 player.Draw(spriteBatch);
-             }
+            if (player != null)
+            {
+               player.Draw(spriteBatch);
+            }
          }
          spriteBatch.End();
       }
@@ -312,7 +336,13 @@ namespace ProjectionMappingGame.StateMachine
 
       public Texture2D RenderTarget
       {
-         get { return m_RenderTarget; }
+         get { return m_RenderTargetTexture; }
+      }
+
+      public bool RenderTargetMode
+      {
+         get { return m_RenderTargetMode; }
+         set { m_RenderTargetMode = value; }
       }
 
       #endregion

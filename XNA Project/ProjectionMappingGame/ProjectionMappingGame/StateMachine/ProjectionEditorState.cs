@@ -41,6 +41,9 @@ namespace ProjectionMappingGame.StateMachine
       KeyboardState m_PrevKeyboardState;
       MouseInput m_MouseInput;
       
+      // States
+      bool m_DEM_GAMES;
+
       // Editor panes
       ProjectionPreviewComponent m_ProjectorPreview;
       UVGridEditor m_UVGridEditor;
@@ -242,6 +245,7 @@ namespace ProjectionMappingGame.StateMachine
          m_ProjectorPreview = new ProjectionPreviewComponent(m_Game, GUI_PROJECTOR_PREVIEW_X + 2, GUI_PROJECTOR_PREVIEW_Y + 20, GUI_PROJECTOR_PREVIEW_WIDTH - 2, GUI_PROJECTOR_PREVIEW_HEIGHT - 20);
          m_FocusedPane = 0;
          m_EditorMode = true;
+         m_DEM_GAMES = false;
 
          // Initialize GUI
          int menuColumn2X = (GUI_TOOLBAR_WIDTH / 2) + GUI_MENU_COLUMN_1_X;
@@ -302,8 +306,8 @@ namespace ProjectionMappingGame.StateMachine
 
       public override void LoadContent(ContentManager content)
       {
-          #region FONTS
-          // Load font
+         #region FONTS
+         // Load font
          m_ArialFont = content.Load<SpriteFont>("Fonts/Arial");
          m_ArialFont10 = content.Load<SpriteFont>("Fonts/Arial10");
          m_AppHeaderLabel.Font = m_ArialFont10;
@@ -340,9 +344,10 @@ namespace ProjectionMappingGame.StateMachine
          m_ProjectorRotationYLabel.Font = m_ArialFont10;
          m_ProjectorRotationZLabel.Font = m_ArialFont10;
          m_LayersHeaderLabel.Font = m_ArialFont10;
-          #endregion
+         #endregion
 
          #region TEXTURES
+
          // Load textures
          m_WhiteTexture = content.Load<Texture2D>("Textures/white");
          m_ButtonTexture = content.Load<Texture2D>("Textures/GUI/button");
@@ -391,7 +396,8 @@ namespace ProjectionMappingGame.StateMachine
             m_ScrollViewScrollAreaTexture,
             m_MouseInput
          );
-        #endregion
+
+         #endregion
 
          // Load the projector preview's content
          m_UVGridEditor.LoadContent(content);
@@ -409,6 +415,7 @@ namespace ProjectionMappingGame.StateMachine
          int menuColumn2X = (GUI_TOOLBAR_WIDTH / 2) + GUI_MENU_COLUMN_1_X;
 
          #region SPINBOXES
+
          // Initialize spinboxes
          m_BuildingPositionXSpinBox = new NumUpDown(new Rectangle(GUI_MENU_X_COLUMN_X + 10, GUI_BUILDING_Y + GUI_MENU_ITEM_HEIGHT * 3 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, -100.0f, 100.0f, 0.1f, "{0:0.00}", m_MouseInput);
          m_BuildingPositionYSpinBox = new NumUpDown(new Rectangle(GUI_MENU_Y_COLUMN_X + 10, GUI_BUILDING_Y + GUI_MENU_ITEM_HEIGHT * 3 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, -100.0f, 100.0f, 0.1f, "{0:0.00}", m_MouseInput);
@@ -445,12 +452,14 @@ namespace ProjectionMappingGame.StateMachine
          m_ProjectorRotationZSpinBox.RegisterOnValueChanged(ProjectorRotationZ_OnValueChanged);
          m_ProjectorFovSpinBox.RegisterOnValueChanged(ProjectorFOV_OnValueChanged);
          m_ProjectorAspectRatioSpinBox.RegisterOnValueChanged(ProjectorAspectRatio_OnValueChanged);
-        #endregion
+
+         #endregion
 
          #region BUTTONS
+
          // Initialize buttons
          int toolbuttonpadding = 2;
-         m_ModeButton = new Button(new Rectangle(GUI_MENU_COLUMN_1_X_TABBED, GUI_APP_Y + GUI_MENU_ITEM_HEIGHT * 1, GUI_QUIT_BUTTON_WIDTH, GUI_QUIT_BUTTON_HEIGHT), m_ButtonTexture, m_MouseInput, m_ArialFont10, "Mode", Color.Black);
+         m_ModeButton = new Button(new Rectangle(GUI_MENU_COLUMN_1_X_TABBED, GUI_APP_Y + GUI_MENU_ITEM_HEIGHT * 1, GUI_QUIT_BUTTON_WIDTH, GUI_QUIT_BUTTON_HEIGHT), m_ButtonTexture, m_MouseInput, m_ArialFont10, "Preview", Color.Black);
          m_ModeButton.SetImage(Button.ImageType.OVER, m_ButtonTextureOnHover);
          m_ModeButton.SetImage(Button.ImageType.CLICK, m_ButtonTextureOnPress);
          m_ModeButton.RegisterOnClick(ModeButton_OnClick);
@@ -482,7 +491,7 @@ namespace ProjectionMappingGame.StateMachine
          m_ProjectorEnabledButton.SetImage(Button.ImageType.OVER, m_ButtonTextureOnHover);
          m_ProjectorEnabledButton.SetImage(Button.ImageType.CLICK, m_ButtonTextureOnPress);
          m_ProjectorEnabledButton.RegisterOnClick(ProjectorEnabledButton_OnClick);
-        #endregion
+        
          m_BuildingColorButton = new Button(new Rectangle(GUI_TOOLBAR_X + GUI_TOOLBAR_WIDTH - GUI_COLOR_BUTTON_WIDTH - 4, GUI_BUILDING_Y + GUI_MENU_ITEM_HEIGHT * 8 + 4, GUI_COLOR_BUTTON_WIDTH, GUI_COLOR_BUTTON_HEIGHT), m_SquareButtonTexture, m_MouseInput);
          m_BuildingColorButton.SetImage(Button.ImageType.OVER, m_SquareButtonTextureOnHover);
          m_BuildingColorButton.SetImage(Button.ImageType.CLICK, m_SquareButtonTextureOnPress);
@@ -510,6 +519,8 @@ namespace ProjectionMappingGame.StateMachine
          m_TrashLayerButton.SetImage(Button.ImageType.CLICK, m_TrashTextureOnPress);
          m_TrashLayerButton.RegisterOnClick(TrashLayerButton_OnClick);
 
+         #endregion
+
          // Register gizmo selection event
          m_ProjectorPreview.Gizmo.RegisterOnSelect(Gizmo_OnSelect);
 
@@ -519,43 +530,53 @@ namespace ProjectionMappingGame.StateMachine
 
       public override void Update(float elapsedTime)
       {
-         if (m_UVGridEditor.HasUpdates)
+         if (m_DEM_GAMES)
          {
-            m_UVEditor.SetPoints(m_UVGridEditor.GetIntersectionPoints());
-            m_UVGridEditor.HasUpdates = false;
+            if (m_UVEditor.RenderTargetTexture != null)
+               m_ProjectorPreview.ProjectorTexture = m_UVEditor.RenderTargetTexture;
+
+            m_ProjectorPreview.Update(elapsedTime);
          }
+         else
+         {
+            if (m_UVGridEditor.HasUpdates)
+            {
+               m_UVEditor.SetPoints(m_UVGridEditor.GetIntersectionPoints());
+               m_UVGridEditor.HasUpdates = false;
+            }
 
-         m_UVEditor.Update(elapsedTime);
-         m_ProjectorPreview.Update(elapsedTime);
+            m_UVEditor.Update(elapsedTime);
+            m_ProjectorPreview.Update(elapsedTime);
 
-         if (m_UVEditor.RenderTargetTexture != null)
-            m_ProjectorPreview.ProjectorTexture = m_UVEditor.RenderTargetTexture;
+            if (m_UVEditor.RenderTargetTexture != null)
+               m_ProjectorPreview.ProjectorTexture = m_UVEditor.RenderTargetTexture;
 
-         // Apply color picker color to building
-         Material m = m_ProjectorPreview.Building.Material;
-         m.Diffuse = m_BuildingColorPicker.SelectedColor.ToVector4();
-         m_ProjectorPreview.Building.Material = m;
+            // Apply color picker color to building
+            Material m = m_ProjectorPreview.Building.Material;
+            m.Diffuse = m_BuildingColorPicker.SelectedColor.ToVector4();
+            m_ProjectorPreview.Building.Material = m;
 
-         // Sync menu status
-         m_AppModeValueLabel.Text = (m_EditorMode) ? "Editor" : "Preview";
-         m_GizmoHeaderValueLabel.Text = (m_ProjectorPreview.Gizmo.ActiveMode.ToString().Contains("Scale")) ? "Scale" : m_ProjectorPreview.Gizmo.ActiveMode.ToString();
-         m_ProjectorPositionXSpinBox.Value = m_ProjectorPreview.Projector.Position.X;
-         m_ProjectorPositionYSpinBox.Value = m_ProjectorPreview.Projector.Position.Y;
-         m_ProjectorPositionZSpinBox.Value = m_ProjectorPreview.Projector.Position.Z;
-         m_ProjectorRotationXSpinBox.Value = MathHelper.ToDegrees(m_ProjectorPreview.Projector.RotX);
-         m_ProjectorRotationYSpinBox.Value = MathHelper.ToDegrees(m_ProjectorPreview.Projector.RotY);
-         m_ProjectorRotationZSpinBox.Value = MathHelper.ToDegrees(m_ProjectorPreview.Projector.RotZ);
-         m_ProjectorFovSpinBox.Value = MathHelper.ToDegrees(m_ProjectorPreview.Projector.Fov);
-         m_ProjectorAspectRatioSpinBox.Value = m_ProjectorPreview.Projector.AspectRatio;
-         m_BuildingPositionXSpinBox.Value = m_ProjectorPreview.Building.Position.X;
-         m_BuildingPositionYSpinBox.Value = m_ProjectorPreview.Building.Position.Y;
-         m_BuildingPositionZSpinBox.Value = m_ProjectorPreview.Building.Position.Z;
-         m_BuildingRotationXSpinBox.Value = MathHelper.ToDegrees(m_ProjectorPreview.Building.RotX);
-         m_BuildingRotationYSpinBox.Value = MathHelper.ToDegrees(m_ProjectorPreview.Building.RotY);
-         m_BuildingRotationZSpinBox.Value = MathHelper.ToDegrees(m_ProjectorPreview.Building.RotZ);
-         m_BuildingScaleXSpinBox.Value = m_ProjectorPreview.Building.Scale.X;
-         m_BuildingScaleYSpinBox.Value = m_ProjectorPreview.Building.Scale.Y;
-         m_BuildingScaleZSpinBox.Value = m_ProjectorPreview.Building.Scale.Z;
+            // Sync menu status
+            m_AppModeValueLabel.Text = (m_EditorMode) ? "Editor" : "Preview";
+            m_GizmoHeaderValueLabel.Text = (m_ProjectorPreview.Gizmo.ActiveMode.ToString().Contains("Scale")) ? "Scale" : m_ProjectorPreview.Gizmo.ActiveMode.ToString();
+            m_ProjectorPositionXSpinBox.Value = m_ProjectorPreview.Projector.Position.X;
+            m_ProjectorPositionYSpinBox.Value = m_ProjectorPreview.Projector.Position.Y;
+            m_ProjectorPositionZSpinBox.Value = m_ProjectorPreview.Projector.Position.Z;
+            m_ProjectorRotationXSpinBox.Value = MathHelper.ToDegrees(m_ProjectorPreview.Projector.RotX);
+            m_ProjectorRotationYSpinBox.Value = MathHelper.ToDegrees(m_ProjectorPreview.Projector.RotY);
+            m_ProjectorRotationZSpinBox.Value = MathHelper.ToDegrees(m_ProjectorPreview.Projector.RotZ);
+            m_ProjectorFovSpinBox.Value = MathHelper.ToDegrees(m_ProjectorPreview.Projector.Fov);
+            m_ProjectorAspectRatioSpinBox.Value = m_ProjectorPreview.Projector.AspectRatio;
+            m_BuildingPositionXSpinBox.Value = m_ProjectorPreview.Building.Position.X;
+            m_BuildingPositionYSpinBox.Value = m_ProjectorPreview.Building.Position.Y;
+            m_BuildingPositionZSpinBox.Value = m_ProjectorPreview.Building.Position.Z;
+            m_BuildingRotationXSpinBox.Value = MathHelper.ToDegrees(m_ProjectorPreview.Building.RotX);
+            m_BuildingRotationYSpinBox.Value = MathHelper.ToDegrees(m_ProjectorPreview.Building.RotY);
+            m_BuildingRotationZSpinBox.Value = MathHelper.ToDegrees(m_ProjectorPreview.Building.RotZ);
+            m_BuildingScaleXSpinBox.Value = m_ProjectorPreview.Building.Scale.X;
+            m_BuildingScaleYSpinBox.Value = m_ProjectorPreview.Building.Scale.Y;
+            m_BuildingScaleZSpinBox.Value = m_ProjectorPreview.Building.Scale.Z;
+         }
       }
 
       public override void HandleInput(float elapsedTime)
@@ -564,57 +585,75 @@ namespace ProjectionMappingGame.StateMachine
          MouseState mouseState = Mouse.GetState();
          KeyboardState keyboardState = Keyboard.GetState();
 
-         m_MouseInput.HandleInput(PlayerIndex.One);
-
-         // Allow for gameplay projection
-         if (keyboardState.IsKeyDown(Keys.Enter))
-            FiniteStateMachine.GetInstance().SetState(StateType.GameProjectorRender);
-
-         // Update color picker if it is active
-         if (m_BuildingColorPicker.IsActive)
-            m_BuildingColorPicker.HandleInput(mouseState, m_PrevMouseState);
-
-         // Update the UV Grid Editor
-         if (mouseState.X >= m_UVGridEditor.Viewport.X && mouseState.X <= m_UVGridEditor.Viewport.X + m_UVGridEditor.Viewport.Width &&
-             mouseState.Y >= m_UVGridEditor.Viewport.Y && mouseState.Y <= m_UVGridEditor.Viewport.Y + m_UVGridEditor.Viewport.Height)
+         if (m_DEM_GAMES)
          {
-            if (m_FocusedPane != 0 && mouseState.LeftButton == ButtonState.Pressed && m_PrevMouseState.LeftButton == ButtonState.Released)
+            if (keyboardState.IsKeyDown(Keys.Escape) && !m_PrevKeyboardState.IsKeyDown(Keys.Escape))
             {
-               m_FocusedPane = 0;
-               m_UVGridEditor.PrevMouseState = m_PrevMouseState;
+               m_DEM_GAMES = false;
+               m_ProjectorPreview.EditorMode = true;
+               m_ProjectorPreview.Viewport = new Viewport(GUI_PROJECTOR_PREVIEW_X + 2, GUI_PROJECTOR_PREVIEW_Y + 20, GUI_PROJECTOR_PREVIEW_WIDTH - 2, GUI_PROJECTOR_PREVIEW_HEIGHT - 20);
+               m_ProjectorPreview.Camera.AspectRatio = (float)m_ProjectorPreview.Viewport.Width / (float)m_ProjectorPreview.Viewport.Height;
+               m_ProjectorPreview.Camera.UpdateProjection();
+               m_ProjectorPreview.Projector.AspectRatio = (float)m_ProjectorPreview.Viewport.Width / (float)m_ProjectorPreview.Viewport.Height;
+               m_ProjectorPreview.Projector.UpdateProjection();
+               FiniteStateMachine.GetInstance().QuitGame();
+            }
+         }
+         else
+         {
+            m_MouseInput.HandleInput(PlayerIndex.One);
+
+            // Update color picker if it is active
+            if (m_BuildingColorPicker.IsActive)
+               m_BuildingColorPicker.HandleInput(mouseState, m_PrevMouseState);
+
+            // Update the UV Grid Editor
+            if (mouseState.X >= m_UVGridEditor.Viewport.X && mouseState.X <= m_UVGridEditor.Viewport.X + m_UVGridEditor.Viewport.Width &&
+                mouseState.Y >= m_UVGridEditor.Viewport.Y && mouseState.Y <= m_UVGridEditor.Viewport.Y + m_UVGridEditor.Viewport.Height)
+            {
+               if (m_FocusedPane != 0 && mouseState.LeftButton == ButtonState.Pressed && m_PrevMouseState.LeftButton == ButtonState.Released)
+               {
+                  m_FocusedPane = 0;
+                  m_UVGridEditor.PrevMouseState = m_PrevMouseState;
+               }
+
+               if (m_FocusedPane == 0)
+                  m_UVGridEditor.HandleInput(elapsedTime);
             }
 
-            if (m_FocusedPane == 0)
-               m_UVGridEditor.HandleInput(elapsedTime);
-         }
-
-         // Update the UV Editor
-         if (mouseState.X >= m_UVEditor.Viewport.X && mouseState.X <= m_UVEditor.Viewport.X + m_UVEditor.Viewport.Width &&
-             mouseState.Y >= m_UVEditor.Viewport.Y && mouseState.Y <= m_UVEditor.Viewport.Y + m_UVEditor.Viewport.Height)
-         {
-            if (m_FocusedPane != 1 && mouseState.LeftButton == ButtonState.Pressed && m_PrevMouseState.LeftButton == ButtonState.Released)
+            // Update the UV Editor
+            if (mouseState.X >= m_UVEditor.Viewport.X && mouseState.X <= m_UVEditor.Viewport.X + m_UVEditor.Viewport.Width &&
+                mouseState.Y >= m_UVEditor.Viewport.Y && mouseState.Y <= m_UVEditor.Viewport.Y + m_UVEditor.Viewport.Height)
             {
-               m_FocusedPane = 1;
-               m_UVEditor.PrevMouseState = m_PrevMouseState;
+               if (m_FocusedPane != 1 && mouseState.LeftButton == ButtonState.Pressed && m_PrevMouseState.LeftButton == ButtonState.Released)
+               {
+                  m_FocusedPane = 1;
+                  m_UVEditor.PrevMouseState = m_PrevMouseState;
+               }
+
+               if (m_FocusedPane == 1)
+                  m_UVEditor.HandleInput(elapsedTime);
+            }
+            else
+            {
+               m_UVEditor.DeselectAllQuads();
             }
 
-            if (m_FocusedPane == 1)
-               m_UVEditor.HandleInput(elapsedTime);
-         }
-
-         // Update the Projection Preview
-         if (mouseState.X >= m_ProjectorPreview.Viewport.X && mouseState.X <= m_ProjectorPreview.Viewport.X + m_ProjectorPreview.Viewport.Width &&
-             mouseState.Y >= m_ProjectorPreview.Viewport.Y && mouseState.Y <= m_ProjectorPreview.Viewport.Y + m_ProjectorPreview.Viewport.Height)
-         {
-            if (m_FocusedPane != 2 && mouseState.LeftButton == ButtonState.Pressed && m_PrevMouseState.LeftButton == ButtonState.Released)
+            // Update the Projection Preview
+            if (mouseState.X >= m_ProjectorPreview.Viewport.X && mouseState.X <= m_ProjectorPreview.Viewport.X + m_ProjectorPreview.Viewport.Width &&
+                mouseState.Y >= m_ProjectorPreview.Viewport.Y && mouseState.Y <= m_ProjectorPreview.Viewport.Y + m_ProjectorPreview.Viewport.Height)
             {
-               m_FocusedPane = 2;
-               m_ProjectorPreview.PrevMouseState = m_PrevMouseState;
-            }
+               if (m_FocusedPane != 2 && mouseState.LeftButton == ButtonState.Pressed && m_PrevMouseState.LeftButton == ButtonState.Released)
+               {
+                  m_FocusedPane = 2;
+                  m_ProjectorPreview.PrevMouseState = m_PrevMouseState;
+               }
 
-            if (m_FocusedPane == 2)
-               m_ProjectorPreview.HandleInput(elapsedTime);
+               if (m_FocusedPane == 2)
+                  m_ProjectorPreview.HandleInput(elapsedTime);
+            }
          }
+         
 
          // Store input
          m_PrevKeyboardState = keyboardState;
@@ -886,12 +925,20 @@ namespace ProjectionMappingGame.StateMachine
          {
             m_ModeButton.Text = "Editor";
             m_ProjectorPreview.EditorMode = false;
-            //m_ProjectorPreview.SnapCameraToOrbitPosition();
          }
       }
 
       private void PlayButton_OnClick(object sender, EventArgs e)
       {
+         // Play da gamez
+         m_DEM_GAMES = true;
+         m_ProjectorPreview.EditorMode = false;
+         m_ProjectorPreview.Viewport = new Viewport(0, 0, GameConstants.WindowWidth, GameConstants.WindowHeight);
+         m_ProjectorPreview.Camera.AspectRatio = (float)m_ProjectorPreview.Viewport.Width / (float)m_ProjectorPreview.Viewport.Height;
+         m_ProjectorPreview.Camera.UpdateProjection();
+         m_ProjectorPreview.Projector.AspectRatio = (float)m_ProjectorPreview.Viewport.Width / (float)m_ProjectorPreview.Viewport.Height;
+         m_ProjectorPreview.Projector.UpdateProjection();
+         FiniteStateMachine.GetInstance().StartGame();
       }
 
       private void ResetButton_OnClick(object sender, EventArgs e)
@@ -913,54 +960,66 @@ namespace ProjectionMappingGame.StateMachine
       {
          Viewport defaultViewport = m_Game.GraphicsDevice.Viewport;
 
-         // Render the UV editor contents to a render target
-         m_Game.GraphicsDevice.Viewport = m_UVEditor.Viewport;
-         m_UVEditor.DrawRenderTarget();
-
-         // Render panels
-         m_Game.GraphicsDevice.Viewport = defaultViewport;
-         m_GridEditorPanel.Draw(m_Game.GraphicsDevice, spriteBatch);
-         m_UVEditorPanel.Draw(m_Game.GraphicsDevice, spriteBatch);
-         m_ProjectionEditorPanel.Draw(m_Game.GraphicsDevice, spriteBatch);
-
-         // Render the UV editor
-         m_Game.GraphicsDevice.Viewport = m_UVEditor.Viewport;
-         m_UVEditor.Draw(spriteBatch);
-
-         // Render the UV grid editor
-         m_Game.GraphicsDevice.Viewport = m_UVGridEditor.Viewport;
-         m_UVGridEditor.Draw(spriteBatch);
-         
-         // Render the projector preview
-         m_Game.GraphicsDevice.Viewport = m_ProjectorPreview.Viewport;
-         m_ProjectorPreview.Draw();
-
-         // Restore the default viewport
-         m_Game.GraphicsDevice.Viewport = defaultViewport;
-
-         // Render the menu
-         spriteBatch.Begin();
-         spriteBatch.Draw(m_WhiteTexture, new Rectangle(GUI_TOOLBAR_X, 0, GUI_TOOLBAR_WIDTH, GUI_TOOLBAR_HEIGHT), Color.Gray);
-         spriteBatch.Draw(m_WhiteTexture, new Rectangle(GUI_TOOLBAR_X, 0, 2, GUI_TOOLBAR_HEIGHT), Color.Black);
-         RenderApplicationSection(spriteBatch);
-         spriteBatch.Draw(m_WhiteTexture, new Rectangle(GUI_TOOLBAR_X, GUI_APP_Y - 2, GUI_TOOLBAR_WIDTH, 2), Color.Black);
-         RenderGizmoSection(spriteBatch);
-         spriteBatch.Draw(m_WhiteTexture, new Rectangle(GUI_TOOLBAR_X, GUI_GIZMO_Y - 2, GUI_TOOLBAR_WIDTH, 2), Color.Black);
-         RenderBuildingSection(spriteBatch);
-         spriteBatch.Draw(m_WhiteTexture, new Rectangle(GUI_TOOLBAR_X, GUI_BUILDING_Y - 2, GUI_TOOLBAR_WIDTH, 2), Color.Black);
-         RenderProjectorSection(spriteBatch);
-         spriteBatch.Draw(m_WhiteTexture, new Rectangle(GUI_TOOLBAR_X, GUI_PROJECTOR_Y - 2 + ((m_BuildingColorPicker.IsActive) ? 80 : 0), GUI_TOOLBAR_WIDTH, 2), Color.Black);
-
-         RenderLayersSection(spriteBatch);
-         spriteBatch.Draw(m_WhiteTexture, new Rectangle(GUI_TOOLBAR_X, GUI_LAYERS_Y - 2 + ((m_BuildingColorPicker.IsActive) ? 80 : 0), GUI_TOOLBAR_WIDTH, 2), Color.Black);
-
-         spriteBatch.End();
-
-         // Render color picker if it is active
-         if (m_BuildingColorPicker.IsActive)
+         if (m_DEM_GAMES)
          {
-            m_Game.GraphicsDevice.Viewport = m_BuildingColorPicker.Viewport;
-            m_BuildingColorPicker.Draw(m_Game.GraphicsDevice, spriteBatch);
+            // Render the UV editor contents to a render target
+            m_Game.GraphicsDevice.Viewport = m_UVEditor.Viewport;
+            m_UVEditor.DrawRenderTarget();
+
+            m_Game.GraphicsDevice.Viewport = m_ProjectorPreview.Viewport;
+            m_ProjectorPreview.Draw();
+         }
+         else
+         {
+            // Render the UV editor contents to a render target
+            m_Game.GraphicsDevice.Viewport = m_UVEditor.Viewport;
+            m_UVEditor.DrawRenderTarget();
+
+            // Render panels
+            m_Game.GraphicsDevice.Viewport = defaultViewport;
+            m_GridEditorPanel.Draw(m_Game.GraphicsDevice, spriteBatch);
+            m_UVEditorPanel.Draw(m_Game.GraphicsDevice, spriteBatch);
+            m_ProjectionEditorPanel.Draw(m_Game.GraphicsDevice, spriteBatch);
+
+            // Render the UV editor
+            m_Game.GraphicsDevice.Viewport = m_UVEditor.Viewport;
+            m_UVEditor.Draw(spriteBatch);
+
+            // Render the UV grid editor
+            m_Game.GraphicsDevice.Viewport = m_UVGridEditor.Viewport;
+            m_UVGridEditor.Draw(spriteBatch);
+
+            // Render the projector preview
+            m_Game.GraphicsDevice.Viewport = m_ProjectorPreview.Viewport;
+            m_ProjectorPreview.Draw();
+
+            // Restore the default viewport
+            m_Game.GraphicsDevice.Viewport = defaultViewport;
+
+            // Render the menu
+            spriteBatch.Begin();
+            spriteBatch.Draw(m_WhiteTexture, new Rectangle(GUI_TOOLBAR_X, 0, GUI_TOOLBAR_WIDTH, GUI_TOOLBAR_HEIGHT), Color.Gray);
+            spriteBatch.Draw(m_WhiteTexture, new Rectangle(GUI_TOOLBAR_X, 0, 2, GUI_TOOLBAR_HEIGHT), Color.Black);
+            RenderApplicationSection(spriteBatch);
+            spriteBatch.Draw(m_WhiteTexture, new Rectangle(GUI_TOOLBAR_X, GUI_APP_Y - 2, GUI_TOOLBAR_WIDTH, 2), Color.Black);
+            RenderGizmoSection(spriteBatch);
+            spriteBatch.Draw(m_WhiteTexture, new Rectangle(GUI_TOOLBAR_X, GUI_GIZMO_Y - 2, GUI_TOOLBAR_WIDTH, 2), Color.Black);
+            RenderBuildingSection(spriteBatch);
+            spriteBatch.Draw(m_WhiteTexture, new Rectangle(GUI_TOOLBAR_X, GUI_BUILDING_Y - 2, GUI_TOOLBAR_WIDTH, 2), Color.Black);
+            RenderProjectorSection(spriteBatch);
+            spriteBatch.Draw(m_WhiteTexture, new Rectangle(GUI_TOOLBAR_X, GUI_PROJECTOR_Y - 2 + ((m_BuildingColorPicker.IsActive) ? 80 : 0), GUI_TOOLBAR_WIDTH, 2), Color.Black);
+
+            RenderLayersSection(spriteBatch);
+            spriteBatch.Draw(m_WhiteTexture, new Rectangle(GUI_TOOLBAR_X, GUI_LAYERS_Y - 2 + ((m_BuildingColorPicker.IsActive) ? 80 : 0), GUI_TOOLBAR_WIDTH, 2), Color.Black);
+
+            spriteBatch.End();
+
+            // Render color picker if it is active
+            if (m_BuildingColorPicker.IsActive)
+            {
+               m_Game.GraphicsDevice.Viewport = m_BuildingColorPicker.Viewport;
+               m_BuildingColorPicker.Draw(m_Game.GraphicsDevice, spriteBatch);
+            }
          }
 
          // Restore the default viewport
@@ -1087,28 +1146,6 @@ namespace ProjectionMappingGame.StateMachine
             m_ProjectorPreview.ProjectorTexture = value;
          }
       }
-
-      /*
-      public Vector3 ProjectorTarget
-      {
-         get { return m_ProjectorPreview.Projector.Target; }
-      }
-
-      public float ProjectorDistance
-      {
-         get { return m_ProjectorPreview.Projector.Distance; }
-      }
-
-      public float ProjectorYaw
-      {
-         get { return m_ProjectorPreview.Projector.Yaw; }
-      }
-
-      public float ProjectorPitch
-      {
-         get { return m_ProjectorPreview.Projector.Pitch; }
-      }*/
-
 
       #endregion
 
