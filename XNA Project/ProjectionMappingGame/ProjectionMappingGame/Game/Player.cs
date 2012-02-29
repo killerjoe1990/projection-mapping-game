@@ -20,6 +20,7 @@ namespace ProjectionMappingGame.Game
 
         Animation[] m_Animations;
         Vector2 m_Impulse;
+        Vector2 m_CollisionImpulse;
         PlayerIndex m_Player;
 
         float m_SnapY;
@@ -38,6 +39,7 @@ namespace ProjectionMappingGame.Game
             m_Move = 0;
 
             m_Impulse = Vector2.Zero;
+            m_CollisionImpulse = Vector2.Zero;
 
             m_Animations = new Animation[Enum.GetValues(typeof(Animations)).Length];
             m_Animations[(int)Animations.IDLE] = m_CurrentAnimation;
@@ -94,6 +96,7 @@ namespace ProjectionMappingGame.Game
             Vector2 pos = m_Position;
             Vector2 vel = m_Velocity;
             vel += m_Impulse * deltaTime;
+
             if (!m_OnGround)
             {
                 vel.Y += GameConstants.GRAVITY * deltaTime;
@@ -102,6 +105,11 @@ namespace ProjectionMappingGame.Game
             vel.X = m_Move * GameConstants.MOVE_SPEED * deltaTime;
 
             pos += vel * deltaTime;
+
+            if (m_OnGround)
+            {
+                pos.Y = m_SnapY;
+            }
 
             return pos;
 
@@ -184,7 +192,9 @@ namespace ProjectionMappingGame.Game
         public new void Update(float deltaTime)
         {
             m_Velocity += m_Impulse * deltaTime;
+            m_Velocity += m_CollisionImpulse * deltaTime;
             m_Impulse = Vector2.Zero;
+            m_CollisionImpulse = Vector2.Zero;
 
             m_Velocity.X = m_Move * GameConstants.MOVE_SPEED * deltaTime;
             if (!m_OnGround)
@@ -227,12 +237,12 @@ namespace ProjectionMappingGame.Game
                     switch (t.Type)
                     {
                         case PlatformTypes.Impassable:
-                            if (CheckTop(nextPosition, platPos, platBounds))
+                            if (CheckTop(nextPosition, platPos, platPos, platBounds))
                             {
                                 m_Velocity.Y = 0;
                                 m_Impulse.Y = 0;
                             }
-                            if (CheckBot(nextPosition, platPos, platBounds))
+                            if (CheckBot(nextPosition, platPos, platPos, platBounds))
                             {
                                 m_Velocity.Y = t.Velocity.Y;
                                 m_SnapY = t.Position.Y - m_Bounds.Height - 0.00001f;
@@ -250,7 +260,7 @@ namespace ProjectionMappingGame.Game
                             }
                             break;
                         case PlatformTypes.Platform:
-                            if (CheckBot(nextPosition, platPos, platBounds))
+                            if (CheckBot(nextPosition, platPos, platPos, platBounds))
                             {
                                 m_Velocity.Y = t.Velocity.Y;
                                 m_SnapY = t.Position.Y - m_Bounds.Height - 0.00001f;
@@ -261,7 +271,6 @@ namespace ProjectionMappingGame.Game
                             break;
                     }
                 }
-                 
             }
         }
 
@@ -274,29 +283,34 @@ namespace ProjectionMappingGame.Game
 
             nextVelocity = m_Velocity + m_Impulse * deltaTime;
             nextVelocity.X = m_Move * GameConstants.MOVE_SPEED * deltaTime;
-            nextVelocity.Y += GameConstants.GRAVITY * deltaTime;
+            if (!m_OnGround)
+            {
+                nextVelocity.Y += GameConstants.GRAVITY * deltaTime;
+            }
             Vector2 nextPosition = m_Position + nextVelocity * deltaTime;
 
-            if (CheckTop(nextPosition, otherPos, otherBound))
+            if (CheckTop(nextPosition, otherPos, player.GetNextPosition(deltaTime), otherBound))
             {
-                m_Impulse += Vector2.UnitY * GameConstants.BOUNCE_IMPULSE_DOWN;
-                //m_Velocity.Y = 0;
-            }
-            if (CheckBot(nextPosition, otherPos, otherBound))
-            {
-                m_Impulse += Vector2.UnitY * GameConstants.BOUNCE_IMPULSE_UP;
+                m_CollisionImpulse += Vector2.UnitY * GameConstants.BOUNCE_IMPULSE_DOWN;
                 m_Velocity.Y = 0;
+                Console.WriteLine("HIT TOP " + m_Player.ToString());
+            }
+            if (CheckBot(nextPosition, otherPos, player.GetNextPosition(deltaTime), otherBound))
+            {
+                m_CollisionImpulse += Vector2.UnitY * GameConstants.BOUNCE_IMPULSE_UP;
+                m_Velocity.Y = 0;
+                Console.WriteLine("HIT BOT " + m_Player.ToString());
             }
         }
 
-        private bool CheckTop(Vector2 newPos, Vector2 pos, Rectangle rec)
+        private bool CheckTop(Vector2 newPos1, Vector2 pos2, Vector2 newPos2, Rectangle rec)
         {
-            if (newPos.Y <= pos.Y + rec.Height
-                && m_Position.Y > pos.Y + rec.Height 
-                && ((pos.X > newPos.X
-                && pos.X < newPos.X + m_Bounds.Width)
-                || (pos.X + rec.Width > newPos.X
-                && pos.X + rec.Width < newPos.X + m_Bounds.Width)))
+            if (newPos1.Y <= newPos2.Y + rec.Height
+                && m_Position.Y > pos2.Y + rec.Height 
+                && ((newPos2.X > newPos1.X
+                && newPos2.X < newPos1.X + m_Bounds.Width)
+                || (newPos2.X + rec.Width > newPos1.X
+                && newPos2.X + rec.Width < newPos1.X + m_Bounds.Width)))
             {
                 return true;
             }
@@ -306,14 +320,14 @@ namespace ProjectionMappingGame.Game
             }
         }
 
-        private bool CheckBot(Vector2 newPos, Vector2 pos, Rectangle rec)
+        private bool CheckBot(Vector2 newPos1, Vector2 pos2, Vector2 newPos2, Rectangle rec)
         {
-            if (newPos.Y + m_Bounds.Height >= pos.Y
-                && m_Position.Y + m_Bounds.Height < pos.Y
-                && ((pos.X > newPos.X
-                && pos.X < newPos.X + m_Bounds.Width)
-                || (pos.X + rec.Width > newPos.X
-                && pos.X + rec.Width < newPos.X + m_Bounds.Width)))
+            if (newPos1.Y + m_Bounds.Height >= newPos2.Y
+                && m_Position.Y + m_Bounds.Height < pos2.Y
+                && ((pos2.X > newPos1.X
+                && pos2.X < newPos1.X + m_Bounds.Width)
+                || (pos2.X + rec.Width > newPos1.X
+                && pos2.X + rec.Width < newPos1.X + m_Bounds.Width)))
             {
                 return true;
             }
@@ -327,10 +341,10 @@ namespace ProjectionMappingGame.Game
         {
             if (newPos.X <= pos.X + rec.Width
                 && m_Position.X > pos.X + rec.Width
-                && ((pos.Y > newPos.Y
-                && pos.Y < newPos.Y + m_Bounds.Height)
-                || (pos.Y + rec.Height > newPos.Y
-                && pos.Y + rec.Height < newPos.Y + m_Bounds.Height)))
+                && ((pos.Y > m_Position.Y
+                && pos.Y < m_Position.Y + m_Bounds.Height)
+                || (pos.Y + rec.Height > m_Position.Y
+                && pos.Y + rec.Height < m_Position.Y + m_Bounds.Height)))
             {
                 return true;
             }
@@ -344,10 +358,10 @@ namespace ProjectionMappingGame.Game
         {
             if (newPos.X + m_Bounds.Width >= pos.X
                 && m_Position.X + m_Bounds.Width < pos.X
-                && ((pos.Y > newPos.Y
-                && pos.Y < newPos.Y + m_Bounds.Height)
-                || (pos.Y + rec.Height > newPos.Y
-                && pos.Y + rec.Height < newPos.Y + m_Bounds.Height)))
+                && ((pos.Y > m_Position.Y
+                && pos.Y < m_Position.Y + m_Bounds.Height)
+                || (pos.Y + rec.Height > m_Position.Y
+                && pos.Y + rec.Height < m_Position.Y + m_Bounds.Height)))
             {
                 return true;
             }

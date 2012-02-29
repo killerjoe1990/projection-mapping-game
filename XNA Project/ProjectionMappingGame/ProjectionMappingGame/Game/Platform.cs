@@ -14,16 +14,25 @@ namespace ProjectionMappingGame.Game
             Platform
         }
 
+    public enum PlatformStatus
+    {
+        Asleep,
+        Active,
+        Dead
+    }
+
     public class Tile : MoveableObject
     {
         
 
         PlatformTypes m_Type;
+        
 
         public Tile(Vector2 position, Vector2 velocity, Texture2D image, PlatformTypes type)
             : base(new Rectangle((int)position.X,(int)position.Y, GameConstants.TILE_DIM,GameConstants.TILE_DIM), velocity, image)
         {
             m_Type = type;
+            
         }
 
         public PlatformTypes Type
@@ -38,7 +47,7 @@ namespace ProjectionMappingGame.Game
     public class Platform
     {
         Tile[] m_Tiles;
-
+        PlatformStatus m_Status;
         public Platform(Vector2 position, Vector2 velocity, int tilesWide, PlatformTypes type, Texture2D[] images)
         {
             m_Tiles = new Tile[tilesWide];
@@ -46,7 +55,7 @@ namespace ProjectionMappingGame.Game
             for (int i = 0; i < tilesWide; ++i)
             {
                 int image = GameConstants.RANDOM.Next(images.Length);
-
+                m_Status = PlatformStatus.Asleep;
                 m_Tiles[i] = new Tile(new Vector2(position.X + (i * GameConstants.TILE_DIM), position.Y), velocity, images[image], type);
             }
         }
@@ -59,6 +68,18 @@ namespace ProjectionMappingGame.Game
             }
         }
 
+        public PlatformStatus Status
+        {
+            get
+            {
+                return m_Status;
+            }
+            set
+            {
+                m_Status = value;
+            }
+        }
+
         public PlatformTypes Type
         {
             get
@@ -68,6 +89,18 @@ namespace ProjectionMappingGame.Game
                     return m_Tiles[0].Type;
                 }
                 return PlatformTypes.Passable;
+            }
+        }
+
+        public Vector2 Position
+        {
+            get
+            {
+                if (m_Tiles.Length > 0)
+                {
+                    return m_Tiles[0].Position;
+                }
+                return Vector2.Zero;
             }
         }
 
