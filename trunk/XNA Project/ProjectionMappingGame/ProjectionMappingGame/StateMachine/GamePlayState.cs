@@ -168,19 +168,26 @@ namespace ProjectionMappingGame.StateMachine
               if (player != null)
               {
                   player.CheckCollisions(m_Platforms, elapsedTime);
+              }
+          }
 
-                  foreach (Game.Player p in m_Players)
+          foreach (Game.Player player in m_Players)
+          {
+              foreach (Game.Player p in m_Players)
+              {
+                  if (p != null && player != null && p != player)
                   {
-                      if (p != null && p != player)
-                      {
-                          player.CheckCollision(p, elapsedTime);
-                      }
+                      player.CheckCollision(p, elapsedTime);
                   }
+              }
+          }
 
+          foreach (Game.Player player in m_Players)
+          {
+              if (player != null)
+              {
                   player.Update(elapsedTime);
               }
-
-              
           }
       }
 
