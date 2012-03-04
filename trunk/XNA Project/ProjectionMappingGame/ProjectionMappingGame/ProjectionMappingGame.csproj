@@ -143,7 +143,7 @@
     <Compile Include="StateMachine\GamePlayState.cs" />
     <Compile Include="StateMachine\GameState.cs" />
     <Compile Include="StateMachine\MainMenuState.cs" />
-    <Compile Include="StateMachine\Player1MenuState.cs" />
+    <Compile Include="Game\PlayerMenu.cs" />
     <Compile Include="StateMachine\ProjectionEditorState.cs" />
     <Compile Include="Editor\UVEdge.cs" />
     <Compile Include="Editor\UVVertex.cs" />

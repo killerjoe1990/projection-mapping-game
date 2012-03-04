@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Content;
 
 namespace ProjectionMappingGame.Game
 {
@@ -22,11 +23,14 @@ namespace ProjectionMappingGame.Game
         Vector2 m_Impulse;
         Vector2 m_CollisionImpulse;
         PlayerIndex m_Player;
+        PlayerMenu m_PlayerHud;
 
         float m_SnapY;
-
+        Vector2 m_HudOrigin;
         float m_Move;
         bool m_OnGround;
+        bool m_IsAlive;
+        private bool m_DrawHud;
 
         public Player(Texture2D image, Rectangle bounds, GUI.KeyboardInput keyboard, PlayerIndex player) 
             : base(bounds, Vector2.Zero, image)
@@ -37,6 +41,27 @@ namespace ProjectionMappingGame.Game
             m_Player = player;
 
             m_Move = 0;
+
+            m_DrawHud = false;
+            m_IsAlive = true;
+
+            if (player == PlayerIndex.One)
+            {
+                m_HudOrigin = new Vector2(0, 0);
+            }
+            else if (player == PlayerIndex.Two)
+            {
+                m_HudOrigin = new Vector2(1080, 0);
+            }
+            else if (player == PlayerIndex.Three)
+            {
+                m_HudOrigin = new Vector2(0, 660);
+            }
+            else if (player == PlayerIndex.Four)
+            {
+                m_HudOrigin = new Vector2(1080, 660);
+            }
+            m_PlayerHud = new PlayerMenu(m_Player);
 
             m_Impulse = Vector2.Zero;
             m_CollisionImpulse = Vector2.Zero;
@@ -59,6 +84,27 @@ namespace ProjectionMappingGame.Game
             m_Player = player;
 
             m_Move = 0;
+
+            m_DrawHud = false;
+            m_IsAlive = true;
+
+            if (player == PlayerIndex.One)
+            {
+                m_HudOrigin = new Vector2(0, 0);
+            }
+            else if (player == PlayerIndex.Two)
+            {
+                m_HudOrigin = new Vector2(1080, 0);
+            }
+            else if (player == PlayerIndex.Three)
+            {
+                m_HudOrigin = new Vector2(0, 660);
+            }
+            else if (player == PlayerIndex.Four)
+            {
+                m_HudOrigin = new Vector2(1080, 660);
+            }
+            m_PlayerHud = new PlayerMenu(m_Player);
 
             m_Impulse = Vector2.Zero;
 
@@ -84,6 +130,27 @@ namespace ProjectionMappingGame.Game
             m_Move = 0;
 
             m_Impulse = Vector2.Zero;
+
+            m_DrawHud = false;
+            m_IsAlive = true;
+
+            if (player == PlayerIndex.One)
+            {
+                m_HudOrigin = new Vector2(0, 0);
+            }
+            else if (player == PlayerIndex.Two)
+            {
+                m_HudOrigin = new Vector2(1080, 0);
+            }
+            else if (player == PlayerIndex.Three)
+            {
+                m_HudOrigin = new Vector2(0, 660);
+            }
+            else if (player == PlayerIndex.Four)
+            {
+                m_HudOrigin = new Vector2(1080, 660);
+            }
+            m_PlayerHud = new PlayerMenu(m_Player);
 
             m_Animations = new Animation[Enum.GetValues(typeof(Animations)).Length];
             m_Animations[(int)Animations.IDLE] = m_CurrentAnimation;
@@ -118,6 +185,11 @@ namespace ProjectionMappingGame.Game
         public void AddAnimation(Animations type, Animation anim)
         {
             m_Animations[(int)type] = anim;
+        }
+
+        public void LoadHudContent(SpriteFont font, Texture2D playerColor)
+        {
+            m_PlayerHud.LoadContent(font,playerColor);
         }
 
         private void onKeyDown(object sender, Keys[] keys)
@@ -302,7 +374,14 @@ namespace ProjectionMappingGame.Game
                 Console.WriteLine("HIT BOT " + m_Player.ToString());
             }
         }
-
+        public void setCharSelectionHud(bool flag)
+        {
+            m_DrawHud = flag;
+        }
+        public bool getDrawHudBool()
+        {
+            return m_DrawHud;
+        }
         private bool CheckTop(Vector2 newPos1, Vector2 pos2, Vector2 newPos2, Rectangle rec)
         {
             if (newPos1.Y <= newPos2.Y + rec.Height
@@ -354,6 +433,8 @@ namespace ProjectionMappingGame.Game
             }
         }
 
+        
+
         private bool CheckRight(Vector2 newPos, Vector2 pos, Rectangle rec)
         {
             if (newPos.X + m_Bounds.Width >= pos.X
@@ -381,6 +462,17 @@ namespace ProjectionMappingGame.Game
             }
 
             m_CurrentAnimation.Draw(batch, m_Bounds, effect);
+
+            if (this.m_DrawHud == true)
+            {
+                m_PlayerHud.DrawWithCharSelection(batch, m_HudOrigin);
+            }
+            else
+            {
+                m_PlayerHud.DrawWithNoCharSelection(batch, m_HudOrigin);
+            }
         }
+       
     }
+     
 }
