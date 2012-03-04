@@ -31,7 +31,6 @@ namespace ProjectionMappingGame.StateMachine
       MainMenu,
       GamePlay,
       ProjectionEditor,
-      Player1Menu,
       Count
    };
 
@@ -43,8 +42,7 @@ namespace ProjectionMappingGame.StateMachine
       StateType[] m_StateTypes = {
          StateType.MainMenu,
          StateType.GamePlay,
-         StateType.ProjectionEditor,
-         StateType.Player1Menu
+         StateType.ProjectionEditor
       };
 
       // Properties
@@ -94,7 +92,7 @@ namespace ProjectionMappingGame.StateMachine
          m_States[(int)StateType.MainMenu] = new MainMenuState(game);
          m_States[(int)StateType.GamePlay] = new GamePlayState(game);
          m_States[(int)StateType.ProjectionEditor] = new ProjectionEditorState(game);
-         m_States[(int)StateType.Player1Menu] = new Player1MenuState(game);
+         
 
          // Load the start state into the stack
          m_ActiveStates.Push((int)startState);
@@ -113,7 +111,7 @@ namespace ProjectionMappingGame.StateMachine
             m_States[i].LoadContent(content);
          }
 
-         Player1MenuState player1Menu = (Player1MenuState)m_States[(int)StateType.Player1Menu];
+        
          GamePlayState gameplay = (GamePlayState)m_States[(int)StateType.GamePlay];
          ProjectionEditorState projectionEditor = (ProjectionEditorState)m_States[(int)StateType.ProjectionEditor];
          projectionEditor.ProjectorInput = gameplay.RenderTarget;
@@ -183,7 +181,7 @@ namespace ProjectionMappingGame.StateMachine
          MainMenuState mainMenu = (MainMenuState)m_States[(int)StateType.MainMenu];
          GamePlayState gameplay = (GamePlayState)m_States[(int)StateType.GamePlay];
          ProjectionEditorState projectionEditor = (ProjectionEditorState)m_States[(int)StateType.ProjectionEditor];
-         Player1MenuState player1Menu = (Player1MenuState)m_States[(int)StateType.Player1Menu];
+         
 
          // Handle any inter-state logic here
          switch (state)
@@ -192,9 +190,6 @@ namespace ProjectionMappingGame.StateMachine
 
                break;
             case StateType.GamePlay:
-
-               break;
-            case StateType.Player1Menu:
 
                break;
             case StateType.ProjectionEditor:

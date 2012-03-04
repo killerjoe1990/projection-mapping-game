@@ -32,18 +32,19 @@ namespace ProjectionMappingGame.StateMachine
        const float START_Y = 50;
 
       // Fonts
-      SpriteFont m_ArialFont;
+     public SpriteFont m_ArialFont;
       
       // Render target
       bool m_RenderTargetMode;
       Texture2D m_RenderTargetTexture;
       RenderTarget2D m_RenderTarget;
 
-      Texture2D m_PlayerIdleTex;
+     public Texture2D m_PlayerIdleTex;
       Texture2D m_PlayerRunTex;
       Texture2D m_PlayerJumpTex;
 
       Texture2D m_Background;
+      Texture2D []m_PlayerColors;
 
       Texture2D[][] m_PlatformTex;
 
@@ -73,7 +74,7 @@ namespace ProjectionMappingGame.StateMachine
 
           m_Players = new Game.Player[GameConstants.MAX_PLAYERS];
 
-          m_NumPlayers = 1;
+          m_NumPlayers = 4;
 
           m_Platforms = new List<Game.Platform>();
 
@@ -92,13 +93,31 @@ namespace ProjectionMappingGame.StateMachine
           m_Players[(int)PlayerIndex.One] = new Game.Player(m_PlayerIdleTex, new Rectangle(GameConstants.DEFAULT_WINDOW_WIDTH / (GameConstants.MAX_PLAYERS + 1), (int)START_Y, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Keyboard, PlayerIndex.One);
 
           m_Players[(int)PlayerIndex.Two] = new Game.Player(m_PlayerIdleTex, new Rectangle(GameConstants.DEFAULT_WINDOW_WIDTH / (GameConstants.MAX_PLAYERS + 1) + 50, (int)START_Y, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y),
-              m_Gamepad, PlayerIndex.One);
+              m_Gamepad, PlayerIndex.Two);
 
           m_Players[(int)PlayerIndex.One].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_FRAMERATE, true));
           m_Players[(int)PlayerIndex.One].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_FRAMERATE, false));
 
           m_Players[(int)PlayerIndex.Two].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_FRAMERATE, true));
           m_Players[(int)PlayerIndex.Two].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_FRAMERATE, false));
+
+          m_Players[(int)PlayerIndex.Three] = new Game.Player(m_PlayerIdleTex, new Rectangle(GameConstants.DEFAULT_WINDOW_WIDTH / (GameConstants.MAX_PLAYERS + 1)+ 15, (int)START_Y, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, PlayerIndex.Three);
+
+          m_Players[(int)PlayerIndex.Four] = new Game.Player(m_PlayerIdleTex, new Rectangle(GameConstants.DEFAULT_WINDOW_WIDTH / (GameConstants.MAX_PLAYERS + 1) + 55, (int)START_Y, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y),
+              m_Gamepad, PlayerIndex.Four);
+
+          m_Players[(int)PlayerIndex.Four].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_FRAMERATE, true));
+          m_Players[(int)PlayerIndex.Four].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_FRAMERATE, false));
+
+          m_Players[(int)PlayerIndex.Three].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_FRAMERATE, true));
+          m_Players[(int)PlayerIndex.Three].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_FRAMERATE, false));
+
+          m_Players[(int)PlayerIndex.One].LoadHudContent(this.m_ArialFont, this.m_PlayerIdleTex);
+          m_Players[(int)PlayerIndex.Two].LoadHudContent(this.m_ArialFont, this.m_PlayerIdleTex);
+          m_Players[(int)PlayerIndex.Three].LoadHudContent(this.m_ArialFont, this.m_PlayerIdleTex);
+          m_Players[(int)PlayerIndex.Four].LoadHudContent(this.m_ArialFont, this.m_PlayerIdleTex);
+
+
 
           m_Platforms.Clear();
 
@@ -113,6 +132,7 @@ namespace ProjectionMappingGame.StateMachine
           }
 
           m_Players[(int)playerNumber] = player;
+          m_Players[(int)playerNumber].LoadHudContent(m_ArialFont, m_PlayerIdleTex);
       }
 
       public override void LoadContent(ContentManager content)
@@ -123,6 +143,8 @@ namespace ProjectionMappingGame.StateMachine
          m_PlayerIdleTex = content.Load<Texture2D>("Sprites/Idle");
          m_PlayerRunTex = content.Load<Texture2D>("Sprites/Run");
          m_PlayerJumpTex = content.Load<Texture2D>("Sprites/Jump");
+
+
 
          // TEMPORARY LOAD FOR RENDER TARGET
          m_RenderTargetTexture = content.Load<Texture2D>("Textures/default_editor_input");
@@ -245,7 +267,14 @@ namespace ProjectionMappingGame.StateMachine
           if (button == GUI.GamepadInput.Buttons.START)
           {
               // JOHANNES: ADD CODE HERE TO PUSH YOUR STATE ONTO STACK
-              FiniteStateMachine.GetInstance().ChangeState(StateType.Player1Menu);
+              if (m_Players[0].getDrawHudBool()==false)
+              {
+                  m_Players[0].setCharSelectionHud(true);
+              }
+              else
+              {
+                  m_Players[0].setCharSelectionHud(false);
+              }
           }
       }
       public void OnButtonUpP2(object sender, GUI.GamepadInput.Buttons button)
@@ -253,7 +282,14 @@ namespace ProjectionMappingGame.StateMachine
           if (button == GUI.GamepadInput.Buttons.START)
           {
               // JOHANNES: ADD CODE HERE TO PUSH YOUR STATE ONTO STACK
-              //FiniteStateMachine.GetInstance().ChangeState(StateType.Player2Menu);
+              if (m_Players[1].getDrawHudBool() == false)
+              {
+                  m_Players[1].setCharSelectionHud(true);
+              }
+              else
+              {
+                  m_Players[1].setCharSelectionHud(false);
+              }
           }
       }
       public void OnButtonUpP3(object sender, GUI.GamepadInput.Buttons button)
@@ -261,7 +297,14 @@ namespace ProjectionMappingGame.StateMachine
           if (button == GUI.GamepadInput.Buttons.START)
           {
               // JOHANNES: ADD CODE HERE TO PUSH YOUR STATE ONTO STACK
-              //FiniteStateMachine.GetInstance().ChangeState(StateType.Player3Menu);
+              if (m_Players[2].getDrawHudBool() == false)
+              {
+                  m_Players[2].setCharSelectionHud(true);
+              }
+              else
+              {
+                  m_Players[2].setCharSelectionHud(false);
+              }
           }
       }
       public void OnButtonUpP4(object sender, GUI.GamepadInput.Buttons button)
@@ -269,7 +312,14 @@ namespace ProjectionMappingGame.StateMachine
           if (button == GUI.GamepadInput.Buttons.START)
           {
               // JOHANNES: ADD CODE HERE TO PUSH YOUR STATE ONTO STACK
-              //FiniteStateMachine.GetInstance().ChangeState(StateType.Player4Menu);
+              if (m_Players[3].getDrawHudBool() == false)
+              {
+                  m_Players[3].setCharSelectionHud(true);
+              }
+              else
+              {
+                  m_Players[3].setCharSelectionHud(false);
+              }
           }
       }
 
@@ -285,10 +335,42 @@ namespace ProjectionMappingGame.StateMachine
               if (k == Keys.Back)
               {
                   // JOHANNES: ADD CODE HERE TO PUSH YOUR STATE ONTO STACK
-                  FiniteStateMachine.GetInstance().ChangeState(StateType.Player1Menu);
-                  //FiniteStateMachine.GetInstance().ChangeState(StateType.Player2Menu);
-                  //FiniteStateMachine.GetInstance().ChangeState(StateType.Player3Menu);
-                  //FiniteStateMachine.GetInstance().ChangeState(StateType.Player4Menu);
+                  //Right now pressing back displays all players char select screen.
+                  if (m_Players[0].getDrawHudBool() == false)
+                  {
+                      m_Players[0].setCharSelectionHud(true);
+                  }
+                  else
+                  {
+                      m_Players[0].setCharSelectionHud(false);
+                  }
+
+                  if (m_Players[1].getDrawHudBool() == false)
+                  {
+                      m_Players[1].setCharSelectionHud(true);
+                  }
+                  else
+                  {
+                      m_Players[1].setCharSelectionHud(false);
+                  }
+
+                  if (m_Players[2].getDrawHudBool() == false)
+                  {
+                      m_Players[2].setCharSelectionHud(true);
+                  }
+                  else
+                  {
+                      m_Players[2].setCharSelectionHud(false);
+                  }
+
+                  if (m_Players[3].getDrawHudBool() == false)
+                  {
+                      m_Players[3].setCharSelectionHud(true);
+                  }
+                  else
+                  {
+                      m_Players[3].setCharSelectionHud(false);
+                  }
               }
           }
       }
