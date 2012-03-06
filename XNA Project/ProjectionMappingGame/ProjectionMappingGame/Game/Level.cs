@@ -21,6 +21,9 @@ namespace ProjectionMappingGame.Game
         Texture2D m_RenderTargetTexture;
         RenderTarget2D m_RenderTarget;
 
+        int m_WindowWidth;
+        int m_WindowHeight;
+
         int m_LevelNum;
 
         // Input
@@ -36,8 +39,11 @@ namespace ProjectionMappingGame.Game
         Game.PlatformSpawner m_PlatSpawn;
 
 
-        public Level(StateMachine.GamePlayState state, int lvlNum, Game.PlatformSpawner spawner, Texture2D background, GUI.KeyboardInput keyboard, GUI.GamepadInput gamepad)
+        public Level(StateMachine.GamePlayState state, int lvlNum, Game.PlatformSpawner spawner, Texture2D background, GUI.KeyboardInput keyboard, GUI.GamepadInput gamepad, int width, int height)
         {
+            m_WindowHeight = height;
+            m_WindowWidth = width;
+
             m_GameState = state;
             m_LevelNum = lvlNum;
 
@@ -54,7 +60,7 @@ namespace ProjectionMappingGame.Game
 
             // Initialize render target
             m_RenderTargetMode = false;
-            m_RenderTarget = new RenderTarget2D(m_GameState.Graphics, GameConstants.WindowWidth, GameConstants.WindowHeight, true, m_GameState.Graphics.DisplayMode.Format, DepthFormat.Depth24);
+            m_RenderTarget = new RenderTarget2D(m_GameState.Graphics, m_WindowWidth, m_WindowHeight, true, m_GameState.Graphics.DisplayMode.Format, DepthFormat.Depth24);
 
         }
 
@@ -105,6 +111,12 @@ namespace ProjectionMappingGame.Game
                 if (player != null)
                 {
                     player.Update(elapsedTime);
+
+                    if (player.Position.Y > m_WindowHeight)
+                    {
+                        player.Kill();
+                        m_GameState.PlayerDied(player);
+                    }
                 }
             }
         }
@@ -144,15 +156,26 @@ namespace ProjectionMappingGame.Game
         {
             spriteBatch.Begin();
 
-            // Render anything here
-            //spriteBatch.DrawString(m_ArialFont, "Game Play: press enter to go back to main menu", new Vector2(5, 5), Color.Black);
-            spriteBatch.Draw(m_Background, new Rectangle(0, 0, GameConstants.DEFAULT_WINDOW_WIDTH, GameConstants.DEFAULT_WINDOW_HEIGHT), Color.White);
+            // Background always goes in the back.
+            spriteBatch.Draw(m_Background, new Rectangle(0, 0, m_WindowWidth, m_WindowHeight), Color.White);
 
+
+            // Platforms next.
             foreach (Platform platform in m_Platforms)
             {
                 platform.Draw(spriteBatch);
             }
 
+            // HUD goes BEHIND every player.
+            foreach (Player player in m_Players)
+            {
+                if (player != null)
+                {
+                    player.DrawHUD(spriteBatch);
+                }
+            }
+
+            // Players should ALWAYS be on top.
             foreach (Player player in m_Players)
             {
                 if (player != null)
@@ -160,6 +183,7 @@ namespace ProjectionMappingGame.Game
                     player.Draw(spriteBatch);
                 }
             }
+
             spriteBatch.End();
         }
 
@@ -179,6 +203,19 @@ namespace ProjectionMappingGame.Game
                 {
                     player.Position = portal.Position;
                 }
+            }
+        }
+
+        public Point WindowSize
+        {
+            get
+            {
+                return new Point(m_WindowWidth, m_WindowHeight);
+            }
+            set
+            {
+                m_WindowWidth = value.X;
+                m_WindowHeight = value.Y;
             }
         }
 

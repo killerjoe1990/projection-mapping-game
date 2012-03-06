@@ -35,6 +35,8 @@ namespace ProjectionMappingGame.Game
 
         int m_PlayerColor;
 
+        Point m_WindowSize;
+
         float m_SnapY;
         float m_Move;
         bool m_OnGround;
@@ -51,29 +53,7 @@ namespace ProjectionMappingGame.Game
 
             m_Move = 0;
 
-            Vector2 hudPos = Vector2.Zero;
-
-            switch (player)
-            {
-                case PlayerIndex.One:
-                    hudPos.X = 0;
-                    hudPos.Y = 0;
-                    break;
-                case PlayerIndex.Two:
-                    hudPos.X = GameConstants.DEFAULT_WINDOW_WIDTH - GameConstants.HUD_WIDTH;
-                    hudPos.Y = 0;
-                    break;
-                case PlayerIndex.Three:
-                    hudPos.X = 0;
-                    hudPos.Y = GameConstants.DEFAULT_WINDOW_HEIGHT - GameConstants.HUD_HEIGHT;
-                    break;
-                case PlayerIndex.Four:
-                    hudPos.X = GameConstants.DEFAULT_WINDOW_WIDTH - GameConstants.HUD_WIDTH;
-                    hudPos.Y = GameConstants.DEFAULT_WINDOW_HEIGHT - GameConstants.HUD_HEIGHT;
-                    break;
-            }
-
-            m_PlayerHud = new PlayerMenu(player, hudPos);
+            m_PlayerHud = new PlayerMenu(player);
 
             m_Impulse = Vector2.Zero;
             m_CollisionImpulse = Vector2.Zero;
@@ -102,29 +82,8 @@ namespace ProjectionMappingGame.Game
 
             m_Move = 0;
 
-            Vector2 hudPos = Vector2.Zero;
 
-            switch (player)
-            {
-                case PlayerIndex.One:
-                    hudPos.X = 0;
-                    hudPos.Y = 0;
-                    break;
-                case PlayerIndex.Two:
-                    hudPos.X = GameConstants.DEFAULT_WINDOW_WIDTH - GameConstants.HUD_WIDTH;
-                    hudPos.Y = 0;
-                    break;
-                case PlayerIndex.Three:
-                    hudPos.X = 0;
-                    hudPos.Y = GameConstants.DEFAULT_WINDOW_HEIGHT - GameConstants.HUD_HEIGHT;
-                    break;
-                case PlayerIndex.Four:
-                    hudPos.X = GameConstants.DEFAULT_WINDOW_WIDTH - GameConstants.HUD_WIDTH;
-                    hudPos.Y = GameConstants.DEFAULT_WINDOW_HEIGHT - GameConstants.HUD_HEIGHT;
-                    break;
-            }
-
-            m_PlayerHud = new PlayerMenu(player, hudPos);
+            m_PlayerHud = new PlayerMenu(player);
 
             m_Impulse = Vector2.Zero;
 
@@ -157,29 +116,8 @@ namespace ProjectionMappingGame.Game
 
             m_Impulse = Vector2.Zero;
 
-            Vector2 hudPos = Vector2.Zero;
-
-            switch (player)
-            {
-                case PlayerIndex.One:
-                    hudPos.X = 0;
-                    hudPos.Y = 0;
-                    break;
-                case PlayerIndex.Two:
-                    hudPos.X = GameConstants.DEFAULT_WINDOW_WIDTH - GameConstants.HUD_WIDTH;
-                    hudPos.Y = 0;
-                    break;
-                case PlayerIndex.Three:
-                    hudPos.X = 0;
-                    hudPos.Y = GameConstants.DEFAULT_WINDOW_HEIGHT - GameConstants.HUD_HEIGHT;
-                    break;
-                case PlayerIndex.Four:
-                    hudPos.X = GameConstants.DEFAULT_WINDOW_WIDTH - GameConstants.HUD_WIDTH;
-                    hudPos.Y = GameConstants.DEFAULT_WINDOW_HEIGHT - GameConstants.HUD_HEIGHT;
-                    break;
-            }
-
-            m_PlayerHud = new PlayerMenu(player, hudPos);
+          
+            m_PlayerHud = new PlayerMenu(player);
 
             m_Animations = new Animation[Enum.GetValues(typeof(Animations)).Length];
             m_Animations[(int)Animations.IDLE] = m_CurrentAnimation;
@@ -198,12 +136,26 @@ namespace ProjectionMappingGame.Game
             set;
         }
 
+        public PlayerMenu HUD
+        {
+            get { return m_PlayerHud; } 
+        }
+
         public PlayerIndex PlayerNumber
         {
             get
             {
                 return m_Player;
             }
+        }
+
+        public void MovePlayer(Level lvl)
+        {
+            Vector2 hudPos = Vector2.Zero;
+
+            m_WindowSize = lvl.WindowSize;
+
+            m_PlayerHud.WindowSize = lvl.WindowSize;
         }
 
         public void SetColor(Color c)
@@ -274,6 +226,11 @@ namespace ProjectionMappingGame.Game
                 case States.DEAD:
                     if (keys.Contains(Keys.Enter))
                     {
+                        m_Position.Y = GameConstants.START_Y;
+                        m_Position.X = (m_WindowSize.X / 2.0f) + (((int)m_Player - GameConstants.MAX_PLAYERS / 2)) * (GameConstants.PLAYER_DIM_X + GameConstants.START_SPACING);
+                        m_Bounds.X = (int)m_Position.X;
+                        m_Bounds.Y = (int)m_Position.Y;
+
                         State = States.SPAWNING;
                     }
                     break;
@@ -350,6 +307,11 @@ namespace ProjectionMappingGame.Game
                 case States.DEAD:
                     if (button.Equals(GUI.GamepadInput.Buttons.START))
                     {
+                        m_Position.Y = GameConstants.START_Y;
+                        m_Position.X = (m_WindowSize.X / 2.0f) + (((int)m_Player - GameConstants.MAX_PLAYERS / 2)) * (GameConstants.PLAYER_DIM_X + GameConstants.START_SPACING);
+                        m_Bounds.X = (int)m_Position.X;
+                        m_Bounds.Y = (int)m_Position.Y;
+
                         State = States.SPAWNING;
                     }
                     break;
@@ -568,9 +530,7 @@ namespace ProjectionMappingGame.Game
             {
                 return false;
             }
-        }
-
-        
+        } 
 
         private bool CheckRight(Vector2 newPos, Vector2 pos, Rectangle rec)
         {
@@ -589,6 +549,13 @@ namespace ProjectionMappingGame.Game
             }
         }
 
+        public void Kill()
+        {
+            m_PlayerHud.Reset();
+            m_Position = Vector2.Zero;
+            State = States.DEAD;
+        }
+
         public new void Draw(SpriteBatch batch)
         {
             SpriteEffects effect = SpriteEffects.None;
@@ -602,10 +569,25 @@ namespace ProjectionMappingGame.Game
             {
                 case States.PLAYING:
                     m_CurrentAnimation.Draw(batch, m_Bounds, effect);
-                    m_PlayerHud.DrawWithNoCharSelection(batch, GameConstants.PLAYER_COLORS[m_PlayerColor]);
                     break;
                 case States.SPAWNING:
                     m_Animations[(int)Animations.IDLE].Draw(batch, m_Bounds, effect);
+                    break;
+                case States.PORTING:
+                    break;
+                case States.DEAD:
+                    break;
+            }
+        }
+
+        public void DrawHUD(SpriteBatch batch)
+        {
+            switch (State)
+            {
+                case States.PLAYING:
+                    m_PlayerHud.DrawWithNoCharSelection(batch, GameConstants.PLAYER_COLORS[m_PlayerColor]);
+                    break;
+                case States.SPAWNING:
                     m_PlayerHud.DrawWithCharSelection(batch, GameConstants.PLAYER_COLORS[m_PlayerColor]);
                     break;
                 case States.PORTING:
