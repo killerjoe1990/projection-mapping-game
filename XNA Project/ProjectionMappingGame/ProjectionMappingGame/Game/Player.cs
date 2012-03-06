@@ -12,11 +12,19 @@ namespace ProjectionMappingGame.Game
     public class Player : MoveableObject
     {
 
+        public enum States
+        {
+            DEAD,
+            SPAWNING,
+            PLAYING,
+            PORTING
+        }
+
         public enum Animations
         {
-            IDLE = 0,
-            RUN = 1,
-            JUMP = 2
+            IDLE,
+            RUN,
+            JUMP
         }
 
         Animation[] m_Animations;
@@ -25,12 +33,13 @@ namespace ProjectionMappingGame.Game
         PlayerIndex m_Player;
         PlayerMenu m_PlayerHud;
 
+        int m_PlayerColor;
+
         float m_SnapY;
-        Vector2 m_HudOrigin;
         float m_Move;
         bool m_OnGround;
-        bool m_IsAlive;
-        private bool m_DrawHud;
+
+
 
         public Player(Texture2D image, Rectangle bounds, GUI.KeyboardInput keyboard, PlayerIndex player) 
             : base(bounds, Vector2.Zero, image)
@@ -42,26 +51,29 @@ namespace ProjectionMappingGame.Game
 
             m_Move = 0;
 
-            m_DrawHud = false;
-            m_IsAlive = true;
+            Vector2 hudPos = Vector2.Zero;
 
-            if (player == PlayerIndex.One)
+            switch (player)
             {
-                m_HudOrigin = new Vector2(0, 0);
+                case PlayerIndex.One:
+                    hudPos.X = 0;
+                    hudPos.Y = 0;
+                    break;
+                case PlayerIndex.Two:
+                    hudPos.X = GameConstants.DEFAULT_WINDOW_WIDTH - GameConstants.HUD_WIDTH;
+                    hudPos.Y = 0;
+                    break;
+                case PlayerIndex.Three:
+                    hudPos.X = 0;
+                    hudPos.Y = GameConstants.DEFAULT_WINDOW_HEIGHT - GameConstants.HUD_HEIGHT;
+                    break;
+                case PlayerIndex.Four:
+                    hudPos.X = GameConstants.DEFAULT_WINDOW_WIDTH - GameConstants.HUD_WIDTH;
+                    hudPos.Y = GameConstants.DEFAULT_WINDOW_HEIGHT - GameConstants.HUD_HEIGHT;
+                    break;
             }
-            else if (player == PlayerIndex.Two)
-            {
-                m_HudOrigin = new Vector2(1080, 0);
-            }
-            else if (player == PlayerIndex.Three)
-            {
-                m_HudOrigin = new Vector2(0, 660);
-            }
-            else if (player == PlayerIndex.Four)
-            {
-                m_HudOrigin = new Vector2(1080, 660);
-            }
-            m_PlayerHud = new PlayerMenu(m_Player);
+
+            m_PlayerHud = new PlayerMenu(player, hudPos);
 
             m_Impulse = Vector2.Zero;
             m_CollisionImpulse = Vector2.Zero;
@@ -72,6 +84,11 @@ namespace ProjectionMappingGame.Game
             m_OnGround = false;
 
             m_SnapY = 0;
+
+            State = States.DEAD;
+
+            m_PlayerColor = 0;
+            SetColor(GameConstants.PLAYER_COLORS[m_PlayerColor]);
         }
 
         public Player(Texture2D image, Rectangle bounds, GUI.GamepadInput gamepad, PlayerIndex player)
@@ -79,32 +96,35 @@ namespace ProjectionMappingGame.Game
         {
             gamepad.RegisterAxisEvent(onAxisChange, player);
             gamepad.RegisterButtonEvent(GUI.GamepadEventType.BUTTON_DOWN, onButtonHold, player);
-            
+            gamepad.RegisterButtonEvent(GUI.GamepadEventType.BUTTON_DOWN, onButtonDown, player);
 
             m_Player = player;
 
             m_Move = 0;
 
-            m_DrawHud = false;
-            m_IsAlive = true;
+            Vector2 hudPos = Vector2.Zero;
 
-            if (player == PlayerIndex.One)
+            switch (player)
             {
-                m_HudOrigin = new Vector2(0, 0);
+                case PlayerIndex.One:
+                    hudPos.X = 0;
+                    hudPos.Y = 0;
+                    break;
+                case PlayerIndex.Two:
+                    hudPos.X = GameConstants.DEFAULT_WINDOW_WIDTH - GameConstants.HUD_WIDTH;
+                    hudPos.Y = 0;
+                    break;
+                case PlayerIndex.Three:
+                    hudPos.X = 0;
+                    hudPos.Y = GameConstants.DEFAULT_WINDOW_HEIGHT - GameConstants.HUD_HEIGHT;
+                    break;
+                case PlayerIndex.Four:
+                    hudPos.X = GameConstants.DEFAULT_WINDOW_WIDTH - GameConstants.HUD_WIDTH;
+                    hudPos.Y = GameConstants.DEFAULT_WINDOW_HEIGHT - GameConstants.HUD_HEIGHT;
+                    break;
             }
-            else if (player == PlayerIndex.Two)
-            {
-                m_HudOrigin = new Vector2(1080, 0);
-            }
-            else if (player == PlayerIndex.Three)
-            {
-                m_HudOrigin = new Vector2(0, 660);
-            }
-            else if (player == PlayerIndex.Four)
-            {
-                m_HudOrigin = new Vector2(1080, 660);
-            }
-            m_PlayerHud = new PlayerMenu(m_Player);
+
+            m_PlayerHud = new PlayerMenu(player, hudPos);
 
             m_Impulse = Vector2.Zero;
 
@@ -114,6 +134,11 @@ namespace ProjectionMappingGame.Game
             m_OnGround = false;
 
             m_SnapY = 0;
+
+            State = States.DEAD;
+
+            m_PlayerColor = 0;
+            SetColor(GameConstants.PLAYER_COLORS[m_PlayerColor]);
         }
 
         public Player(Texture2D image, Rectangle bounds, GUI.GamepadInput gamepad, GUI.KeyboardInput keyboard, PlayerIndex player)
@@ -124,6 +149,7 @@ namespace ProjectionMappingGame.Game
 
             gamepad.RegisterAxisEvent(onAxisChange, player);
             gamepad.RegisterButtonEvent(GUI.GamepadEventType.BUTTON_HOLD, onButtonHold, player);
+            gamepad.RegisterButtonEvent(GUI.GamepadEventType.BUTTON_DOWN, onButtonDown, player);
             
             m_Player = player;
 
@@ -131,31 +157,64 @@ namespace ProjectionMappingGame.Game
 
             m_Impulse = Vector2.Zero;
 
-            m_DrawHud = false;
-            m_IsAlive = true;
+            Vector2 hudPos = Vector2.Zero;
 
-            if (player == PlayerIndex.One)
+            switch (player)
             {
-                m_HudOrigin = new Vector2(0, 0);
+                case PlayerIndex.One:
+                    hudPos.X = 0;
+                    hudPos.Y = 0;
+                    break;
+                case PlayerIndex.Two:
+                    hudPos.X = GameConstants.DEFAULT_WINDOW_WIDTH - GameConstants.HUD_WIDTH;
+                    hudPos.Y = 0;
+                    break;
+                case PlayerIndex.Three:
+                    hudPos.X = 0;
+                    hudPos.Y = GameConstants.DEFAULT_WINDOW_HEIGHT - GameConstants.HUD_HEIGHT;
+                    break;
+                case PlayerIndex.Four:
+                    hudPos.X = GameConstants.DEFAULT_WINDOW_WIDTH - GameConstants.HUD_WIDTH;
+                    hudPos.Y = GameConstants.DEFAULT_WINDOW_HEIGHT - GameConstants.HUD_HEIGHT;
+                    break;
             }
-            else if (player == PlayerIndex.Two)
-            {
-                m_HudOrigin = new Vector2(1080, 0);
-            }
-            else if (player == PlayerIndex.Three)
-            {
-                m_HudOrigin = new Vector2(0, 660);
-            }
-            else if (player == PlayerIndex.Four)
-            {
-                m_HudOrigin = new Vector2(1080, 660);
-            }
-            m_PlayerHud = new PlayerMenu(m_Player);
+
+            m_PlayerHud = new PlayerMenu(player, hudPos);
 
             m_Animations = new Animation[Enum.GetValues(typeof(Animations)).Length];
             m_Animations[(int)Animations.IDLE] = m_CurrentAnimation;
 
             m_OnGround = false;
+
+            State = States.DEAD;
+
+            m_PlayerColor = 0;
+            SetColor(GameConstants.PLAYER_COLORS[m_PlayerColor]);
+        }
+
+        public States State
+        {
+            get;
+            set;
+        }
+
+        public PlayerIndex PlayerNumber
+        {
+            get
+            {
+                return m_Player;
+            }
+        }
+
+        public void SetColor(Color c)
+        {
+            foreach (Animation a in m_Animations)
+            {
+                if (a != null)
+                {
+                    a.SetColor(c);
+                }
+            }
         }
 
         public Vector2 GetNextPosition(float deltaTime)
@@ -187,24 +246,27 @@ namespace ProjectionMappingGame.Game
             m_Animations[(int)type] = anim;
         }
 
-        public void LoadHudContent(SpriteFont font, Texture2D playerColor)
+        public void LoadHudContent(SpriteFont font, GraphicsDevice device, Texture2D background)
         {
-            m_PlayerHud.LoadContent(font,playerColor);
+            m_PlayerHud.LoadContent(font,device,background);
         }
 
         private void onKeyDown(object sender, Keys[] keys)
         {
-            if(keys.Contains(Keys.Space))// && m_OnGround)
+            if (State == States.PLAYING)
             {
-                if(m_OnGround)
+                if (keys.Contains(Keys.Space))// && m_OnGround)
                 {
-                     m_Impulse += Vector2.UnitY * GameConstants.JUMP_IMPULSE;
-
-                    if (m_Animations[(int)Animations.JUMP] != null)
+                    if (m_OnGround)
                     {
-                        //m_CurrentAnimation.Reset();
-                        m_CurrentAnimation = m_Animations[(int)Animations.JUMP];
-                        m_CurrentAnimation.Reset();
+                        m_Impulse += Vector2.UnitY * GameConstants.JUMP_IMPULSE;
+
+                        if (m_Animations[(int)Animations.JUMP] != null)
+                        {
+                            //m_CurrentAnimation.Reset();
+                            m_CurrentAnimation = m_Animations[(int)Animations.JUMP];
+                            m_CurrentAnimation.Reset();
+                        }
                     }
                 }
             }
@@ -212,81 +274,131 @@ namespace ProjectionMappingGame.Game
 
         private void onKeyHeld(object sender, Keys[] keys)
         {
-            if (keys.Contains(Keys.A))
+            if (State == States.PLAYING)
             {
-                m_Move = -1;
-
-                if (m_Animations[(int)Animations.RUN] != null && m_OnGround)
+                if (keys.Contains(Keys.A))
                 {
-                    //m_CurrentAnimation.Reset();
-                    m_CurrentAnimation = m_Animations[(int)Animations.RUN];
+                    m_Move = -1;
+
+                    if (m_Animations[(int)Animations.RUN] != null && m_OnGround)
+                    {
+                        //m_CurrentAnimation.Reset();
+                        m_CurrentAnimation = m_Animations[(int)Animations.RUN];
+                    }
+                }
+                if (keys.Contains(Keys.D))
+                {
+                    m_Move = 1;
+
+                    if (m_Animations[(int)Animations.RUN] != null && m_OnGround)
+                    {
+                        //m_CurrentAnimation.Reset();
+                        m_CurrentAnimation = m_Animations[(int)Animations.RUN];
+                    }
                 }
             }
-            if (keys.Contains(Keys.D))
-            {
-                m_Move = 1;
+        }
 
-                if (m_Animations[(int)Animations.RUN] != null && m_OnGround)
-                {
-                    //m_CurrentAnimation.Reset();
-                    m_CurrentAnimation = m_Animations[(int)Animations.RUN];
-                }
+        private void onButtonDown(object sender, GUI.GamepadInput.Buttons button)
+        {
+            switch (State)
+            {
+                case States.PLAYING:
+                    if (button.Equals(GUI.GamepadInput.Buttons.A) && m_OnGround)
+                    {
+                        m_Impulse += Vector2.UnitY * GameConstants.JUMP_IMPULSE;
+
+                        if (m_Animations[(int)Animations.JUMP] != null)
+                        {
+                            m_CurrentAnimation = m_Animations[(int)Animations.JUMP];
+                            m_CurrentAnimation.Reset();
+                        }
+                    }
+                    break;
+                case States.DEAD:
+                    if (button.Equals(GUI.GamepadInput.Buttons.START))
+                    {
+                        State = States.SPAWNING;
+                    }
+                    break;
+                case States.SPAWNING:
+                    if (button.Equals(GUI.GamepadInput.Buttons.A))
+                    {
+                        SetColor(GameConstants.PLAYER_COLORS[m_PlayerColor]);
+                        State = States.PLAYING;
+                    }
+                    if (button.Equals(GUI.GamepadInput.Buttons.LB))
+                    {
+                        m_PlayerColor = (m_PlayerColor - 1) % GameConstants.PLAYER_COLORS.Length;
+
+                        if (m_PlayerColor < 0)
+                        {
+                            m_PlayerColor = GameConstants.PLAYER_COLORS.Length - 1;
+                        }
+
+                        m_Animations[(int)Animations.IDLE].SetColor(GameConstants.PLAYER_COLORS[m_PlayerColor]);
+                    }
+                    if (button.Equals(GUI.GamepadInput.Buttons.RB))
+                    {
+                        m_PlayerColor = (m_PlayerColor + 1) % GameConstants.PLAYER_COLORS.Length;
+                        m_Animations[(int)Animations.IDLE].SetColor(GameConstants.PLAYER_COLORS[m_PlayerColor]);
+                    }
+                    break;
             }
         }
 
         private void onButtonHold(object sender, GUI.GamepadInput.Buttons button)
         {
-            if (button.Equals(GUI.GamepadInput.Buttons.A) && m_OnGround)
-            {
-                m_Impulse += Vector2.UnitY * GameConstants.JUMP_IMPULSE;
-
-                if (m_Animations[(int)Animations.JUMP] != null)
-                {
-                    m_CurrentAnimation = m_Animations[(int)Animations.JUMP];
-                    m_CurrentAnimation.Reset();
-                }
-            }
+            
         }
 
         private void onAxisChange(object sender, GUI.GamepadInput.Axis axis, float degree)
         {
-            if (axis.Equals(GUI.GamepadInput.Axis.LS_X))
+            if (State == States.PLAYING)
             {
-                m_Move = degree;
-
-                if (m_Animations[(int)Animations.RUN] != null && m_OnGround)
+                if (axis.Equals(GUI.GamepadInput.Axis.LS_X))
                 {
-                    m_CurrentAnimation = m_Animations[(int)Animations.RUN];
+                    m_Move = degree;
+
+                    if (m_Animations[(int)Animations.RUN] != null && m_OnGround)
+                    {
+                        m_CurrentAnimation = m_Animations[(int)Animations.RUN];
+                    }
                 }
             }
         }
 
         public new void Update(float deltaTime)
         {
-            m_Velocity += m_Impulse * deltaTime;
-            m_Velocity += m_CollisionImpulse * deltaTime;
-            m_Impulse = Vector2.Zero;
-            m_CollisionImpulse = Vector2.Zero;
-
-            m_Velocity.X = m_Move * GameConstants.MOVE_SPEED * deltaTime;
-            if (!m_OnGround)
+            if (State == States.PLAYING)
             {
-                m_Velocity.Y += GameConstants.GRAVITY * deltaTime;
-            }
+                m_PlayerHud.Update(deltaTime);
 
-            if (m_Velocity.X < 0.00001f && m_Velocity.X > -0.00001f && m_OnGround)
-            {
-                //m_CurrentAnimation.Reset();
-                m_CurrentAnimation = m_Animations[(int)Animations.IDLE];
-            }
+                m_Velocity += m_Impulse * deltaTime;
+                m_Velocity += m_CollisionImpulse * deltaTime;
+                m_Impulse = Vector2.Zero;
+                m_CollisionImpulse = Vector2.Zero;
 
-            m_Move = 0;
+                m_Velocity.X = m_Move * GameConstants.MOVE_SPEED * deltaTime;
+                if (!m_OnGround)
+                {
+                    m_Velocity.Y += GameConstants.GRAVITY * deltaTime;
+                }
 
-            base.Update(deltaTime);
+                if (m_Velocity.X < 0.00001f && m_Velocity.X > -0.00001f && m_OnGround)
+                {
+                    //m_CurrentAnimation.Reset();
+                    m_CurrentAnimation = m_Animations[(int)Animations.IDLE];
+                }
 
-            if (m_OnGround)
-            {
-                m_Position.Y = m_SnapY;
+                m_Move = 0;
+
+                base.Update(deltaTime);
+
+                if (m_OnGround)
+                {
+                    m_Position.Y = m_SnapY;
+                }
             }
         }
 
@@ -374,14 +486,7 @@ namespace ProjectionMappingGame.Game
                 Console.WriteLine("HIT BOT " + m_Player.ToString());
             }
         }
-        public void setCharSelectionHud(bool flag)
-        {
-            m_DrawHud = flag;
-        }
-        public bool getDrawHudBool()
-        {
-            return m_DrawHud;
-        }
+
         private bool CheckTop(Vector2 newPos1, Vector2 pos2, Vector2 newPos2, Rectangle rec)
         {
             if (newPos1.Y <= newPos2.Y + rec.Height
@@ -461,15 +566,21 @@ namespace ProjectionMappingGame.Game
                 effect = SpriteEffects.FlipHorizontally;
             }
 
-            m_CurrentAnimation.Draw(batch, m_Bounds, effect);
-
-            if (this.m_DrawHud == true)
+            switch(State)
             {
-                m_PlayerHud.DrawWithCharSelection(batch, m_HudOrigin);
-            }
-            else
-            {
-                m_PlayerHud.DrawWithNoCharSelection(batch, m_HudOrigin);
+                case States.PLAYING:
+                    m_CurrentAnimation.Draw(batch, m_Bounds, effect);
+                    m_PlayerHud.DrawWithNoCharSelection(batch, GameConstants.PLAYER_COLORS[m_PlayerColor]);
+                    break;
+                case States.SPAWNING:
+                    m_Animations[(int)Animations.IDLE].Draw(batch, m_Bounds, effect);
+                    m_PlayerHud.DrawWithCharSelection(batch, GameConstants.PLAYER_COLORS[m_PlayerColor]);
+                    break;
+                case States.PORTING:
+                    m_PlayerHud.DrawWithNoCharSelection(batch, GameConstants.PLAYER_COLORS[m_PlayerColor]);
+                    break;
+                case States.DEAD:
+                    break;
             }
         }
        

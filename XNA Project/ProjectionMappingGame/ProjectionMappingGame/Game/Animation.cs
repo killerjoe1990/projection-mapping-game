@@ -11,6 +11,8 @@ namespace ProjectionMappingGame.Game
     {
         Texture2D m_Frames;
 
+        Color m_Color;
+
         float m_FrameRate;
         int m_CurrentFrame;
         float m_Counter;
@@ -20,6 +22,8 @@ namespace ProjectionMappingGame.Game
         public Animation(Texture2D texture)
         {
             m_Frames = texture;
+
+            m_Color = Color.White;
 
             m_FrameRate = 0;
             m_CurrentFrame = 0;
@@ -33,10 +37,17 @@ namespace ProjectionMappingGame.Game
             m_CurrentFrame = 0;
             m_Frames = texture;
 
+            m_Color = Color.White;
+
             m_FrameRate = 1.0f/rate;
             m_Counter = 0;
             m_NumFrames = numFrames;
             m_Repeat = repeat;
+        }
+
+        public void SetColor(Color c)
+        {
+            m_Color = c;
         }
 
         public void Update(float deltaTime)
@@ -75,7 +86,7 @@ namespace ProjectionMappingGame.Game
 
             Rectangle source = new Rectangle(width * m_CurrentFrame, 0, width, height);
 
-            batch.Draw(m_Frames, bounds, source, Color.White, 0, Vector2.Zero, effect, 0);
+            batch.Draw(m_Frames, bounds, source, m_Color, 0, Vector2.Zero, effect, 0);
         }
 
     }

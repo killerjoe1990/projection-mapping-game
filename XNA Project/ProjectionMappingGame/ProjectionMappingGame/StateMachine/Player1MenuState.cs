@@ -12,7 +12,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace ProjectionMappingGame.StateMachine
 {
-    class Player1MenuState:GameState
+    public class Player1MenuState:GameState
     {
         SpriteFont arialFont;
         Texture2D charColorTex;

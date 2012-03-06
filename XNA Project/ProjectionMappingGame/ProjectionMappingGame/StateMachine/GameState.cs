@@ -26,7 +26,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace ProjectionMappingGame.StateMachine
 {
-   abstract class GameState
+   public abstract class GameState
    {
       // Active game reference
       protected GameDriver m_Game;

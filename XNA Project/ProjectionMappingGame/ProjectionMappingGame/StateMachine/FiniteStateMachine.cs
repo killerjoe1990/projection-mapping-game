@@ -26,7 +26,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace ProjectionMappingGame.StateMachine
 {
    // All possible states
-   enum StateType
+   public enum StateType
    {
       MainMenu,
       GamePlay,
@@ -34,7 +34,7 @@ namespace ProjectionMappingGame.StateMachine
       Count
    };
 
-   class FiniteStateMachine
+   public class FiniteStateMachine
    {
       // State fields
       Stack<int> m_ActiveStates;    // Current states that are running either their Update and/or Draw functions
@@ -114,7 +114,7 @@ namespace ProjectionMappingGame.StateMachine
         
          GamePlayState gameplay = (GamePlayState)m_States[(int)StateType.GamePlay];
          ProjectionEditorState projectionEditor = (ProjectionEditorState)m_States[(int)StateType.ProjectionEditor];
-         projectionEditor.ProjectorInput = gameplay.RenderTarget;
+         //projectionEditor.ProjectorInput = gameplay.RenderTarget;
       }
 
       #endregion
@@ -124,7 +124,7 @@ namespace ProjectionMappingGame.StateMachine
       public void StartGame()
       {
          GamePlayState gameplay = (GamePlayState)m_States[(int)StateType.GamePlay];
-         gameplay.RenderTargetMode = true;
+         //gameplay.RenderTargetMode = true;
          gameplay.Reset();
          m_GamePlayMode = true;
          m_ActiveStates.Clear();
@@ -135,7 +135,7 @@ namespace ProjectionMappingGame.StateMachine
       public void QuitGame()
       {
          GamePlayState gameplay = (GamePlayState)m_States[(int)StateType.GamePlay];
-         gameplay.RenderTargetMode = false;
+         //gameplay.RenderTargetMode = false;
          gameplay.Reset();
          m_GamePlayMode = false;
          m_ActiveStates.Clear();
@@ -193,7 +193,7 @@ namespace ProjectionMappingGame.StateMachine
 
                break;
             case StateType.ProjectionEditor:
-               projectionEditor.ProjectorInput = gameplay.RenderTarget;
+               //projectionEditor.ProjectorInput = gameplay.GetRenderTarget(0);
                break;
          }
       }
@@ -212,7 +212,7 @@ namespace ProjectionMappingGame.StateMachine
          {
             GamePlayState gameplay = (GamePlayState)m_States[(int)StateType.GamePlay];
             ProjectionEditorState projectionEditor = (ProjectionEditorState)m_States[(int)StateType.ProjectionEditor];
-            projectionEditor.ProjectorInput = gameplay.RenderTarget;
+            //projectionEditor.ProjectorInput = gameplay.RenderTarget;
          }
 
          // Render all active and updatable states
