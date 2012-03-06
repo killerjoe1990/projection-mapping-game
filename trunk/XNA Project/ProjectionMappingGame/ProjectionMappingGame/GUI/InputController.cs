@@ -176,13 +176,18 @@ namespace ProjectionMappingGame.GUI
                     m_Move(this, args);
                     handled = true;
                 }
-            }
+            } 
 
             m_LastState = currentState;
 
             return handled;
         }
 
+        public Vector2 Offset
+        {
+           set { m_Offset = value; }
+           get { return m_Offset; }
+        }
     }
 
     public class KeyboardInput : InputController

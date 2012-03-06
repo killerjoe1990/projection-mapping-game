@@ -66,8 +66,8 @@ namespace ProjectionMappingGame
          m_GraphicsManager.PreferredBackBufferHeight = GameConstants.DEFAULT_WINDOW_HEIGHT;
          m_GraphicsManager.PreferMultiSampling = true;
          m_GraphicsManager.ApplyChanges();
-         //Window.AllowUserResizing = true;
-         //Window.ClientSizeChanged += new EventHandler<EventArgs>(Window_ClientSizeChanged);
+         Window.AllowUserResizing = true;
+         Window.ClientSizeChanged += new EventHandler<EventArgs>(Window_ClientSizeChanged);
 
          // Set content manager's root directory for asset loading.
          // This should only be set once; right here.
@@ -79,8 +79,7 @@ namespace ProjectionMappingGame
 
       void Window_ClientSizeChanged(object sender, EventArgs e)
       {
-         GameConstants.WindowWidth = Window.ClientBounds.Width;
-         GameConstants.WindowHeight = Window.ClientBounds.Height;
+         FiniteStateMachine.GetInstance().ResizeGame(Window.ClientBounds.Width, Window.ClientBounds.Height); 
       }
 
       /// <summary>

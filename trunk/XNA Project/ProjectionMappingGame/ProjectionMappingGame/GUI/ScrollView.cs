@@ -27,16 +27,16 @@ namespace ProjectionMappingGame.GUI
 {
    class ScrollView : ClickableElement
    {
-      event EventHandler m_OnClick;
+      protected event EventHandler m_OnClick;
 
-      const int SCROLL_BAR_WIDTH = 16;
+      protected const int SCROLL_BAR_WIDTH = 16;
 
-      Rectangle m_DisplayBounds;
-      Rectangle m_ScrollBounds;
-      Rectangle m_ScrollBarBounds;
-      Texture2D m_BackgroundTexture;
-      Texture2D m_ScrollPadTexture;
-      Texture2D m_ScrollAreaTexture;
+      protected Rectangle m_DisplayBounds;
+      protected Rectangle m_ScrollBounds;
+      protected Rectangle m_ScrollBarBounds;
+      protected Texture2D m_BackgroundTexture;
+      protected Texture2D m_ScrollPadTexture;
+      protected Texture2D m_ScrollAreaTexture;
 
       public ScrollView(Rectangle displayBounds, Rectangle scrollBounds, Texture2D background, Texture2D scrollpad, Texture2D scrollarea, MouseInput mouse)
       {

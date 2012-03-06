@@ -63,4 +63,12 @@ Content\Textures\GUI\shift_layer_up_button_on_hover.xnb
 Content\Textures\GUI\trash_button.xnb
 Content\Textures\GUI\trash_button_on_hover.xnb
 Content\Textures\default_editor_input.xnb
+Content\Textures\GUI\slider_bar.xnb
+Content\Textures\GUI\slider_pad.xnb
+Content\Shaders\Phong.xnb
+Content\Textures\GUI\edit_layer_button.xnb
+Content\Textures\GUI\edit_layer_button_on_hover.xnb
+Content\Textures\GUI\visible_layer_button.xnb
+Content\Textures\GUI\visible_layer_button_on_hover.xnb
+Content\Textures\red.xnb
 Content\Shaders\Includes.inc

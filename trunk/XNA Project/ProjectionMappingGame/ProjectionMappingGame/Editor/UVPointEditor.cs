@@ -23,6 +23,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 // Local imports
+using ProjectionMappingGame.GUI;
 using ProjectionMappingGame.PrimitivesExt;
 
 #endregion
@@ -31,6 +32,8 @@ namespace ProjectionMappingGame.Editor
 {
    class UVPointEditor
    {
+      const int EDGE_BOUNDS_WIDTH = 1;
+
       Viewport m_Viewport;
       GameDriver m_Game;
       Matrix m_WorldMatrix;
@@ -51,9 +54,13 @@ namespace ProjectionMappingGame.Editor
       List<OrthoQuad> m_Quads;
 
       // Textures
-      Texture2D m_WhiteTexture;
+      Texture2D m_WhiteTexture, m_RedTexture;
+      Texture2D m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_SpinBoxFillTexture;
       Texture2D m_RenderTargetTexture;
       RenderTarget2D m_RenderTarget;
+
+      // Fonts
+      SpriteFont m_Arial10;
 
       // Input
       MouseState m_PrevMouseState;
@@ -64,11 +71,17 @@ namespace ProjectionMappingGame.Editor
       bool m_DraggingQuad;
       int m_SelectedQuad;
       int m_HoveredQuad;
+      bool m_DraggingEdge;
+      int m_SelectedEdge;
+      int m_HoveredEdge;
+      MouseInput m_MouseInput;
+      EventHandler m_OnQuadSelected;
 
       public UVPointEditor(GameDriver game, int x, int y, int w, int h)
       {
          // Store game reference
          m_Game = game;
+         m_MouseInput = new MouseInput(new Vector2(-x, -y));
 
          // Initialize viewport
          m_Viewport = new Viewport(x, y, w, h);
@@ -77,7 +90,7 @@ namespace ProjectionMappingGame.Editor
          m_GraphEdges = new List<UVEdge>();
          m_Quads = new List<OrthoQuad>();
          m_GraphVertices = new List<UVVertex>();
-
+         
          // Compute space matrices
          m_ViewMatrix = Matrix.CreateLookAt(new Vector3(0.0f, 0.0f, 1.0f), Vector3.Zero, Vector3.Up);
          m_ProjectionMatrix = Matrix.CreateOrthographicOffCenter(0, w, h, 0, 1.0f, 1000.0f);
@@ -121,6 +134,9 @@ namespace ProjectionMappingGame.Editor
          m_DraggingQuad = false;
          m_SelectedQuad = -1;
          m_HoveredQuad = -1;
+         m_DraggingEdge = false;
+         m_SelectedEdge = -1;
+         m_HoveredEdge = -1;
 
          // Initialize render target
          m_RenderTarget = new RenderTarget2D(m_Game.GraphicsDevice, w, h, true, m_Game.GraphicsDevice.DisplayMode.Format, DepthFormat.Depth24);
@@ -137,11 +153,19 @@ namespace ProjectionMappingGame.Editor
          m_DraggingQuad = false;
          m_SelectedQuad = -1;
          m_HoveredQuad = -1;
+         m_DraggingEdge = false;
+         m_SelectedEdge = -1;
+         m_HoveredEdge = -1;
       }
 
       public void LoadContent(ContentManager content)
       {
+         m_Arial10 = content.Load<SpriteFont>("Fonts/Arial10");
          m_WhiteTexture = content.Load<Texture2D>("Textures/white");
+         m_RedTexture = content.Load<Texture2D>("Textures/red");
+         m_SpinBoxFillTexture = content.Load<Texture2D>("Textures/GUI/spinbox_fill");
+         m_SpinBoxUpTexture = content.Load<Texture2D>("Textures/GUI/spinbox_up");
+         m_SpinBoxDownTexture = content.Load<Texture2D>("Textures/GUI/spinbox_down");
       }
 
       public void Update(float elapsedTime)
@@ -159,6 +183,26 @@ namespace ProjectionMappingGame.Editor
                vertices[3] = m_GraphVertices[m_GraphEdges[i + 3].P1].Vertex;
                m_Quads.Add(new OrthoQuad(vertices, m_GraphEdges[i + 0].P1, m_GraphEdges[i + 1].P1, m_GraphEdges[i + 2].P1, m_GraphEdges[i + 3].P1));
             }
+
+            for (int i = 0; i < m_GraphEdges.Count; ++i)
+            {
+               VertexPositionColorTexture[] vertices = new VertexPositionColorTexture[4];
+               vertices[0] = m_GraphVertices[m_GraphEdges[i].P1].Vertex;
+               vertices[1] = m_GraphVertices[m_GraphEdges[i].P1].Vertex;
+               vertices[2] = m_GraphVertices[m_GraphEdges[i].P2].Vertex;
+               vertices[3] = m_GraphVertices[m_GraphEdges[i].P2].Vertex;
+
+               Vector3 direction = m_GraphVertices[m_GraphEdges[i].P2].Vertex.Position - m_GraphVertices[m_GraphEdges[i].P1].Vertex.Position;
+               direction.Normalize();
+               Vector3 cross = Vector3.Cross(direction, new Vector3(0, 0, 1));
+               Vector3 normal = new Vector3(cross.X, cross.Y, 0);
+
+               vertices[0].Position += normal * EDGE_BOUNDS_WIDTH;
+               vertices[1].Position += normal * -EDGE_BOUNDS_WIDTH;
+               vertices[2].Position += normal * -EDGE_BOUNDS_WIDTH;
+               vertices[3].Position += normal * EDGE_BOUNDS_WIDTH;
+               m_GraphEdges[i].Bounds = new OrthoQuad(vertices);
+            }
          }
       }
 
@@ -173,6 +217,8 @@ namespace ProjectionMappingGame.Editor
          MouseState mouseState = Mouse.GetState();
          KeyboardState keyboardState = Keyboard.GetState();
 
+         m_MouseInput.HandleInput(PlayerIndex.One);
+
          // Convert mouse position into relative viewport space
          Vector2 mousePos = new Vector2(mouseState.X - m_Viewport.X, mouseState.Y - m_Viewport.Y);
          Rectangle mouseBounds = new Rectangle((int)(mousePos.X - MOUSE_SELECTION_BUFFER), (int)(mousePos.Y - MOUSE_SELECTION_BUFFER), MOUSE_SELECTION_BUFFER * 2, MOUSE_SELECTION_BUFFER * 2);
@@ -184,12 +230,56 @@ namespace ProjectionMappingGame.Editor
          {
             m_DraggingVertex = false;
             m_DraggingQuad = false;
-            m_SelectedVertex = -1;        // For now, I'm also turning off the selection...may not want to do this later
+            m_DraggingEdge = false;
+            //m_SelectedVertex = -1;        // For now, I'm also turning off the selection...may not want to do this later
+         }
+         if (mouseState.LeftButton == ButtonState.Pressed && m_PrevMouseState.LeftButton == ButtonState.Released)
+         {
+            m_SelectedVertex = -1;
+            m_SelectedQuad = -1;
+            m_SelectedEdge = -1;
+         }
+
+         // Handle edge hovering
+         m_HoveredEdge = -1;
+         if (!m_DraggingVertex && !m_DraggingQuad)
+         {
+            int numEdges = m_GraphEdges.Count;
+            for (int i = 0; i < numEdges; ++i)
+            {
+               if (m_GraphEdges[i].Bounds.TestPointInsideConvexPolygon(mousePos))
+               {
+                  m_HoveredEdge = i;
+                  break;
+               }
+            }
+         }
+
+         // Handle edge selection; we know the mouse is over an item if it is hovered.
+         if (m_HoveredEdge >= 0 && mouseState.LeftButton == ButtonState.Pressed && m_PrevMouseState.LeftButton == ButtonState.Released)
+         {
+            // Select the hovered edge
+            m_SelectedEdge = m_HoveredEdge;
+            m_HoveredEdge = -1;
+            m_DraggingEdge = true;
+            m_DraggingQuad = false;
+            m_SelectedQuad = -1;
+            m_HoveredQuad = -1;
+            m_DraggingVertex = false;
+            m_SelectedVertex = -1;
+            m_HoveredVertex = -1;
+         }
+
+         // Handle edge dragging
+         if (m_DraggingEdge && m_SelectedEdge >= 0)
+         {
+            m_GraphVertices[m_GraphEdges[m_SelectedEdge].P1].Vertex.Position += new Vector3(dx, dy, 0.0f);
+            m_GraphVertices[m_GraphEdges[m_SelectedEdge].P2].Vertex.Position += new Vector3(dx, dy, 0.0f);
          }
 
          // Handle quad hovering
          m_HoveredQuad = -1;
-         if (!m_DraggingVertex)
+         if (!m_DraggingVertex && !m_DraggingEdge)
          {
             int numQuads = m_Quads.Count;
             for (int i = 0; i < numQuads; ++i)
@@ -212,6 +302,10 @@ namespace ProjectionMappingGame.Editor
             m_DraggingVertex = false;
             m_SelectedVertex = -1;
             m_HoveredVertex = -1;
+            m_DraggingEdge = false;
+            m_SelectedEdge = -1;
+            m_HoveredEdge = -1;
+            if (m_OnQuadSelected != null) m_OnQuadSelected(this, new EventArgs());
          }
 
          // Handle quad dragging
@@ -223,7 +317,7 @@ namespace ProjectionMappingGame.Editor
             m_GraphVertices[m_Quads[m_SelectedQuad].P3].Vertex.Position += new Vector3(dx, dy, 0.0f);
          }
 
-         // Handle vertex hovering
+         // Handle vertex hovering and uv coord displays
          m_HoveredVertex = -1;
          int numVertices = m_GraphVertices.Count;
          for (int i = 0; i < numVertices; ++i)
@@ -246,6 +340,9 @@ namespace ProjectionMappingGame.Editor
             m_DraggingQuad = false;
             m_SelectedQuad = -1;
             m_HoveredQuad = -1;
+            m_DraggingEdge = false;
+            m_SelectedEdge = -1;
+            m_HoveredEdge = -1;
          }
 
          // Handle vertex dragging
@@ -315,7 +412,7 @@ namespace ProjectionMappingGame.Editor
 
       private void RenderGraphOverlay(SpriteBatch spriteBatch)
       {
-         VertexPositionColor[] points = new VertexPositionColor[m_GraphEdges.Count * 2];
+         /*VertexPositionColor[] points = new VertexPositionColor[m_GraphEdges.Count * 2];
          short[] lineListIndices = new short[m_GraphEdges.Count * 2];
          int pointsAdded = 0;
          for (int i = 0; i < m_GraphEdges.Count; ++i)
@@ -340,8 +437,32 @@ namespace ProjectionMappingGame.Editor
                 0,  // first index element to read
                 m_GraphEdges.Count   // number of primitives to draw
             );
+         }*/
+         // Render edges
+         Texture2D tex = m_QuadEffect.Texture;
+         m_QuadEffect.Texture = m_WhiteTexture;
+         m_QuadEffect.Alpha = 1.0f;
+         for (int i = 0; i < m_GraphEdges.Count; ++i)
+         {
+            m_GraphEdges[i].Bounds.Draw(m_Game.GraphicsDevice, m_QuadEffect);
          }
-
+         if (m_HoveredEdge > -1)
+         {
+            m_QuadEffect.Texture = m_RedTexture;
+            m_QuadEffect.Alpha = 0.5f;
+            m_GraphEdges[m_HoveredEdge].Bounds.Draw(m_Game.GraphicsDevice, m_QuadEffect);
+            m_QuadEffect.Alpha = 1.0f;
+         }
+         if (m_SelectedEdge > -1)
+         {
+            m_QuadEffect.Texture = m_RedTexture;
+            m_QuadEffect.Alpha = 0.5f;
+            m_GraphEdges[m_SelectedEdge].Bounds.Draw(m_Game.GraphicsDevice, m_QuadEffect);
+            m_QuadEffect.Alpha = 1.0f;
+         }
+         m_QuadEffect.Texture = tex;
+         
+         // Render vertices
          spriteBatch.Begin();
          for (int i = 0; i < m_GraphVertices.Count; ++i)
          {
@@ -463,9 +584,35 @@ namespace ProjectionMappingGame.Editor
 
       #region Public Access TV
 
+      public void RegisterQuadSelectedEvent(EventHandler e)
+      {
+         m_OnQuadSelected += e;
+      }
+
+      public Vector2[] SelectedQuadTexCoords
+      {
+         get
+         {
+            Vector2[] texCoords = new Vector2[4];
+            texCoords[0] = m_GraphVertices[m_Quads[m_SelectedQuad].P0].Vertex.TextureCoordinate;
+            texCoords[1] = m_GraphVertices[m_Quads[m_SelectedQuad].P1].Vertex.TextureCoordinate;
+            texCoords[2] = m_GraphVertices[m_Quads[m_SelectedQuad].P2].Vertex.TextureCoordinate;
+            texCoords[3] = m_GraphVertices[m_Quads[m_SelectedQuad].P3].Vertex.TextureCoordinate;
+            return texCoords;
+         }
+      }
+
       public Viewport Viewport
       {
          get { return m_Viewport; }
+      }
+
+      public void SetUVs(Vector2[] uvs)
+      {
+         m_GraphVertices[m_Quads[m_SelectedQuad].P0].Vertex.TextureCoordinate = uvs[0];
+         m_GraphVertices[m_Quads[m_SelectedQuad].P1].Vertex.TextureCoordinate = uvs[1];
+         m_GraphVertices[m_Quads[m_SelectedQuad].P2].Vertex.TextureCoordinate = uvs[2];
+         m_GraphVertices[m_Quads[m_SelectedQuad].P3].Vertex.TextureCoordinate = uvs[3];
       }
 
       public void SetPoints(List<VertexPositionColorTexture> points)
@@ -494,10 +641,14 @@ namespace ProjectionMappingGame.Editor
          get { return m_RenderTargetTexture; }
       }
 
-      public void DeselectAllQuads()
+      public void UnHoverQuads()
       {
-         m_SelectedQuad = -1;
          m_HoveredQuad = -1;
+      }
+
+      public bool IsQuadSelected
+      {
+         get { return (m_SelectedQuad >= 0); }
       }
 
       #endregion

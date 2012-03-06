@@ -2,15 +2,16 @@
 #include "Includes.inc"
 
 // Projection Components
+float projectorAlpha = 1.0f;
 bool projecting;
-float4 unprojectedAreaColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
+float4 unprojectedAreaColor = float4(1.0f, 1.0f, 1.0f, 0.0f);
 Texture projtex2D;
 sampler2D projectiveMap = sampler_state 
 {
 	Texture = <projtex2D>;
 	
-   MinFilter = Linear;
-   MagFilter = Linear;
+   MinFilter = ANISOTROPIC;
+   MagFilter = ANISOTROPIC;
    MipFilter = Linear;
 	
 	AddressU = Clamp;
@@ -78,42 +79,18 @@ float depthBias = 0.001f;
 	{	
       float4 projColor = unprojectedAreaColor;
 
-      if (projecting)
+      input.Projector_pos /= input.Projector_pos.w;
+		
+		if (input.Projector_pos.w >= 0
+		      && input.Projector_pos.x > 0 && input.Projector_pos.x < 1
+		      && input.Projector_pos.y > 0 && input.Projector_pos.y < 1)
       {
-         input.Projector_pos /= input.Projector_pos.w;
-		
-		   if (input.Projector_pos.w >= 0
-		       && input.Projector_pos.x > 0 && input.Projector_pos.x < 1
-		       && input.Projector_pos.y > 0 && input.Projector_pos.y < 1)
-         {
-			   input.Projector_pos.y = 1.0 - input.Projector_pos.y;
-            projColor = tex2Dproj(projectiveMap, input.Projector_pos);
-         }
-      }	
-		
-		float4 materialColor = materialEmissiveColor;
-		
-		// Calculate Diffuse Color
-		float3 L = normalize(lightPosition - input.pos_w);
-		input.N = normalize(input.N);
-		
-		float diffuseIntensity = max((0.5f * (dot(L, input.N) + 1)), 0.0f);
-		float4 diffuseColor = materialDiffuseColor * diffuseIntensity;
-				
-		// Calculate Attached Texture Color
-		float4 finalColor = 0;
-      if (projecting && projColor.w == 1.0f)
-      {
-         if (diffuseIntensity > 0)
-			   finalColor = (projColor * materialColor) + (projColor * diffuseColor);
+			input.Projector_pos.y = 1.0 - input.Projector_pos.y;
+         projColor = tex2Dproj(projectiveMap, input.Projector_pos);
+		   projColor.w = projectorAlpha;
       }
-      else
-      {
-         if (diffuseIntensity > 0)
-			   finalColor = materialColor + diffuseColor;
-      }
-		
-		return finalColor;
+
+		return projColor;
 	}
 	
 //

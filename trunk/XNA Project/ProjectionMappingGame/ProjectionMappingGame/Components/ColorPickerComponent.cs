@@ -263,6 +263,7 @@ namespace ProjectionMappingGame.Components
 
       public Viewport Viewport
       {
+         set { m_Viewport = value; }
          get { return m_Viewport; }
       }
 

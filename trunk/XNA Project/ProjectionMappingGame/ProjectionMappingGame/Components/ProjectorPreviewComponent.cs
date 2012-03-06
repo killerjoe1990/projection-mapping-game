@@ -38,6 +38,7 @@ namespace ProjectionMappingGame.Components
       // Shaders
       Effect m_ProjectionMappingShader;
       Effect m_SolidColorShader;
+      Effect m_PhongShader;
 
       // Models
       Model m_GroundPlaneMesh;
@@ -83,7 +84,7 @@ namespace ProjectionMappingGame.Components
 
          // Initialize building
          m_BuildingEntity = new ModelEntity(
-            "Models/bldgV_4centered",
+            "Models/cube",
             new Material(
                new Vector4(0.0f, 0.0f, 0.0f, 1.0f),
                new Vector4(0.0f, 0.0f, 0.0f, 1.0f),
@@ -94,7 +95,7 @@ namespace ProjectionMappingGame.Components
             new Vector3(0.0f, 2.5f, 0.0f),
             true
          );
-         m_BuildingEntity.Scale = Vector3.One;
+         m_BuildingEntity.Scale = Vector3.One * 5.0f;
          m_BuildingEntity.UpdateWorld();
 
          // Initialize materials
@@ -195,6 +196,8 @@ namespace ProjectionMappingGame.Components
          m_ProjectionMappingShader.CurrentTechnique = m_ProjectionMappingShader.Techniques["ProjectiveTexturing"];
          m_SolidColorShader = content.Load<Effect>("Shaders/SolidColor");
          m_SolidColorShader.CurrentTechnique = m_SolidColorShader.Techniques["SolidColor"];
+         m_PhongShader = content.Load<Effect>("Shaders/Phong");
+         m_PhongShader.CurrentTechnique = m_PhongShader.Techniques["PhongDiffuseOnly"];
 
          // Load fonts
          m_ArialFont = content.Load<SpriteFont>("Fonts/Arial");
@@ -272,27 +275,29 @@ namespace ProjectionMappingGame.Components
 
       public void Draw()
       {
-         m_Game.GraphicsDevice.BlendState = BlendState.Opaque;
+         m_Game.GraphicsDevice.BlendState = BlendState.NonPremultiplied;
          m_Game.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
-         // Configure shader
-         UpdateShaderParameters(m_ProjectionMappingShader);                // Shared properties
-         UpdateProjectionShaderParameters(m_ProjectionMappingShader);      // Projection mapping only properties
+         // Configure shaders
+         UpdateShaderParameters(m_PhongShader);
+         UpdateShaderParameters(m_SolidColorShader);
 
          // Render ground plane
          Matrix groundWorld = Matrix.Identity;
          groundWorld *= Matrix.CreateScale(new Vector3(20.0f, 1.0f, 20.0f));
-         m_ProjectionMappingShader.Parameters["projecting"].SetValue(false);
-         UpdateShaderMaterialParameters(m_ProjectionMappingShader, m_GroundPlaneMaterial);
-         DrawModel(m_GroundPlaneMesh, m_ProjectionMappingShader, groundWorld);
-         m_ProjectionMappingShader.Parameters["projecting"].SetValue(m_Projector.IsOn);
+         UpdateShaderMaterialParameters(m_PhongShader, m_GroundPlaneMaterial);
+         DrawModel(m_GroundPlaneMesh, m_PhongShader, groundWorld);
 
          // Render building entity
-         UpdateShaderMaterialParameters(m_ProjectionMappingShader, m_BuildingEntity.Material);
-         m_BuildingEntity.Draw(m_ProjectionMappingShader, m_Game.GraphicsDevice);
-
-         // Configure shader
-         UpdateShaderParameters(m_SolidColorShader);                       // Solid color only properties; no more projection mapping
+         UpdateShaderMaterialParameters(m_PhongShader, m_BuildingEntity.Material);
+         m_BuildingEntity.Draw(m_PhongShader, m_Game.GraphicsDevice);
+         if (m_Projector.IsOn)
+         {
+            UpdateShaderParameters(m_ProjectionMappingShader);                // Shared properties
+            UpdateProjectionShaderParameters(m_ProjectionMappingShader);      // Projection mapping only properties
+            UpdateShaderMaterialParameters(m_ProjectionMappingShader, m_BuildingEntity.Material);
+            m_BuildingEntity.Draw(m_ProjectionMappingShader, m_Game.GraphicsDevice);
+         }
 
          // Render light source marker
          UpdateShaderMaterialParameters(m_SolidColorShader, m_LightEntity.Material);
@@ -478,6 +483,11 @@ namespace ProjectionMappingGame.Components
          set { m_Projector.IsOn = value; }
       }
 
+      public float ProjectorAlpha
+      {
+         set { m_ProjectionMappingShader.Parameters["projectorAlpha"].SetValue(value); }
+      }
+
       public bool RenderFrustum
       {
          get { return m_RenderProjectorFrustum; }
@@ -493,6 +503,14 @@ namespace ProjectionMappingGame.Components
       public Vector3 CameraPosition
       {
          get { return m_Camera.Position; }
+      }
+
+      public void Resize(int dx, int dy)
+      {
+         m_Viewport.Width += dx;
+         m_Viewport.Height += dy;
+         m_Camera.AspectRatio = (float)m_Viewport.Width / (float)m_Viewport.Height;
+         m_Camera.UpdateProjection();
       }
 
       public Viewport Viewport
