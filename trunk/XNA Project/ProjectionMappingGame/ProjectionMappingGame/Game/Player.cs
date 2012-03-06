@@ -253,22 +253,54 @@ namespace ProjectionMappingGame.Game
 
         private void onKeyDown(object sender, Keys[] keys)
         {
-            if (State == States.PLAYING)
+            switch(State)
             {
-                if (keys.Contains(Keys.Space))// && m_OnGround)
-                {
-                    if (m_OnGround)
+                case States.PLAYING:
+                    if (keys.Contains(Keys.Space))// && m_OnGround)
                     {
-                        m_Impulse += Vector2.UnitY * GameConstants.JUMP_IMPULSE;
-
-                        if (m_Animations[(int)Animations.JUMP] != null)
+                        if (m_OnGround)
                         {
-                            //m_CurrentAnimation.Reset();
-                            m_CurrentAnimation = m_Animations[(int)Animations.JUMP];
-                            m_CurrentAnimation.Reset();
+                            m_Impulse += Vector2.UnitY * GameConstants.JUMP_IMPULSE;
+
+                            if (m_Animations[(int)Animations.JUMP] != null)
+                            {
+                                //m_CurrentAnimation.Reset();
+                                m_CurrentAnimation = m_Animations[(int)Animations.JUMP];
+                                m_CurrentAnimation.Reset();
+                            }
                         }
                     }
-                }
+                    break;
+                case States.DEAD:
+                    if (keys.Contains(Keys.Enter))
+                    {
+                        State = States.SPAWNING;
+                    }
+                    break;
+                case States.SPAWNING:
+                    if (keys.Contains(Keys.Space))
+                    {
+                        SetColor(GameConstants.PLAYER_COLORS[m_PlayerColor]);
+                        State = States.PLAYING;
+                    }
+                    if (keys.Contains(Keys.A))
+                    {
+                        m_PlayerColor = (m_PlayerColor - 1) % GameConstants.PLAYER_COLORS.Length;
+
+                        if (m_PlayerColor < 0)
+                        {
+                            m_PlayerColor = GameConstants.PLAYER_COLORS.Length - 1;
+                        }
+
+                        m_Animations[(int)Animations.IDLE].SetColor(GameConstants.PLAYER_COLORS[m_PlayerColor]);
+                    }
+                    if (keys.Contains(Keys.D))
+                    {
+                        m_PlayerColor = (m_PlayerColor + 1) % GameConstants.PLAYER_COLORS.Length;
+
+                        m_Animations[(int)Animations.IDLE].SetColor(GameConstants.PLAYER_COLORS[m_PlayerColor]);
+                    }
+                    break;
             }
         }
 
