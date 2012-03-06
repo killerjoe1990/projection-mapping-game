@@ -178,7 +178,7 @@ namespace ProjectionMappingGame.StateMachine
       {
           foreach (Game.Player p in m_Players)
           {
-              if (p != player)
+              if (p != player && p.State == Game.Player.States.PLAYING)
               {
                   p.HUD.PlayerDefeated();
               }
