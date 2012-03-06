@@ -60,7 +60,7 @@ namespace ProjectionMappingGame.StateMachine
       {
         #if WINDOWS
           m_Keyboard = new GUI.KeyboardInput();
-          //m_Keyboard.RegisterKeyPress(OnKeyRelease);
+          m_Keyboard.RegisterKeyPress(OnKeyRelease);
         #endif
           m_Gamepad = new GUI.GamepadInput();
           //m_Gamepad.RegisterButtonEvent(GUI.GamepadEventType.BUTTON_UP, OnButtonUpP1, PlayerIndex.One);
@@ -97,30 +97,26 @@ namespace ProjectionMappingGame.StateMachine
 
          m_Players[(int)PlayerIndex.Four] = new Game.Player(m_PlayerIdleTex, new Rectangle(GameConstants.DEFAULT_WINDOW_WIDTH / (GameConstants.MAX_PLAYERS + 1) + 55, (int)START_Y, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y),
              m_Gamepad, PlayerIndex.Four);
+
+         m_Players[(int)PlayerIndex.Four].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_FRAMERATE, true));
+         m_Players[(int)PlayerIndex.Four].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_FRAMERATE, false));
+
+         m_Players[(int)PlayerIndex.Three].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_FRAMERATE, true));
+         m_Players[(int)PlayerIndex.Three].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_FRAMERATE, false));
+
+         m_Players[(int)PlayerIndex.One].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex);
+         m_Players[(int)PlayerIndex.Two].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex);
+         m_Players[(int)PlayerIndex.Three].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex);
+         m_Players[(int)PlayerIndex.Four].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex);
+
+         foreach (Game.Player p in m_Players)
+         {
+             m_Levels[0].AddPlayer(p);
+         }
       }
 
       public override void Resize(int dx, int dy)
       {
-      }
-
-      public void AddPlayer(Game.Player player, PlayerIndex playerNumber)
-      {
-          if (m_Players[(int)playerNumber] == null)
-          m_Players[(int)PlayerIndex.Four].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_FRAMERATE, true));
-          m_Players[(int)PlayerIndex.Four].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_FRAMERATE, false));
-
-          m_Players[(int)PlayerIndex.Three].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_FRAMERATE, true));
-          m_Players[(int)PlayerIndex.Three].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_FRAMERATE, false));
-
-          m_Players[(int)PlayerIndex.One].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex);
-          m_Players[(int)PlayerIndex.Two].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex);
-          m_Players[(int)PlayerIndex.Three].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex);
-          m_Players[(int)PlayerIndex.Four].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex);
-
-          foreach (Game.Player p in m_Players)
-          {
-              m_Levels[0].AddPlayer(p);
-          }
 
       }
 
@@ -170,6 +166,8 @@ namespace ProjectionMappingGame.StateMachine
 
       public override void HandleInput(float elapsedTime)
       {
+          m_Keyboard.HandleInput(PlayerIndex.One);
+
           foreach (Game.Level l in m_Levels)
           {
               l.HandleInput();
@@ -266,58 +264,17 @@ namespace ProjectionMappingGame.StateMachine
               }
           }
       }
-
+       */
       public void OnKeyRelease(object sender, Keys[] keys)
       {
           foreach (Keys k in keys)
           {
-              if (k == Keys.Enter)
+              if (k == Keys.Escape)
               {
                   FiniteStateMachine.GetInstance().SetState(StateType.MainMenu);
               }
-
-              if (k == Keys.Back)
-              {
-                  // JOHANNES: ADD CODE HERE TO PUSH YOUR STATE ONTO STACK
-                  //Right now pressing back displays all players char select screen.
-                  if (m_Players[0].getDrawHudBool() == false)
-                  {
-                      m_Players[0].setCharSelectionHud(true);
-                  }
-                  else
-                  {
-                      m_Players[0].setCharSelectionHud(false);
-                  }
-
-                  if (m_Players[1].getDrawHudBool() == false)
-                  {
-                      m_Players[1].setCharSelectionHud(true);
-                  }
-                  else
-                  {
-                      m_Players[1].setCharSelectionHud(false);
-                  }
-
-                  if (m_Players[2].getDrawHudBool() == false)
-                  {
-                      m_Players[2].setCharSelectionHud(true);
-                  }
-                  else
-                  {
-                      m_Players[2].setCharSelectionHud(false);
-                  }
-
-                  if (m_Players[3].getDrawHudBool() == false)
-                  {
-                      m_Players[3].setCharSelectionHud(true);
-                  }
-                  else
-                  {
-                      m_Players[3].setCharSelectionHud(false);
-                  }
-              }
           }
-      }*/
+      }
 
       public override void Draw(SpriteBatch spriteBatch)
       {
