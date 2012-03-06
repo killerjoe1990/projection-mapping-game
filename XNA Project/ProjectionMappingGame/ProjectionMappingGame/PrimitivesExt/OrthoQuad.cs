@@ -30,7 +30,27 @@ namespace ProjectionMappingGame.PrimitivesExt
       short[] m_Indices;                        // 6 indices = 2 triangles
       VertexPositionColorTexture[] m_Vertices;  // 4 vertices
       public int P0, P1, P2, P3;                // Quick vertex index reference from edge graph
-      
+
+      /// <summary>
+      /// Main constructor for type OrthoQuad defines an orthographical 2D quad
+      /// with the supplied vertices.
+      /// </summary>
+      /// <param name="vertices">4 corners of the quad.</param>
+      public OrthoQuad(VertexPositionColorTexture[] vertices)
+      {
+         // Store vertices; assumed to be CCW winding order
+         m_Vertices = vertices;
+
+         // Set indices to render two triangles in CCW winding order
+         m_Indices = new short[6];
+         m_Indices[0] = 2;
+         m_Indices[1] = 1;
+         m_Indices[2] = 0;
+         m_Indices[3] = 0;
+         m_Indices[4] = 3;
+         m_Indices[5] = 2;
+      }
+
       /// <summary>
       /// Main constructor for type OrthoQuad defines an orthographical 2D quad
       /// with the supplied vertices.

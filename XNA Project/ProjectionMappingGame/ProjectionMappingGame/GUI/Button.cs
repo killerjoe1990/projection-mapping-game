@@ -144,7 +144,8 @@ namespace ProjectionMappingGame.GUI
         {
             if (IsOver(args.X, args.Y))
             {
-                m_OnClick(this, new EventArgs());
+               if (m_OnClick != null)
+                  m_OnClick(this, new EventArgs());
                 m_CurrentImage = (int)ImageType.NORMAL;
             }
 

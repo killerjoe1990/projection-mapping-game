@@ -57,6 +57,7 @@ namespace ProjectionMappingGame.StateMachine
 
       // Pure virtual functions that must be implemented in each derived class
       public abstract void Reset();
+      public abstract void Resize(int dx, int dy);
       public abstract void LoadContent(ContentManager content);
       public abstract void Update(float elapsedTime);
       public abstract void HandleInput(float elapsedTime);

@@ -28,6 +28,11 @@ namespace ProjectionMappingGame.StateMachine
          {
 
          }
+
+         public override void Resize(int dx, int dy)
+         {
+         }
+
          public override void LoadContent(ContentManager content)
          {
              arialFont = content.Load<SpriteFont>("Fonts/Arial");

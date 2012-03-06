@@ -111,10 +111,10 @@ namespace ProjectionMappingGame.StateMachine
             m_States[i].LoadContent(content);
          }
 
-        
-         GamePlayState gameplay = (GamePlayState)m_States[(int)StateType.GamePlay];
+         //GamePlayState gameplay = (GamePlayState)m_States[(int)StateType.GamePlay];
+         Texture2D rt = content.Load<Texture2D>("Textures/Layer0_2");
          ProjectionEditorState projectionEditor = (ProjectionEditorState)m_States[(int)StateType.ProjectionEditor];
-         //projectionEditor.ProjectorInput = gameplay.RenderTarget;
+         projectionEditor.ProjectorInput = rt;
       }
 
       #endregion
@@ -212,7 +212,7 @@ namespace ProjectionMappingGame.StateMachine
          {
             GamePlayState gameplay = (GamePlayState)m_States[(int)StateType.GamePlay];
             ProjectionEditorState projectionEditor = (ProjectionEditorState)m_States[(int)StateType.ProjectionEditor];
-            //projectionEditor.ProjectorInput = gameplay.RenderTarget;
+            projectionEditor.ProjectorInput = gameplay.GetRenderTarget(0);
          }
 
          // Render all active and updatable states
@@ -226,6 +226,20 @@ namespace ProjectionMappingGame.StateMachine
                m_States[activeStates[i]].Update(elapsedTime);
             }
          }
+      }
+
+      public void ResizeGame(int width, int height)
+      {
+         int dx = width - GameConstants.WindowWidth;
+         int dy = height - GameConstants.WindowHeight;
+
+         for (int i = 0; i < m_States.Length; ++i)
+         {
+            m_States[i].Resize(dx, dy);
+         }
+
+         GameConstants.WindowWidth = width;
+         GameConstants.WindowHeight = height;
       }
 
       #endregion

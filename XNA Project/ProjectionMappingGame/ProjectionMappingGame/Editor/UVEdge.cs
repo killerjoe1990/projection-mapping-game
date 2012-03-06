@@ -21,6 +21,9 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
+// Local imports
+using ProjectionMappingGame.PrimitivesExt;
+
 #endregion
 
 namespace ProjectionMappingGame.Editor
@@ -32,6 +35,7 @@ namespace ProjectionMappingGame.Editor
       public int TwinEdge;
       public int NextEdge;
       public int PrevEdge;
+      public OrthoQuad Bounds;
 
       public UVEdge(int p1, int p2)
       {
