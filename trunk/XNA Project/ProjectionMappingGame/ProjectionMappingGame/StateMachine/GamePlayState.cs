@@ -29,7 +29,7 @@ namespace ProjectionMappingGame.StateMachine
 {
    public class GamePlayState : GameState
    {
-       const float START_Y = 50;
+       
 
       // Fonts
       SpriteFont m_ArialFont;
@@ -80,12 +80,21 @@ namespace ProjectionMappingGame.StateMachine
       {
          m_Levels.Clear();
 
-         AddLevel();
+         AddLevel(GameConstants.WindowWidth, GameConstants.WindowHeight);
 
-         m_Players[(int)PlayerIndex.One] = new Game.Player(m_PlayerIdleTex, new Rectangle(GameConstants.DEFAULT_WINDOW_WIDTH / (GameConstants.MAX_PLAYERS + 1), (int)START_Y, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, m_Keyboard, PlayerIndex.One);
+         m_Players[(int)PlayerIndex.One] = new Game.Player(m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, m_Keyboard, PlayerIndex.One);
 
-         m_Players[(int)PlayerIndex.Two] = new Game.Player(m_PlayerIdleTex, new Rectangle(GameConstants.DEFAULT_WINDOW_WIDTH / (GameConstants.MAX_PLAYERS + 1) + 50, (int)START_Y, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y),
-             m_Gamepad, PlayerIndex.Two);
+         m_Players[(int)PlayerIndex.Two] = new Game.Player(m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, PlayerIndex.Two);
+
+         m_Players[(int)PlayerIndex.Three] = new Game.Player(m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, PlayerIndex.Three);
+
+         m_Players[(int)PlayerIndex.Four] = new Game.Player(m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, PlayerIndex.Four);
+
+         m_Players[(int)PlayerIndex.Four].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_FRAMERATE, true));
+         m_Players[(int)PlayerIndex.Four].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_FRAMERATE, false));
+
+         m_Players[(int)PlayerIndex.Three].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_FRAMERATE, true));
+         m_Players[(int)PlayerIndex.Three].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_FRAMERATE, false));
 
          m_Players[(int)PlayerIndex.One].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_FRAMERATE, true));
          m_Players[(int)PlayerIndex.One].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_FRAMERATE, false));
@@ -93,16 +102,6 @@ namespace ProjectionMappingGame.StateMachine
          m_Players[(int)PlayerIndex.Two].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_FRAMERATE, true));
          m_Players[(int)PlayerIndex.Two].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_FRAMERATE, false));
 
-         m_Players[(int)PlayerIndex.Three] = new Game.Player(m_PlayerIdleTex, new Rectangle(GameConstants.DEFAULT_WINDOW_WIDTH / (GameConstants.MAX_PLAYERS + 1) + 15, (int)START_Y, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, PlayerIndex.Three);
-
-         m_Players[(int)PlayerIndex.Four] = new Game.Player(m_PlayerIdleTex, new Rectangle(GameConstants.DEFAULT_WINDOW_WIDTH / (GameConstants.MAX_PLAYERS + 1) + 55, (int)START_Y, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y),
-             m_Gamepad, PlayerIndex.Four);
-
-         m_Players[(int)PlayerIndex.Four].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_FRAMERATE, true));
-         m_Players[(int)PlayerIndex.Four].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_FRAMERATE, false));
-
-         m_Players[(int)PlayerIndex.Three].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_FRAMERATE, true));
-         m_Players[(int)PlayerIndex.Three].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_FRAMERATE, false));
 
          m_Players[(int)PlayerIndex.One].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex);
          m_Players[(int)PlayerIndex.Two].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex);
@@ -111,6 +110,7 @@ namespace ProjectionMappingGame.StateMachine
 
          foreach (Game.Player p in m_Players)
          {
+             p.MovePlayer(m_Levels[0]);
              m_Levels[0].AddPlayer(p);
          }
       }
@@ -174,11 +174,22 @@ namespace ProjectionMappingGame.StateMachine
           }
       }
 
-      public int AddLevel()
+      public void PlayerDied(Game.Player player)
       {
-          Game.PlatformSpawner ps = new Game.PlatformSpawner(m_PlatformTex);
+          foreach (Game.Player p in m_Players)
+          {
+              if (p != player)
+              {
+                  p.HUD.PlayerDefeated();
+              }
+          }
+      }
+
+      public int AddLevel(int w, int h)
+      {
+          Game.PlatformSpawner ps = new Game.PlatformSpawner(m_PlatformTex, w);
           int backIndex = GameConstants.RANDOM.Next(m_Backgrounds.Length);
-          m_Levels.Add(new Game.Level(this, m_LvlCount, ps, m_Backgrounds[backIndex], m_Keyboard, m_Gamepad));
+          m_Levels.Add(new Game.Level(this, m_LvlCount, ps, m_Backgrounds[backIndex], m_Keyboard, m_Gamepad, w, h));
           return ++m_LvlCount;
       }
 

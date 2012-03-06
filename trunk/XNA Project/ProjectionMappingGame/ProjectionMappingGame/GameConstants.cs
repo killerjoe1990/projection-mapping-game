@@ -57,8 +57,11 @@ namespace ProjectionMappingGame
       public const float BOUNCE_IMPULSE_UP = -25000;
       public const float BOUNCE_IMPULSE_DOWN = 0;
       public const int POINTS_FOR_KILL = 20;
-       public const int POINTS_PER_INTERVAL = 1;
-       public const float POINT_INTERVAL = 1;
+      public const int POINTS_PER_INTERVAL = 1;
+      public const float POINT_INTERVAL = 1;
+
+      public const float START_SPACING = 10;
+      public const float START_Y = 50;
 
        //HUD
       public const int HUD_WIDTH = 200;

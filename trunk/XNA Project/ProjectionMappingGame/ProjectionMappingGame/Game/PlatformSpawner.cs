@@ -19,7 +19,7 @@ namespace ProjectionMappingGame.Game
 
         Texture2D[][] m_PlatTextures;
 
-        public PlatformSpawner(Texture2D[][] platformTextures)
+        public PlatformSpawner(Texture2D[][] platformTextures, int windowWidth)
         {
             //float yt = -GameConstants.JUMP_IMPULSE / (2 * GameConstants.GRAVITY);
             //float maxY = GameConstants.JUMP_IMPULSE * yt + GameConstants.GRAVITY * yt * yt;
@@ -29,7 +29,7 @@ namespace ProjectionMappingGame.Game
 
             m_LastSpawnY = -GameConstants.TILE_DIM;
 
-            m_WindowTilesWide = GameConstants.DEFAULT_WINDOW_WIDTH / GameConstants.TILE_DIM;
+            m_WindowTilesWide = windowWidth / GameConstants.TILE_DIM;
 
             m_PlatTextures = platformTextures;
         }

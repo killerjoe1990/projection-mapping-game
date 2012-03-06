@@ -12,15 +12,16 @@ using Microsoft.Xna.Framework.Input;
 
 namespace ProjectionMappingGame.Game
 {
-    class PlayerMenu
+    public class PlayerMenu
     {
         const int BUFFER = 5;
+        const int BORDER = 10;
 
         SpriteFont m_Font;
         Texture2D m_CharColorTex;
         Texture2D m_Background;
 
-        Vector2 m_Position;
+        Point m_WindowSize;
 
         int m_TotalPlayerScore;
         int m_PlayersDefeated;
@@ -28,14 +29,22 @@ namespace ProjectionMappingGame.Game
 
         float m_PointCounter;
 
-         public PlayerMenu(PlayerIndex playerNum, Vector2 position)
+         public PlayerMenu(PlayerIndex playerNum)
          {
             m_PlayerNum = (int)playerNum;
-            m_Position = position;
+
             m_TotalPlayerScore = 0;
             m_PlayersDefeated = 0;
 
             m_PointCounter = 0;
+
+            m_WindowSize = new Point(GameConstants.WindowHeight, GameConstants.WindowWidth);
+         }
+
+         public Point WindowSize
+         {
+             get { return m_WindowSize; }
+             set { m_WindowSize = value; }
          }
 
          public void Reset()
@@ -68,48 +77,100 @@ namespace ProjectionMappingGame.Game
 
          public void DrawWithCharSelection(SpriteBatch spriteBatch, Color playerColor)
          {
+             Vector2 dimensions = Vector2.Zero, scorePos = Vector2.Zero, iconPos = Vector2.Zero;
+             Rectangle background = Rectangle.Empty;
+
              string score = "Player " + (m_PlayerNum + 1) + " Score: " + m_TotalPlayerScore;
-             Vector2 dimensions = m_Font.MeasureString(score);
-             Vector2 scorePos = m_Position;
-             scorePos.X += BUFFER;
-             scorePos.Y += BUFFER;
-             Vector2 iconPos = m_Position;
-             iconPos.X += dimensions.X / 2.0f - GameConstants.HUD_ICON_DIM / 2.0f;
-             iconPos.Y += dimensions.Y + BUFFER * 2;
+             dimensions = m_Font.MeasureString(score);
 
-             Rectangle background = new Rectangle((int)m_Position.X, (int)m_Position.Y, GameConstants.HUD_WIDTH, GameConstants.HUD_HEIGHT);
+             background.Width = (int)dimensions.X + BORDER * 2;
+             background.Height = BORDER * 2 + BUFFER + GameConstants.HUD_ICON_DIM + (int)dimensions.Y;
 
-             // spriteBatch.Begin();
+             switch (m_PlayerNum)
+             {
+                 case (int)PlayerIndex.One:
+                     background.X = 0;
+                     background.Y = 0;
+                     break;
+                 case (int)PlayerIndex.Two:
+                     background.X = m_WindowSize.X - background.Width;
+                     background.Y = 0;
+                     break;
+                 case (int)PlayerIndex.Three:
+                     background.X = 0;
+                     background.Y = m_WindowSize.Y - background.Height;
+                     break;
+                 case (int)PlayerIndex.Four:
+                     background.X = m_WindowSize.X - background.Width;
+                     background.Y = m_WindowSize.Y - background.Height;
+                     break;
+             }
+             
+             scorePos.X = background.X + BORDER;
+             scorePos.Y = background.Y + BORDER;
+
+             iconPos.X = background.X + (dimensions.X + BORDER * 2) / 2.0f - GameConstants.HUD_ICON_DIM / 2.0f;
+             iconPos.Y = scorePos.Y + dimensions.Y + BUFFER;
+
              spriteBatch.Draw(m_Background, background, Color.White);
              spriteBatch.DrawString(m_Font, score, scorePos, GameConstants.HUD_COLOR);
-             //spriteBatch.DrawString(m_ArialFont, "" + m_TotalPlayerScore, m_Position + new Vector2(132, 0), GameConstants.HUD_COLOR);
              spriteBatch.Draw(m_CharColorTex, new Rectangle((int)iconPos.X, (int)iconPos.Y, GameConstants.HUD_ICON_DIM, GameConstants.HUD_ICON_DIM), playerColor);
-            // spriteBatch.End();
          }
          public void DrawWithNoCharSelection(SpriteBatch spriteBatch, Color playerColor)
          {
+             Vector2 dimensions = Vector2.Zero, defeatDim = Vector2.Zero, scorePos = Vector2.Zero, iconPos = Vector2.Zero, defeatedPos = Vector2.Zero;
+             Rectangle background = Rectangle.Empty;
+
              string score = "Player " + (m_PlayerNum + 1) + " Score: " + m_TotalPlayerScore;
              string defeated = "Players Outlasted: " + m_PlayersDefeated;
-             Vector2 dimensions = m_Font.MeasureString(score);
-             
-             Vector2 iconPos = m_Position;
-             iconPos.X += BUFFER;
-             iconPos.Y += BUFFER;
-             Vector2 scorePos = iconPos;
-             scorePos.X += dimensions.Y + BUFFER;
-             Vector2 defeatedPos = m_Position;
-             defeatedPos.X += BUFFER;
-             defeatedPos.Y += 2 * BUFFER + dimensions.Y;
 
-             Rectangle background = new Rectangle((int)m_Position.X, (int)m_Position.Y, GameConstants.HUD_WIDTH, GameConstants.HUD_HEIGHT);
+             dimensions = m_Font.MeasureString(score);
+             defeatDim = m_Font.MeasureString(defeated);
 
-             // spriteBatch.Begin();
+             if (dimensions.X >= defeatDim.X)
+             {
+                 background.Width = (int)dimensions.X + BORDER * 2 + BUFFER + (int)dimensions.Y;
+             }
+             else
+             {
+                 background.Width = (int)defeatDim.X + BORDER * 2 + BUFFER + (int)dimensions.Y;
+             }
+
+             background.Height = BORDER * 2 + BUFFER + (int)dimensions.Y * 2;
+
+             switch (m_PlayerNum)
+             {
+                 case (int)PlayerIndex.One:
+                     background.X = 0;
+                     background.Y = 0;                 
+                     break;
+                 case (int)PlayerIndex.Two:
+                     background.X = m_WindowSize.X - background.Width;
+                     background.Y = 0;
+                     break;
+                 case (int)PlayerIndex.Three:
+                     background.X = 0;
+                     background.Y = m_WindowSize.Y - background.Height;
+                     break;
+                 case (int)PlayerIndex.Four:
+                     background.X = m_WindowSize.X - background.Width;
+                     background.Y = m_WindowSize.Y - background.Height;
+                     break;
+             }
+
+             iconPos.X = background.X + BORDER;
+             iconPos.Y = background.Y + BORDER;
+
+             scorePos.X = iconPos.X + BUFFER + dimensions.Y;
+             scorePos.Y = background.Y + BORDER;
+
+             defeatedPos.X = background.X + BORDER;
+             defeatedPos.Y = background.Y + scorePos.Y + dimensions.Y + BUFFER;  
+
              spriteBatch.Draw(m_Background, background, Color.White);
              spriteBatch.DrawString(m_Font, score, scorePos, GameConstants.HUD_COLOR);
              spriteBatch.DrawString(m_Font, defeated, defeatedPos, GameConstants.HUD_COLOR);
-             //spriteBatch.DrawString(m_ArialFont, "" + m_TotalPlayerScore, m_Position + new Vector2(132, 0), GameConstants.HUD_COLOR);
              spriteBatch.Draw(m_CharColorTex, new Rectangle((int)iconPos.X, (int)iconPos.Y, (int)dimensions.Y, (int)dimensions.Y), playerColor);
-             // spriteBatch.End();
          }
 
 
