@@ -119,10 +119,12 @@
     <Compile Include="Editor\UVGridEditor.cs" />
     <Compile Include="GameConstants.cs" />
     <Compile Include="Game\Animation.cs" />
+    <Compile Include="Game\Level.cs" />
     <Compile Include="Game\MoveableObject.cs" />
     <Compile Include="Game\Platform.cs" />
     <Compile Include="Game\PlatformSpawner.cs" />
     <Compile Include="Game\Player.cs" />
+    <Compile Include="Game\Portal.cs" />
     <Compile Include="GUI\Button.cs" />
     <Compile Include="GUI\InputController.cs" />
     <Compile Include="GUI\Label.cs" />

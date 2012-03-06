@@ -31,7 +31,7 @@ using ProjectionMappingGame.GUI;
 
 namespace ProjectionMappingGame.StateMachine
 {
-   class ProjectionEditorState : GameState
+   public class ProjectionEditorState : GameState
    {
       // Rendering
       GraphicsDevice m_GraphicsDevice;

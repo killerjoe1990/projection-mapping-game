@@ -22,7 +22,6 @@ namespace ProjectionMappingGame.Game
             m_Velocity = velocity;
 
             m_Position = new Vector2(bounds.X, bounds.Y);
-
             m_CurrentAnimation = new Animation(image);
         }
 
@@ -32,7 +31,6 @@ namespace ProjectionMappingGame.Game
             m_Velocity = velocity;
 
             m_Position = new Vector2(bounds.X, bounds.Y);
-
             m_CurrentAnimation = null;
         }
 

@@ -15,6 +15,7 @@
 // System includes
 using System;
 using System.Text;
+using Microsoft.Xna.Framework;
 
 // Local includes
 using ProjectionMappingGame.StateMachine;
@@ -35,7 +36,7 @@ namespace ProjectionMappingGame
       public const int DEFAULT_WINDOW_HEIGHT = 720;
 
       // FSM
-      public const StateType DEFAULT_STATE = StateType.ProjectionEditor;
+      public const StateType DEFAULT_STATE = StateType.MainMenu;
 
        // Physics
       public const float GRAVITY = 1300.0f;
@@ -55,10 +56,32 @@ namespace ProjectionMappingGame
       public const float MOVE_SPEED = 7300;
       public const float BOUNCE_IMPULSE_UP = -25000;
       public const float BOUNCE_IMPULSE_DOWN = 0;
+      public const int POINTS_FOR_KILL = 20;
+       public const int POINTS_PER_INTERVAL = 1;
+       public const float POINT_INTERVAL = 1;
+
+       //HUD
+      public const int HUD_WIDTH = 200;
+      public const int HUD_HEIGHT = 60;
+      public const int HUD_ICON_DIM = 32;
+      public static Color HUD_COLOR = Color.Black;
+      public static Color[] PLAYER_COLORS = new Color[]
+       {
+           Color.White,
+           Color.Red,
+           Color.Blue,
+           Color.Green,
+           Color.Yellow,
+           Color.Purple,
+           Color.Orange,
+           Color.Pink,
+           Color.Gray
+       };
 
        //animation
       public const float PLAYER_FRAMERATE = 10;
 
+       // random
       public static Random RANDOM = new Random();
 
    }
