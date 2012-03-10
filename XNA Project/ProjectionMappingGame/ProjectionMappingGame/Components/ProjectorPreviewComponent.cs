@@ -327,7 +327,7 @@ namespace ProjectionMappingGame.Components
          m_RenderTargetTexture = (Texture2D)m_RenderTarget;
       }
 
-      public void Draw(SpriteBatch spriteBatch)
+      public void Draw(SpriteBatch spriteBatch, bool inGame)
       {
          m_Game.GraphicsDevice.BlendState = BlendState.NonPremultiplied;
          m_Game.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
@@ -352,11 +352,14 @@ namespace ProjectionMappingGame.Components
             UpdateShaderParameters(m_PhongShader);
             UpdateShaderParameters(m_SolidColorShader);
 
-            // Render ground plane
-            Matrix groundWorld = Matrix.Identity;
-            groundWorld *= Matrix.CreateScale(new Vector3(20.0f, 1.0f, 20.0f));
-            UpdateShaderMaterialParameters(m_PhongShader, m_GroundPlaneMaterial);
-            DrawModel(m_GroundPlaneMesh, m_PhongShader, groundWorld);
+            if (!inGame)
+            {
+               // Render ground plane
+               Matrix groundWorld = Matrix.Identity;
+               groundWorld *= Matrix.CreateScale(new Vector3(20.0f, 1.0f, 20.0f));
+               UpdateShaderMaterialParameters(m_PhongShader, m_GroundPlaneMaterial);
+               DrawModel(m_GroundPlaneMesh, m_PhongShader, groundWorld);
+            }
 
             // Render building entity
             UpdateShaderMaterialParameters(m_PhongShader, m_BuildingEntity.Material);
@@ -369,20 +372,23 @@ namespace ProjectionMappingGame.Components
                m_BuildingEntity.Draw(m_ProjectionMappingShader, m_Game.GraphicsDevice);
             }
 
-            // Render light source marker
-            UpdateShaderMaterialParameters(m_SolidColorShader, m_LightEntity.Material);
-            m_LightEntity.Draw(m_SolidColorShader, m_Game.GraphicsDevice);
+            if (!inGame)
+            {
+               // Render light source marker
+               UpdateShaderMaterialParameters(m_SolidColorShader, m_LightEntity.Material);
+               m_LightEntity.Draw(m_SolidColorShader, m_Game.GraphicsDevice);
 
-            // Render projector source marker
-            UpdateShaderMaterialParameters(m_SolidColorShader, m_ProjectorEntity.Material);
-            m_ProjectorEntity.Draw(m_SolidColorShader, m_Game.GraphicsDevice);
+               // Render projector source marker
+               UpdateShaderMaterialParameters(m_SolidColorShader, m_ProjectorEntity.Material);
+               m_ProjectorEntity.Draw(m_SolidColorShader, m_Game.GraphicsDevice);
 
-            // Render projector frustum
-            if (m_Gizmo.SelectedID == m_ProjectorEntity.ID)
-               DrawProjectorFrustum();
+               // Render projector frustum
+               if (m_Gizmo.SelectedID == m_ProjectorEntity.ID)
+                  DrawProjectorFrustum();
 
-            // Draw gizmo component
-            m_Gizmo.Draw3D();
+               // Draw gizmo component
+               m_Gizmo.Draw3D();
+            }
          }
       }
 
@@ -411,6 +417,9 @@ namespace ProjectionMappingGame.Components
 
          // Camera
          effect.Parameters["cameraPosition"].SetValue(m_Camera.Position);
+
+         // Projector
+         effect.Parameters["projectorPosition"].SetValue(m_Projector.Position);
       }
 
       private void UpdateProjectionShaderParameters(Effect effect)
