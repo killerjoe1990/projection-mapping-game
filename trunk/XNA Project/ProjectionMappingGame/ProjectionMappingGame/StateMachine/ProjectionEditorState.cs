@@ -41,7 +41,8 @@ namespace ProjectionMappingGame.StateMachine
       KeyboardState m_PrevKeyboardState;
       MouseInput m_MouseInput;
       MouseInput m_RightMenuMouseInput;
-      
+      MouseInput m_ScrollMouseInput;
+
       // States
       bool m_DEM_GAMES;
 
@@ -76,6 +77,8 @@ namespace ProjectionMappingGame.StateMachine
       Texture2D m_WhiteTexture;
       Texture2D m_VisibleButtonTexture, m_VisibleButtonTextureOnHover, m_VisibleButtonTextureOnPress;
       Texture2D m_EditLayerButtonTexture, m_EditLayerButtonTextureOnHover, m_EditLayerButtonTextureOnPress;
+      Texture2D m_CheckboxCheckedTexture, m_CheckboxCheckedTextureOnHover, m_CheckboxCheckedTextureOnPress;
+      Texture2D m_CheckboxUnCheckedTexture, m_CheckboxUnCheckedTextureOnHover, m_CheckboxUnCheckedTextureOnPress;
 
       #region Left Menu
 
@@ -85,11 +88,11 @@ namespace ProjectionMappingGame.StateMachine
       Label m_SelectedFaceP1Label;
       Label m_SelectedFaceP2Label;
       Label m_SelectedFaceP3Label;
-      Label m_SelectedFaceP0NoneLabel;
-      Label m_SelectedFaceP1NoneLabel;
-      Label m_SelectedFaceP2NoneLabel;
-      Label m_SelectedFaceP3NoneLabel;
       UVSpinBoxPair[] m_SelectedFaceUVSpinBox;
+      Button m_ToLocalCoordButton;
+      Label m_SelectedFaceGameplayLayerLabel;
+      NumUpDown m_SelectedFaceGameplayLayerSpinBox;
+      Checkbox m_SelectedFaceWallCheckbox;
 
       const int GUI_SELECTED_QUAD_Y = 2;
 
@@ -176,10 +179,10 @@ namespace ProjectionMappingGame.StateMachine
       // Layers section GUI objects
       Label m_LayersHeaderLabel;
       LayerScrollView m_LayersScrollView;
-      Button m_NewTextureLayerButton;
-      Button m_NewParticleLayerButton;
-      Button m_ShiftLayerUpButton;
-      Button m_ShiftLayerDownButton;
+      Button m_NewGameplayLayerButton;
+      //Button m_NewParticleLayerButton;
+      //Button m_ShiftLayerUpButton;
+      //Button m_ShiftLayerDownButton;
       Button m_TrashLayerButton;
 
       const int GUI_APP_NUM_ROWS = 3;
@@ -199,7 +202,6 @@ namespace ProjectionMappingGame.StateMachine
       const int GUI_COLOR_BUTTON_WIDTH = 24;
       const int GUI_COLOR_BUTTON_HEIGHT = 24;
 
-
       #endregion
 
       #region GUI CONSTANTS
@@ -215,6 +217,7 @@ namespace ProjectionMappingGame.StateMachine
       const int GUI_MENU_Y_COLUMN_X = GUI_MENU_COLUMN_1_X_TABBED + 5 + (GUI_SPINBOX_WIDTH + 12);
       const int GUI_MENU_Z_COLUMN_X = GUI_MENU_COLUMN_1_X_TABBED + 5 + (GUI_SPINBOX_WIDTH + 12) * 2;
 
+      const int GUI_LOCAL_COORD_BUTTON_WIDTH = 100;
       const int GUI_QUIT_BUTTON_WIDTH = 80;
       const int GUI_QUIT_BUTTON_HEIGHT = 24;
       const int GUI_GIZMO_BUTTON_WIDTH = 24;
@@ -246,6 +249,8 @@ namespace ProjectionMappingGame.StateMachine
 
       #endregion
 
+      #region Initialization
+
       public ProjectionEditorState(GameDriver game)
          : base(game, StateType.ProjectionEditor)
       {
@@ -274,11 +279,8 @@ namespace ProjectionMappingGame.StateMachine
          m_SelectedFaceP1Label = new Label("v2", GUI_LEFT_MENU_COLUMN_1_X_TABBED + 15, GUI_SELECTED_QUAD_Y + 2 + GUI_MENU_ITEM_HEIGHT * 3, GUI_LEFT_MENU_COLUMN_1_WIDTH, GUI_MENU_ITEM_HEIGHT, Color.Black);
          m_SelectedFaceP2Label = new Label("v3", GUI_LEFT_MENU_COLUMN_1_X_TABBED + 15, GUI_SELECTED_QUAD_Y + 2 + GUI_MENU_ITEM_HEIGHT * 4, GUI_LEFT_MENU_COLUMN_1_WIDTH, GUI_MENU_ITEM_HEIGHT, Color.Black);
          m_SelectedFaceP3Label = new Label("v4", GUI_LEFT_MENU_COLUMN_1_X_TABBED + 15, GUI_SELECTED_QUAD_Y + 2 + GUI_MENU_ITEM_HEIGHT * 5, GUI_LEFT_MENU_COLUMN_1_WIDTH, GUI_MENU_ITEM_HEIGHT, Color.Black);
-         m_SelectedFaceP0NoneLabel = new Label("N/A", GUI_LEFT_TOOLBAR_X + 54, GUI_SELECTED_QUAD_Y + 2 + GUI_MENU_ITEM_HEIGHT * 2, GUI_LEFT_MENU_COLUMN_1_WIDTH, GUI_MENU_ITEM_HEIGHT, Color.Black);
-         m_SelectedFaceP1NoneLabel = new Label("N/A", GUI_LEFT_TOOLBAR_X + 54, GUI_SELECTED_QUAD_Y + 2 + GUI_MENU_ITEM_HEIGHT * 3, GUI_LEFT_MENU_COLUMN_1_WIDTH, GUI_MENU_ITEM_HEIGHT, Color.Black);
-         m_SelectedFaceP2NoneLabel = new Label("N/A", GUI_LEFT_TOOLBAR_X + 54, GUI_SELECTED_QUAD_Y + 2 + GUI_MENU_ITEM_HEIGHT * 4, GUI_LEFT_MENU_COLUMN_1_WIDTH, GUI_MENU_ITEM_HEIGHT, Color.Black);
-         m_SelectedFaceP3NoneLabel = new Label("N/A", GUI_LEFT_TOOLBAR_X + 54, GUI_SELECTED_QUAD_Y + 2 + GUI_MENU_ITEM_HEIGHT * 5, GUI_LEFT_MENU_COLUMN_1_WIDTH, GUI_MENU_ITEM_HEIGHT, Color.Black);
-
+         m_SelectedFaceGameplayLayerLabel = new Label("Input Layer", GUI_LEFT_MENU_COLUMN_1_X_TABBED, GUI_SELECTED_QUAD_Y + 2 + GUI_MENU_ITEM_HEIGHT * 6, GUI_LEFT_MENU_COLUMN_1_WIDTH, GUI_MENU_ITEM_HEIGHT, Color.Black);
+         
          int menuColumn2X = (GUI_TOOLBAR_WIDTH / 2) + GUI_MENU_COLUMN_1_X;
 
          m_AppHeaderLabel = new Label("Application", GUI_MENU_COLUMN_1_X, GUI_APP_Y + GUI_MENU_ITEM_HEIGHT * 0, GUI_MENU_COLUMN_1_WIDTH, GUI_MENU_ITEM_HEIGHT, Color.Black);
@@ -329,18 +331,9 @@ namespace ProjectionMappingGame.StateMachine
          m_UVGridEditor.Reset();
          m_ProjectorPreview.Reset();
 
-         m_LayersScrollView.Clear();
-
          // Create the default gameplay layer
-         Label defaultGameplayLabel = new Label("Gameplay", Layer.NAME_X, m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT, Layer.LAYER_WIDTH, Layer.LAYER_HEIGHT, Color.Black);
-         defaultGameplayLabel.Font = m_ArialFont10;
-         Button visibleBtn = new Button(new Rectangle(Layer.VISIBILITY_BUTTON_X, m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT, Layer.VISIBILITY_BUTTON_WIDTH, Layer.VISIBILITY_BUTTON_HEIGHT), m_VisibleButtonTexture, m_MouseInput);
-         visibleBtn.SetImage(Button.ImageType.OVER, m_VisibleButtonTextureOnHover);
-         visibleBtn.SetImage(Button.ImageType.CLICK, m_VisibleButtonTextureOnPress);
-         Button editBtn = new Button(new Rectangle(Layer.EDIT_BUTTON_X, m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT, Layer.EDIT_BUTTON_WIDTH, Layer.EDIT_BUTTON_HEIGHT), m_EditLayerButtonTexture, m_MouseInput);
-         editBtn.SetImage(Button.ImageType.OVER, m_EditLayerButtonTextureOnHover);
-         editBtn.SetImage(Button.ImageType.CLICK, m_EditLayerButtonTextureOnPress);
-         m_LayersScrollView.AddLayer(new GameplayLayer(defaultGameplayLabel, visibleBtn, editBtn));
+         m_LayersScrollView.Clear();
+         AssembleGameplayLayer();
 
          m_UVEditor.SetPoints(m_UVGridEditor.GetIntersectionPoints());
       }
@@ -358,6 +351,18 @@ namespace ProjectionMappingGame.StateMachine
          m_ProjectionEditorPanel.Width += dx;
          m_ProjectionEditorPanel.Height += dy;
          m_ProjectorPreview.Resize(dx, dy);
+
+         Vector2 btnLoc = m_NewGameplayLayerButton.Location;
+         btnLoc.Y += dy;
+         m_NewGameplayLayerButton.Location = btnLoc;
+         btnLoc = m_TrashLayerButton.Location;
+         btnLoc.Y += dy;
+         m_TrashLayerButton.Location = btnLoc;
+         Rectangle displayBounds = m_LayersScrollView.DisplayBounds;
+         displayBounds.X += dx;
+         displayBounds.Height += dy;
+         m_LayersScrollView.DisplayBounds = displayBounds;
+         m_ScrollMouseInput.Offset = new Vector2(-displayBounds.X, -displayBounds.Y);
       }
 
       public override void LoadContent(ContentManager content)
@@ -408,10 +413,8 @@ namespace ProjectionMappingGame.StateMachine
          m_SelectedFaceP1Label.Font = m_ArialFont10;
          m_SelectedFaceP2Label.Font = m_ArialFont10;
          m_SelectedFaceP3Label.Font = m_ArialFont10;
-         m_SelectedFaceP0NoneLabel.Font = m_ArialFont10;
-         m_SelectedFaceP1NoneLabel.Font = m_ArialFont10;
-         m_SelectedFaceP2NoneLabel.Font = m_ArialFont10;
-         m_SelectedFaceP3NoneLabel.Font = m_ArialFont10;
+         m_SelectedFaceGameplayLayerLabel.Font = m_ArialFont10;
+         
          #endregion
 
          #region TEXTURES
@@ -463,53 +466,64 @@ namespace ProjectionMappingGame.StateMachine
          m_EditLayerButtonTexture = content.Load<Texture2D>("Textures/GUI/edit_layer_button");
          m_EditLayerButtonTextureOnHover = content.Load<Texture2D>("Textures/GUI/edit_layer_button_on_hover");
          m_EditLayerButtonTextureOnPress = content.Load<Texture2D>("Textures/GUI/edit_layer_button_on_hover");
+         m_CheckboxCheckedTexture = content.Load<Texture2D>("Textures/GUI/checkbox_on");
+         m_CheckboxCheckedTextureOnHover = content.Load<Texture2D>("Textures/GUI/checkbox_on_on_hover");
+         m_CheckboxCheckedTextureOnPress = content.Load<Texture2D>("Textures/GUI/checkbox_on_on_hover");
+         m_CheckboxUnCheckedTexture = content.Load<Texture2D>("Textures/GUI/checkbox_off");
+         m_CheckboxUnCheckedTextureOnHover = content.Load<Texture2D>("Textures/GUI/checkbox_off_on_hover");
+         m_CheckboxUnCheckedTextureOnPress = content.Load<Texture2D>("Textures/GUI/checkbox_off_on_hover");
 
          #endregion
 
          // Load layers scrollview
-         m_LayersScrollView = new LayerScrollView(new Rectangle(2, GUI_LAYERS_Y + GUI_MENU_ITEM_HEIGHT * 1 - 22, GUI_TOOLBAR_WIDTH - 2, 175),
+         m_ScrollMouseInput = new MouseInput(new Vector2(-(GUI_TOOLBAR_X + 2), -(GUI_LAYERS_Y + GUI_MENU_ITEM_HEIGHT * 1 - 2)));
+         m_LayersScrollView = new LayerScrollView(new Rectangle(GUI_TOOLBAR_X + 2, GUI_LAYERS_Y + GUI_MENU_ITEM_HEIGHT * 1 - 2, GUI_TOOLBAR_WIDTH - 2, 175 - 20),
             new Rectangle(),
             m_ScrollViewBackgroundTexture,
             m_ScrollViewScrollPadTexture,
             m_ScrollViewScrollAreaTexture,
-            m_MouseInput
+            m_WhiteTexture,
+            m_ScrollMouseInput
          );
-
-         // Load the projector preview's content
+         m_LayersScrollView.RegisterOnEnterNormalSelectionMode(EnterNormalSelectionMode);
+         
+         // Load components content
          m_UVGridEditor.LoadContent(content);
          m_UVEditor.LoadContent(content);
          m_ProjectorPreview.LoadContent(content);
-
+         m_ProjectorPreview.RegisterOnLeaveNormalSelectionMode(LeaveNormalSelectionMode);
+         
          // Load initial points
          m_UVEditor.SetPoints(m_UVGridEditor.GetIntersectionPoints());
          
          // Initialize panels
          m_GridEditorPanel = new Panel(new Rectangle(GUI_UV_GRID_EDITOR_X, GUI_UV_GRID_EDITOR_Y, GUI_UV_GRID_EDITOR_WIDTH, GUI_UV_GRID_EDITOR_HEIGHT), "UV Grid Editor", Color.Black, m_ArialFont10, Color.Gray, Color.LightGray, m_WhiteTexture, Color.White, Color.Black);
          m_UVEditorPanel = new Panel(new Rectangle(GUI_UV_EDITOR_X, GUI_UV_EDITOR_Y, GUI_UV_EDITOR_WIDTH, GUI_UV_EDITOR_HEIGHT), "UV Editor", Color.Black, m_ArialFont10, Color.Gray, Color.LightGray, m_WhiteTexture, Color.White, Color.Black);
-         m_ProjectionEditorPanel = new Panel(new Rectangle(GUI_PROJECTOR_PREVIEW_X, GUI_PROJECTOR_PREVIEW_Y, GUI_PROJECTOR_PREVIEW_WIDTH, GUI_PROJECTOR_PREVIEW_HEIGHT), "Projection Preview", Color.Black, m_ArialFont10, Color.Gray, Color.LightGray, m_WhiteTexture, Color.CornflowerBlue, Color.Black);
+         m_ProjectionEditorPanel = new Panel(new Rectangle(GUI_PROJECTOR_PREVIEW_X, GUI_PROJECTOR_PREVIEW_Y, GUI_PROJECTOR_PREVIEW_WIDTH, GUI_PROJECTOR_PREVIEW_HEIGHT), "Projection Preview", Color.Black, m_ArialFont10, Color.Gray, Color.LightGray, m_WhiteTexture, Color.Black, Color.Black);
 
          int menuColumn2X = (GUI_TOOLBAR_WIDTH / 2) + GUI_MENU_COLUMN_1_X;
 
          #region SPINBOXES
 
          // Initialize spinboxes
-         m_BuildingPositionXSpinBox = new NumUpDown(new Rectangle(GUI_MENU_X_COLUMN_X + 10, GUI_BUILDING_Y + GUI_MENU_ITEM_HEIGHT * 3 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, -100.0f, 100.0f, 0.1f, "{0:0.00}", m_RightMenuMouseInput);
-         m_BuildingPositionYSpinBox = new NumUpDown(new Rectangle(GUI_MENU_Y_COLUMN_X + 10, GUI_BUILDING_Y + GUI_MENU_ITEM_HEIGHT * 3 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, -100.0f, 100.0f, 0.1f, "{0:0.00}", m_RightMenuMouseInput);
-         m_BuildingPositionZSpinBox = new NumUpDown(new Rectangle(GUI_MENU_Z_COLUMN_X + 10, GUI_BUILDING_Y + GUI_MENU_ITEM_HEIGHT * 3 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, -100.0f, 100.0f, 0.1f, "{0:0.00}", m_RightMenuMouseInput);
-         m_BuildingRotationXSpinBox = new NumUpDown(new Rectangle(GUI_MENU_X_COLUMN_X + 10, GUI_BUILDING_Y + GUI_MENU_ITEM_HEIGHT * 5 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, -360.0f, 360.0f, 1.0f, "{0:0.00}", m_RightMenuMouseInput);
-         m_BuildingRotationYSpinBox = new NumUpDown(new Rectangle(GUI_MENU_Y_COLUMN_X + 10, GUI_BUILDING_Y + GUI_MENU_ITEM_HEIGHT * 5 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, -360.0f, 360.0f, 1.0f, "{0:0.00}", m_RightMenuMouseInput);
-         m_BuildingRotationZSpinBox = new NumUpDown(new Rectangle(GUI_MENU_Z_COLUMN_X + 10, GUI_BUILDING_Y + GUI_MENU_ITEM_HEIGHT * 5 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, -360.0f, 360.0f, 1.0f, "{0:0.00}", m_RightMenuMouseInput);
-         m_BuildingScaleXSpinBox = new NumUpDown(new Rectangle(GUI_MENU_X_COLUMN_X + 10, GUI_BUILDING_Y + GUI_MENU_ITEM_HEIGHT * 7 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, 0.01f, 100.0f, 0.5f, "{0:0.00}", m_RightMenuMouseInput);
-         m_BuildingScaleYSpinBox = new NumUpDown(new Rectangle(GUI_MENU_Y_COLUMN_X + 10, GUI_BUILDING_Y + GUI_MENU_ITEM_HEIGHT * 7 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, 0.01f, 100.0f, 0.5f, "{0:0.00}", m_RightMenuMouseInput);
-         m_BuildingScaleZSpinBox = new NumUpDown(new Rectangle(GUI_MENU_Z_COLUMN_X + 10, GUI_BUILDING_Y + GUI_MENU_ITEM_HEIGHT * 7 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, 0.01f, 100.0f, 0.5f, "{0:0.00}", m_RightMenuMouseInput);
-         m_ProjectorPositionXSpinBox = new NumUpDown(new Rectangle(GUI_MENU_X_COLUMN_X + 10, GUI_PROJECTOR_Y + GUI_MENU_ITEM_HEIGHT * 4 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, -100.0f, 100.0f, 0.1f, "{0:0.00}", m_RightMenuMouseInput);
-         m_ProjectorPositionYSpinBox = new NumUpDown(new Rectangle(GUI_MENU_Y_COLUMN_X + 10, GUI_PROJECTOR_Y + GUI_MENU_ITEM_HEIGHT * 4 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, -100.0f, 100.0f, 0.1f, "{0:0.00}", m_RightMenuMouseInput);
-         m_ProjectorPositionZSpinBox = new NumUpDown(new Rectangle(GUI_MENU_Z_COLUMN_X + 10, GUI_PROJECTOR_Y + GUI_MENU_ITEM_HEIGHT * 4 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, -100.0f, 100.0f, 0.1f, "{0:0.00}", m_RightMenuMouseInput);
-         m_ProjectorRotationXSpinBox = new NumUpDown(new Rectangle(GUI_MENU_X_COLUMN_X + 10, GUI_PROJECTOR_Y + GUI_MENU_ITEM_HEIGHT * 6 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, -360.0f, 360.0f, 1.0f, "{0:0.00}", m_RightMenuMouseInput);
-         m_ProjectorRotationYSpinBox = new NumUpDown(new Rectangle(GUI_MENU_Y_COLUMN_X + 10, GUI_PROJECTOR_Y + GUI_MENU_ITEM_HEIGHT * 6 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, -360.0f, 360.0f, 1.0f, "{0:0.00}", m_RightMenuMouseInput);
-         m_ProjectorRotationZSpinBox = new NumUpDown(new Rectangle(GUI_MENU_Z_COLUMN_X + 10, GUI_PROJECTOR_Y + GUI_MENU_ITEM_HEIGHT * 6 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, -360.0f, 360.0f, 1.0f, "{0:0.00}", m_RightMenuMouseInput);
-         m_ProjectorFovSpinBox = new NumUpDown(new Rectangle(GUI_TOOLBAR_WIDTH - GUI_SPINBOX_WIDTH - 6, GUI_PROJECTOR_Y + GUI_MENU_ITEM_HEIGHT * 1 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, 1.0f, 90.0f, 1.0f, "{0:0.00}", m_RightMenuMouseInput);
-         m_ProjectorAspectRatioSpinBox = new NumUpDown(new Rectangle(GUI_TOOLBAR_WIDTH - GUI_SPINBOX_WIDTH - 6, GUI_PROJECTOR_Y + GUI_MENU_ITEM_HEIGHT * 2 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, 0.1f, 10.0f, 0.1f, "{0:0.00}", m_RightMenuMouseInput);
+         m_BuildingPositionXSpinBox = new NumUpDown(new Rectangle(GUI_MENU_X_COLUMN_X + 10, GUI_BUILDING_Y + GUI_MENU_ITEM_HEIGHT * 3 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_WhiteTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, -100.0f, 100.0f, 0.1f, "{0:0.00}", m_RightMenuMouseInput);
+         m_BuildingPositionYSpinBox = new NumUpDown(new Rectangle(GUI_MENU_Y_COLUMN_X + 10, GUI_BUILDING_Y + GUI_MENU_ITEM_HEIGHT * 3 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_WhiteTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, -100.0f, 100.0f, 0.1f, "{0:0.00}", m_RightMenuMouseInput);
+         m_BuildingPositionZSpinBox = new NumUpDown(new Rectangle(GUI_MENU_Z_COLUMN_X + 10, GUI_BUILDING_Y + GUI_MENU_ITEM_HEIGHT * 3 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_WhiteTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, -100.0f, 100.0f, 0.1f, "{0:0.00}", m_RightMenuMouseInput);
+         m_BuildingRotationXSpinBox = new NumUpDown(new Rectangle(GUI_MENU_X_COLUMN_X + 10, GUI_BUILDING_Y + GUI_MENU_ITEM_HEIGHT * 5 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_WhiteTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, -360.0f, 360.0f, 1.0f, "{0:0.00}", m_RightMenuMouseInput);
+         m_BuildingRotationYSpinBox = new NumUpDown(new Rectangle(GUI_MENU_Y_COLUMN_X + 10, GUI_BUILDING_Y + GUI_MENU_ITEM_HEIGHT * 5 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_WhiteTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, -360.0f, 360.0f, 1.0f, "{0:0.00}", m_RightMenuMouseInput);
+         m_BuildingRotationZSpinBox = new NumUpDown(new Rectangle(GUI_MENU_Z_COLUMN_X + 10, GUI_BUILDING_Y + GUI_MENU_ITEM_HEIGHT * 5 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_WhiteTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, -360.0f, 360.0f, 1.0f, "{0:0.00}", m_RightMenuMouseInput);
+         m_BuildingScaleXSpinBox = new NumUpDown(new Rectangle(GUI_MENU_X_COLUMN_X + 10, GUI_BUILDING_Y + GUI_MENU_ITEM_HEIGHT * 7 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_WhiteTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, 0.01f, 100.0f, 0.5f, "{0:0.00}", m_RightMenuMouseInput);
+         m_BuildingScaleYSpinBox = new NumUpDown(new Rectangle(GUI_MENU_Y_COLUMN_X + 10, GUI_BUILDING_Y + GUI_MENU_ITEM_HEIGHT * 7 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_WhiteTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, 0.01f, 100.0f, 0.5f, "{0:0.00}", m_RightMenuMouseInput);
+         m_BuildingScaleZSpinBox = new NumUpDown(new Rectangle(GUI_MENU_Z_COLUMN_X + 10, GUI_BUILDING_Y + GUI_MENU_ITEM_HEIGHT * 7 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_WhiteTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, 0.01f, 100.0f, 0.5f, "{0:0.00}", m_RightMenuMouseInput);
+         m_ProjectorPositionXSpinBox = new NumUpDown(new Rectangle(GUI_MENU_X_COLUMN_X + 10, GUI_PROJECTOR_Y + GUI_MENU_ITEM_HEIGHT * 4 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_WhiteTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, -100.0f, 100.0f, 0.1f, "{0:0.00}", m_RightMenuMouseInput);
+         m_ProjectorPositionYSpinBox = new NumUpDown(new Rectangle(GUI_MENU_Y_COLUMN_X + 10, GUI_PROJECTOR_Y + GUI_MENU_ITEM_HEIGHT * 4 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_WhiteTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, -100.0f, 100.0f, 0.1f, "{0:0.00}", m_RightMenuMouseInput);
+         m_ProjectorPositionZSpinBox = new NumUpDown(new Rectangle(GUI_MENU_Z_COLUMN_X + 10, GUI_PROJECTOR_Y + GUI_MENU_ITEM_HEIGHT * 4 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_WhiteTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, -100.0f, 100.0f, 0.1f, "{0:0.00}", m_RightMenuMouseInput);
+         m_ProjectorRotationXSpinBox = new NumUpDown(new Rectangle(GUI_MENU_X_COLUMN_X + 10, GUI_PROJECTOR_Y + GUI_MENU_ITEM_HEIGHT * 6 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_WhiteTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, -360.0f, 360.0f, 1.0f, "{0:0.00}", m_RightMenuMouseInput);
+         m_ProjectorRotationYSpinBox = new NumUpDown(new Rectangle(GUI_MENU_Y_COLUMN_X + 10, GUI_PROJECTOR_Y + GUI_MENU_ITEM_HEIGHT * 6 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_WhiteTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, -360.0f, 360.0f, 1.0f, "{0:0.00}", m_RightMenuMouseInput);
+         m_ProjectorRotationZSpinBox = new NumUpDown(new Rectangle(GUI_MENU_Z_COLUMN_X + 10, GUI_PROJECTOR_Y + GUI_MENU_ITEM_HEIGHT * 6 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_WhiteTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, -360.0f, 360.0f, 1.0f, "{0:0.00}", m_RightMenuMouseInput);
+         m_ProjectorFovSpinBox = new NumUpDown(new Rectangle(GUI_TOOLBAR_WIDTH - GUI_SPINBOX_WIDTH - 6, GUI_PROJECTOR_Y + GUI_MENU_ITEM_HEIGHT * 1 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_WhiteTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, 1.0f, 90.0f, 1.0f, "{0:0.00}", m_RightMenuMouseInput);
+         m_ProjectorAspectRatioSpinBox = new NumUpDown(new Rectangle(GUI_TOOLBAR_WIDTH - GUI_SPINBOX_WIDTH - 6, GUI_PROJECTOR_Y + GUI_MENU_ITEM_HEIGHT * 2 - 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_WhiteTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, 0.1f, 10.0f, 0.1f, "{0:0.00}", m_RightMenuMouseInput);
+         m_SelectedFaceGameplayLayerSpinBox = new NumUpDown(new Rectangle(GUI_LEFT_TOOLBAR_X + 127, GUI_SELECTED_QUAD_Y + 2 + GUI_MENU_ITEM_HEIGHT * 6, 40, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_WhiteTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, 1, 1, 1, "{0:0}", m_MouseInput);
          
          m_BuildingPositionXSpinBox.RegisterOnValueChanged(BuildingPositionX_OnValueChanged);
          m_BuildingPositionYSpinBox.RegisterOnValueChanged(BuildingPositionY_OnValueChanged);
@@ -528,7 +542,8 @@ namespace ProjectionMappingGame.StateMachine
          m_ProjectorRotationZSpinBox.RegisterOnValueChanged(ProjectorRotationZ_OnValueChanged);
          m_ProjectorFovSpinBox.RegisterOnValueChanged(ProjectorFOV_OnValueChanged);
          m_ProjectorAspectRatioSpinBox.RegisterOnValueChanged(ProjectorAspectRatio_OnValueChanged);
-
+         m_SelectedFaceGameplayLayerSpinBox.RegisterOnValueChanged(SelectedFaceInputLayer_OnValueChanged);
+         
          #endregion
 
          #region BUTTONS
@@ -574,11 +589,11 @@ namespace ProjectionMappingGame.StateMachine
          m_BuildingColorButton.RegisterOnClick(BuildingColorButton_OnClick);
 
          int btnWidth = 20;
-         m_NewTextureLayerButton = new Button(new Rectangle(2 + btnWidth * 0, GameConstants.WindowHeight - btnWidth, btnWidth, btnWidth), m_NewTextureLayerTexture, m_RightMenuMouseInput);
-         m_NewTextureLayerButton.SetImage(Button.ImageType.OVER, m_NewTextureLayerTextureOnHover);
-         m_NewTextureLayerButton.SetImage(Button.ImageType.CLICK, m_NewTextureLayerTextureOnPress);
-         m_NewTextureLayerButton.RegisterOnClick(NewTextureLayerButton_OnClick);
-         m_NewParticleLayerButton = new Button(new Rectangle(2 + btnWidth * 1, GameConstants.WindowHeight - btnWidth, btnWidth, btnWidth), m_NewParticleLayerTexture, m_RightMenuMouseInput);
+         m_NewGameplayLayerButton = new Button(new Rectangle(2 + btnWidth * 0, GameConstants.WindowHeight - btnWidth, btnWidth, btnWidth), m_NewTextureLayerTexture, m_RightMenuMouseInput);
+         m_NewGameplayLayerButton.SetImage(Button.ImageType.OVER, m_NewTextureLayerTextureOnHover);
+         m_NewGameplayLayerButton.SetImage(Button.ImageType.CLICK, m_NewTextureLayerTextureOnPress);
+         m_NewGameplayLayerButton.RegisterOnClick(NewGameplayLayerButton_OnClick);
+         /*m_NewParticleLayerButton = new Button(new Rectangle(2 + btnWidth * 1, GameConstants.WindowHeight - btnWidth, btnWidth, btnWidth), m_NewParticleLayerTexture, m_RightMenuMouseInput);
          m_NewParticleLayerButton.SetImage(Button.ImageType.OVER, m_NewParticleLayerTextureOnHover);
          m_NewParticleLayerButton.SetImage(Button.ImageType.CLICK, m_NewParticleLayerTextureOnPress);
          m_NewParticleLayerButton.RegisterOnClick(NewParticleLayerButton_OnClick);
@@ -589,13 +604,35 @@ namespace ProjectionMappingGame.StateMachine
          m_ShiftLayerDownButton = new Button(new Rectangle(GUI_TOOLBAR_WIDTH - btnWidth * 2, GameConstants.WindowHeight - btnWidth, btnWidth, btnWidth), m_ShiftLayerDownTexture, m_RightMenuMouseInput);
          m_ShiftLayerDownButton.SetImage(Button.ImageType.OVER, m_ShiftLayerDownTextureOnHover);
          m_ShiftLayerDownButton.SetImage(Button.ImageType.CLICK, m_ShiftLayerDownTextureOnPress);
-         m_ShiftLayerDownButton.RegisterOnClick(ShiftLayerDownButton_OnClick);
+         m_ShiftLayerDownButton.RegisterOnClick(ShiftLayerDownButton_OnClick);*/
          m_TrashLayerButton = new Button(new Rectangle(GUI_TOOLBAR_WIDTH - btnWidth * 1, GameConstants.WindowHeight - btnWidth, btnWidth, btnWidth), m_TrashTexture, m_RightMenuMouseInput);
          m_TrashLayerButton.SetImage(Button.ImageType.OVER, m_TrashTextureOnHover);
          m_TrashLayerButton.SetImage(Button.ImageType.CLICK, m_TrashTextureOnPress);
          m_TrashLayerButton.RegisterOnClick(TrashLayerButton_OnClick);
+         
+         m_ToLocalCoordButton = new Button(new Rectangle(GUI_LEFT_MENU_COLUMN_1_X + 5, GUI_LEFT_TOOLBAR_Y + GUI_MENU_ITEM_HEIGHT * 8 + 12, GUI_LOCAL_COORD_BUTTON_WIDTH, GUI_QUIT_BUTTON_HEIGHT), m_ButtonTexture, m_MouseInput, m_ArialFont10, "Reset To Local", Color.Black);
+         m_ToLocalCoordButton.SetImage(Button.ImageType.OVER, m_ButtonTextureOnHover);
+         m_ToLocalCoordButton.SetImage(Button.ImageType.CLICK, m_ButtonTextureOnPress);
+         m_ToLocalCoordButton.RegisterOnClick(ToLocalCoordButton_OnClick);
 
          #endregion
+
+         // Checkboxes
+         m_SelectedFaceWallCheckbox = new Checkbox(
+            new Rectangle(GUI_LEFT_MENU_COLUMN_1_X + 10, GUI_LEFT_TOOLBAR_Y + GUI_MENU_ITEM_HEIGHT * 7 + 4, 129, GUI_SPINBOX_HEIGHT),
+            false,
+            m_CheckboxCheckedTexture,
+            m_CheckboxCheckedTextureOnHover,
+            m_CheckboxCheckedTextureOnPress,
+            m_CheckboxUnCheckedTexture,
+            m_CheckboxUnCheckedTextureOnHover,
+            m_CheckboxUnCheckedTextureOnPress,
+            m_MouseInput,
+            m_ArialFont10,
+            "Wall",
+            Color.Black
+         );
+         m_SelectedFaceWallCheckbox.RegisterOnClick(SelectedFaceWallCheckbox_OnClick);
 
          // Sliders
          m_ProjectorAlphaSlider = new Slider(new Rectangle(60, GUI_PROJECTOR_Y + GUI_MENU_ITEM_HEIGHT * 7, 100, GUI_MENU_ITEM_HEIGHT), m_SliderBarTexture, m_SliderPadTexture, 0.0f, 1.0f, 0.05f, m_RightMenuMouseInput);
@@ -607,17 +644,9 @@ namespace ProjectionMappingGame.StateMachine
          m_SelectedFaceUVSpinBox[1] = new UVSpinBoxPair(new Vector2(GUI_LEFT_TOOLBAR_X + 50, GUI_LEFT_TOOLBAR_Y + GUI_MENU_ITEM_HEIGHT * 3), m_WhiteTexture, m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, m_MouseInput);
          m_SelectedFaceUVSpinBox[2] = new UVSpinBoxPair(new Vector2(GUI_LEFT_TOOLBAR_X + 50, GUI_LEFT_TOOLBAR_Y + GUI_MENU_ITEM_HEIGHT * 4), m_WhiteTexture, m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, m_MouseInput);
          m_SelectedFaceUVSpinBox[3] = new UVSpinBoxPair(new Vector2(GUI_LEFT_TOOLBAR_X + 50, GUI_LEFT_TOOLBAR_Y + GUI_MENU_ITEM_HEIGHT * 5), m_WhiteTexture, m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, m_MouseInput);
-
+         
          // Initialize layers
-         Label defaultGameplayLabel = new Label("Gameplay", Layer.NAME_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT, Layer.LAYER_WIDTH, Layer.LAYER_HEIGHT, Color.Black);
-         defaultGameplayLabel.Font = m_ArialFont10;
-         Button visibleBtn = new Button(new Rectangle(Layer.VISIBILITY_BUTTON_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT, Layer.VISIBILITY_BUTTON_WIDTH, Layer.VISIBILITY_BUTTON_HEIGHT), m_VisibleButtonTexture, m_RightMenuMouseInput);
-         visibleBtn.SetImage(Button.ImageType.OVER, m_VisibleButtonTextureOnHover);
-         visibleBtn.SetImage(Button.ImageType.CLICK, m_VisibleButtonTextureOnPress);
-         Button editBtn = new Button(new Rectangle(Layer.EDIT_BUTTON_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT, Layer.EDIT_BUTTON_WIDTH, Layer.EDIT_BUTTON_HEIGHT), m_EditLayerButtonTexture, m_RightMenuMouseInput);
-         editBtn.SetImage(Button.ImageType.OVER, m_EditLayerButtonTextureOnHover);
-         editBtn.SetImage(Button.ImageType.CLICK, m_EditLayerButtonTextureOnPress);
-         m_LayersScrollView.AddLayer(new GameplayLayer(defaultGameplayLabel, visibleBtn, editBtn));
+         AssembleGameplayLayer();
 
          // Register gizmo selection event
          m_ProjectorPreview.Gizmo.RegisterOnSelect(Gizmo_OnSelect);
@@ -625,6 +654,35 @@ namespace ProjectionMappingGame.StateMachine
          // Load color picker
          m_BuildingColorPicker = new ColorPickerComponent(new Rectangle(m_RightMenuViewport.X + GUI_BUILDING_COLOR_PICKER_X, GUI_BUILDING_COLOR_PICKER_Y, GUI_BUILDING_COLOR_PICKER_WIDTH, GUI_BUILDING_COLOR_PICKER_HEIGHT), m_Game.GraphicsDevice, content, false);
       }
+
+      private void AssembleGameplayLayer()
+      {
+         Label defaultGameplayLabel = new Label("Gameplay " + (m_LayersScrollView.NumLayers + 1), Layer.NAME_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT, Layer.LAYER_WIDTH, Layer.LABEL_HEIGHT, Color.Black);
+         Label defaultWidthLabel = new Label("Width", Layer.WIDTH_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT + Layer.LABEL_HEIGHT, Layer.WIDTH_WIDTH, Layer.LABEL_HEIGHT, Color.Black);
+         Label defaultHeightLabel = new Label("Height", Layer.HEIGHT_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT + Layer.LABEL_HEIGHT, Layer.HEIGHT_WIDTH, Layer.LABEL_HEIGHT, Color.Black);
+         Label defaultNormalsLabel = new Label("Normal", Layer.NORMALS_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT, Layer.HEIGHT_WIDTH, Layer.LABEL_HEIGHT, Color.Black);
+         defaultGameplayLabel.Font = m_ArialFont10;
+         defaultWidthLabel.Font = m_ArialFont10;
+         defaultHeightLabel.Font = m_ArialFont10;
+         defaultNormalsLabel.Font = m_ArialFont10;
+
+         NumUpDown widthSpinBox = new NumUpDown(new Rectangle(Layer.WIDTH_SPINBOX_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT + Layer.LABEL_HEIGHT - 2, 40, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_WhiteTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, GameConstants.TILE_DIM, GameConstants.TILE_DIM * GameConstants.MAX_TILES_WIDE, GameConstants.TILE_DIM, "{0:0}", m_ScrollMouseInput);
+         NumUpDown heightSpinBox = new NumUpDown(new Rectangle(Layer.HEIGHT_SPINBOX_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT + Layer.LABEL_HEIGHT - 2, 40, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_WhiteTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, GameConstants.TILE_DIM, GameConstants.TILE_DIM * GameConstants.MAX_TILES_HIGH, GameConstants.TILE_DIM, "{0:0}", m_ScrollMouseInput);
+         widthSpinBox.Value = GameConstants.TILE_DIM * GameConstants.DEFAULT_TILES_WIDE;
+         heightSpinBox.Value = GameConstants.TILE_DIM * GameConstants.DEFAULT_TILES_HIGH;
+
+         //Button visibleBtn = new Button(new Rectangle(Layer.VISIBILITY_BUTTON_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT, Layer.VISIBILITY_BUTTON_WIDTH, Layer.VISIBILITY_BUTTON_HEIGHT), m_VisibleButtonTexture, m_ScrollMouseInput);
+         //visibleBtn.SetImage(Button.ImageType.OVER, m_VisibleButtonTextureOnHover);
+         //visibleBtn.SetImage(Button.ImageType.CLICK, m_VisibleButtonTextureOnPress);
+         Button editBtn = new Button(new Rectangle(Layer.EDIT_BUTTON_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT, Layer.EDIT_BUTTON_WIDTH, Layer.EDIT_BUTTON_HEIGHT), m_EditLayerButtonTexture, m_ScrollMouseInput);
+         editBtn.SetImage(Button.ImageType.OVER, m_EditLayerButtonTextureOnHover);
+         editBtn.SetImage(Button.ImageType.CLICK, m_EditLayerButtonTextureOnPress);
+         m_LayersScrollView.AddLayer(new GameplayLayer(defaultGameplayLabel, defaultWidthLabel, defaultHeightLabel, defaultNormalsLabel, widthSpinBox, heightSpinBox, editBtn, m_ColorPickerPreviewPadTexture));
+      }
+
+      #endregion
+
+      #region Updating
 
       public override void Update(float elapsedTime)
       {
@@ -643,6 +701,7 @@ namespace ProjectionMappingGame.StateMachine
                m_UVGridEditor.HasUpdates = false;
             }
 
+            m_LayersScrollView.Update(elapsedTime);
             m_UVEditor.Update(elapsedTime);
             m_ProjectorPreview.Update(elapsedTime);
             m_ProjectorPreview.ProjectorAlpha = m_ProjectorAlphaSlider.Value;
@@ -655,7 +714,14 @@ namespace ProjectionMappingGame.StateMachine
             m.Diffuse = m_BuildingColorPicker.SelectedColor.ToVector4();
             m_ProjectorPreview.Building.Material = m;
 
-            // Sync uv coords with selected quad
+            // Sync gui with selected quad
+            for (int i = 0; i < 4; ++i)
+            {
+               m_SelectedFaceUVSpinBox[i].IsEnabled = m_UVEditor.IsQuadSelected;
+            }
+            m_SelectedFaceGameplayLayerSpinBox.IsActive = m_UVEditor.IsQuadSelected;
+            m_SelectedFaceWallCheckbox.IsActive = m_UVEditor.IsQuadSelected;
+            m_ToLocalCoordButton.IsActive = m_UVEditor.IsQuadSelected;
             if (m_UVEditor.IsQuadSelected)
             {
                Vector2[] uvs = new Vector2[4];
@@ -690,6 +756,66 @@ namespace ProjectionMappingGame.StateMachine
          }
       }
 
+      private void ToggleBuildingMenuEnabled(bool enabled)
+      {
+         m_BuildingPositionXSpinBox.IsActive = enabled;
+         m_BuildingPositionYSpinBox.IsActive = enabled;
+         m_BuildingPositionZSpinBox.IsActive = enabled;
+         m_BuildingRotationXSpinBox.IsActive = enabled;
+         m_BuildingRotationYSpinBox.IsActive = enabled;
+         m_BuildingRotationZSpinBox.IsActive = enabled;
+         m_BuildingScaleXSpinBox.IsActive = enabled;
+         m_BuildingScaleYSpinBox.IsActive = enabled;
+         m_BuildingScaleZSpinBox.IsActive = enabled;
+         m_BuildingColorButton.IsActive = enabled;
+      }
+
+      private void ToggleProjectorMenuEnabled(bool enabled)
+      {
+         m_ProjectorPositionXSpinBox.IsActive = enabled;
+         m_ProjectorPositionYSpinBox.IsActive = enabled;
+         m_ProjectorPositionZSpinBox.IsActive = enabled;
+         m_ProjectorRotationXSpinBox.IsActive = enabled;
+         m_ProjectorRotationYSpinBox.IsActive = enabled;
+         m_ProjectorRotationZSpinBox.IsActive = enabled;
+         m_ProjectorFovSpinBox.IsActive = enabled;
+         m_ProjectorAspectRatioSpinBox.IsActive = enabled;
+         m_ProjectorEnabledButton.IsActive = enabled;
+         m_ProjectorAlphaSlider.IsActive = enabled;
+      }
+
+      private void ToggleGizmoMenuEnabled(bool enabled)
+      {
+         m_ScaleButton.IsActive = enabled;
+         m_RotateButton.IsActive = enabled;
+         m_TranslateButton.IsActive = enabled;
+      }
+
+      private void ToggleAppMenuEnabled(bool enabled)
+      {
+         m_ResetButton.IsActive = enabled;
+         m_PlayButton.IsActive = enabled;
+         m_ModeButton.IsActive = enabled;
+         m_QuitButton.IsActive = enabled;
+      }
+
+      private void ToggleSelectedFaceMenuEnabled(bool enabled)
+      {
+         m_ToLocalCoordButton.IsActive = enabled;
+      }
+
+      private void ToggleLayersMenuEnabled(bool enabled)
+      {
+         m_NewGameplayLayerButton.IsActive = enabled;
+         m_TrashLayerButton.IsActive = enabled;
+         m_LayersScrollView.IsActive = enabled;
+         m_LayersScrollView.ToggleLayerControlsEnabled(enabled);
+      }
+
+      #endregion
+
+      #region Input Handling
+
       public override void HandleInput(float elapsedTime)
       {
          // Get input states
@@ -714,43 +840,50 @@ namespace ProjectionMappingGame.StateMachine
          {
             m_MouseInput.HandleInput(PlayerIndex.One);
             m_RightMenuMouseInput.HandleInput(PlayerIndex.One);
+            m_ScrollMouseInput.HandleInput(PlayerIndex.One);
+
+            // Update scroll view
+            m_LayersScrollView.HandleInput(mouseState, m_PrevMouseState);
 
             // Update color picker if it is active
             if (m_BuildingColorPicker.IsActive)
                m_BuildingColorPicker.HandleInput(mouseState, m_PrevMouseState);
 
-            // Update the UV Grid Editor
-            if (mouseState.X >= m_UVGridEditor.Viewport.X && mouseState.X <= m_UVGridEditor.Viewport.X + m_UVGridEditor.Viewport.Width &&
-                mouseState.Y >= m_UVGridEditor.Viewport.Y && mouseState.Y <= m_UVGridEditor.Viewport.Y + m_UVGridEditor.Viewport.Height)
+            if (!m_ProjectorPreview.RenderNormals)
             {
-               if (m_FocusedPane != 0 && mouseState.LeftButton == ButtonState.Pressed && m_PrevMouseState.LeftButton == ButtonState.Released)
+               // Update the UV Grid Editor
+               if (mouseState.X >= m_UVGridEditor.Viewport.X && mouseState.X <= m_UVGridEditor.Viewport.X + m_UVGridEditor.Viewport.Width &&
+                   mouseState.Y >= m_UVGridEditor.Viewport.Y && mouseState.Y <= m_UVGridEditor.Viewport.Y + m_UVGridEditor.Viewport.Height)
                {
-                  m_FocusedPane = 0;
-                  m_UVGridEditor.PrevMouseState = m_PrevMouseState;
+                  if (m_FocusedPane != 0 && mouseState.LeftButton == ButtonState.Pressed && m_PrevMouseState.LeftButton == ButtonState.Released)
+                  {
+                     m_FocusedPane = 0;
+                     m_UVGridEditor.PrevMouseState = m_PrevMouseState;
+                  }
+
+                  if (m_FocusedPane == 0)
+                     m_UVGridEditor.HandleInput(elapsedTime);
                }
 
-               if (m_FocusedPane == 0)
-                  m_UVGridEditor.HandleInput(elapsedTime);
-            }
-
-            // Update the UV Editor
-            if (mouseState.X >= m_UVEditor.Viewport.X && mouseState.X <= m_UVEditor.Viewport.X + m_UVEditor.Viewport.Width &&
-                mouseState.Y >= m_UVEditor.Viewport.Y && mouseState.Y <= m_UVEditor.Viewport.Y + m_UVEditor.Viewport.Height)
-            {
-               if (m_FocusedPane != 1 && mouseState.LeftButton == ButtonState.Pressed && m_PrevMouseState.LeftButton == ButtonState.Released)
+               // Update the UV Editor
+               if (mouseState.X >= m_UVEditor.Viewport.X && mouseState.X <= m_UVEditor.Viewport.X + m_UVEditor.Viewport.Width &&
+                   mouseState.Y >= m_UVEditor.Viewport.Y && mouseState.Y <= m_UVEditor.Viewport.Y + m_UVEditor.Viewport.Height)
                {
-                  m_FocusedPane = 1;
-                  m_UVEditor.PrevMouseState = m_PrevMouseState;
+                  if (m_FocusedPane != 1 && mouseState.LeftButton == ButtonState.Pressed && m_PrevMouseState.LeftButton == ButtonState.Released)
+                  {
+                     m_FocusedPane = 1;
+                     m_UVEditor.PrevMouseState = m_PrevMouseState;
+                  }
+
+                  if (m_FocusedPane == 1)
+                     m_UVEditor.HandleInput(elapsedTime);
                }
-
-               if (m_FocusedPane == 1)
-                  m_UVEditor.HandleInput(elapsedTime);
+               else
+               {
+                  m_UVEditor.UnHoverQuads();
+               }
             }
-            else
-            {
-               m_UVEditor.UnHoverQuads();
-            }
-
+            
             // Update the Projection Preview
             if (mouseState.X >= m_ProjectorPreview.Viewport.X && mouseState.X <= m_ProjectorPreview.Viewport.X + m_ProjectorPreview.Viewport.Width &&
                 mouseState.Y >= m_ProjectorPreview.Viewport.Y && mouseState.Y <= m_ProjectorPreview.Viewport.Y + m_ProjectorPreview.Viewport.Height)
@@ -765,7 +898,12 @@ namespace ProjectionMappingGame.StateMachine
                   m_ProjectorPreview.HandleInput(elapsedTime);
             }
          }
-         
+
+         if (m_ProjectorPreview.RenderNormals)
+         {
+            if (mouseState.RightButton == ButtonState.Pressed)
+               CancelNormalSelectionMode();
+         }
 
          // Store input
          m_PrevKeyboardState = keyboardState;
@@ -776,6 +914,10 @@ namespace ProjectionMappingGame.StateMachine
       {
          switch (layerType)
          {
+            case LayerType.Gameplay:
+               AssembleGameplayLayer();
+               m_SelectedFaceGameplayLayerSpinBox.Max += 1;
+               break;
             case LayerType.Texture:
                //m_Layers.Add(new TextureLayer());
                break;
@@ -785,12 +927,68 @@ namespace ProjectionMappingGame.StateMachine
          }
       }
 
+      /// <summary>
+      /// Enter normal selection mode so that the user can choose a normal from the mesh
+      /// to use for lighting on a layer per layer basis.
+      /// </summary>
+      /// <param name="sender"></param>
+      /// <param name="e"></param>
+      void EnterNormalSelectionMode(object sender, EventArgs e)
+      {
+         ToggleAppMenuEnabled(false);
+         ToggleBuildingMenuEnabled(false);
+         ToggleProjectorMenuEnabled(false);
+         ToggleGizmoMenuEnabled(false);
+         ToggleLayersMenuEnabled(false);
+         ToggleSelectedFaceMenuEnabled(false);
+         m_ProjectorPreview.RenderNormals = true;
+      }
+
+      /// <summary>
+      /// Leave normal selection mode knowing that we selected a normal from the mesh.
+      /// </summary>
+      /// <param name="sender"></param>
+      /// <param name="e"></param>
+      void LeaveNormalSelectionMode(object sender, EventArgs e)
+      {
+         ToggleAppMenuEnabled(true);
+         ToggleBuildingMenuEnabled(true);
+         ToggleProjectorMenuEnabled(true);
+         ToggleGizmoMenuEnabled(true);
+         ToggleLayersMenuEnabled(true);
+         ToggleSelectedFaceMenuEnabled(true);
+         m_ProjectorPreview.RenderNormals = false;
+         m_LayersScrollView.Layers[m_LayersScrollView.SelectedLayer].Normal = m_ProjectorPreview.SelectedNormal;
+      }
+
+      /// <summary>
+      /// Cancel normal selection mode via right click and discard any normal selections.
+      /// </summary>
+      void CancelNormalSelectionMode()
+      {
+         ToggleAppMenuEnabled(true);
+         ToggleBuildingMenuEnabled(true);
+         ToggleProjectorMenuEnabled(true);
+         ToggleGizmoMenuEnabled(true);
+         ToggleLayersMenuEnabled(true);
+         ToggleSelectedFaceMenuEnabled(true);
+         m_ProjectorPreview.RenderNormals = false;
+      }
+
       void Quad_OnSelected(object sender, EventArgs e)
       {
          m_SelectedFaceUVSpinBox[0].TexCoord = m_UVEditor.SelectedQuadTexCoords[0];
          m_SelectedFaceUVSpinBox[1].TexCoord = m_UVEditor.SelectedQuadTexCoords[1];
          m_SelectedFaceUVSpinBox[2].TexCoord = m_UVEditor.SelectedQuadTexCoords[2];
          m_SelectedFaceUVSpinBox[3].TexCoord = m_UVEditor.SelectedQuadTexCoords[3];
+         m_SelectedFaceGameplayLayerSpinBox.Value = (m_UVEditor.SelectedInputLayer + 1);
+         m_SelectedFaceWallCheckbox.IsChecked = m_UVEditor.SelectedQuadIsWall;
+
+         for (int i = 0; i < 4; ++i)
+         {
+            m_SelectedFaceUVSpinBox[i].IsEnabled = m_UVEditor.IsQuadSelected;
+         }
+         m_SelectedFaceGameplayLayerSpinBox.IsActive = m_UVEditor.IsQuadSelected;
       }
 
       void Gizmo_OnSelect(object sender, EventArgs e)
@@ -808,8 +1006,23 @@ namespace ProjectionMappingGame.StateMachine
          }
       }
 
+      void SelectedFaceWallCheckbox_OnClick(object sender, EventArgs e)
+      {
+         if (m_UVEditor.IsQuadSelected)
+         {
+            m_UVEditor.SelectedQuadIsWall = m_SelectedFaceWallCheckbox.IsChecked;
+         }
+      }
+
       #region SpinBoxes
 
+      private void SelectedFaceInputLayer_OnValueChanged(object sender, EventArgs e)
+      {
+         if (m_UVEditor.IsQuadSelected)
+         {
+            m_UVEditor.SelectedInputLayer = ((int)m_SelectedFaceGameplayLayerSpinBox.Value - 1);
+         }
+      }
       private void BuildingPositionX_OnValueChanged(object sender, EventArgs e)
       {
          Vector3 pos = m_ProjectorPreview.Building.Position;
@@ -920,11 +1133,30 @@ namespace ProjectionMappingGame.StateMachine
 
       #region Buttons
 
-      private void NewTextureLayerButton_OnClick(object sender, EventArgs e)
+      private void ToLocalCoordButton_OnClick(object sender, EventArgs e)
       {
-         AddLayer(LayerType.Texture);
+         // Sync uv coords with selected quad
+         if (m_UVEditor.IsQuadSelected)
+         {
+            m_SelectedFaceUVSpinBox[0].TexCoord = new Vector2(0, 0);
+            m_SelectedFaceUVSpinBox[1].TexCoord = new Vector2(0, 1);
+            m_SelectedFaceUVSpinBox[2].TexCoord = new Vector2(1, 1);
+            m_SelectedFaceUVSpinBox[3].TexCoord = new Vector2(1, 0);
+
+            Vector2[] uvs = new Vector2[4];
+            uvs[0] = m_SelectedFaceUVSpinBox[0].TexCoord;
+            uvs[1] = m_SelectedFaceUVSpinBox[1].TexCoord;
+            uvs[2] = m_SelectedFaceUVSpinBox[2].TexCoord;
+            uvs[3] = m_SelectedFaceUVSpinBox[3].TexCoord;
+            m_UVEditor.SetUVs(uvs);
+         }
       }
 
+      private void NewGameplayLayerButton_OnClick(object sender, EventArgs e)
+      {
+         AddLayer(LayerType.Gameplay);
+      }
+      /*
       private void NewParticleLayerButton_OnClick(object sender, EventArgs e)
       {
          AddLayer(LayerType.Particle);
@@ -939,10 +1171,17 @@ namespace ProjectionMappingGame.StateMachine
       {
 
       }
-
+      */
       private void TrashLayerButton_OnClick(object sender, EventArgs e)
       {
-
+         if (m_LayersScrollView.SelectedLayer > 0)
+         {
+            m_UVEditor.DeleteLayer(m_LayersScrollView.SelectedLayer);
+            m_LayersScrollView.DeleteSelectedLayer();
+            m_SelectedFaceGameplayLayerSpinBox.Max -= 1;
+            if (m_UVEditor.IsQuadSelected)
+               m_SelectedFaceGameplayLayerSpinBox.Value = (m_UVEditor.SelectedInputLayer + 1);
+         }
       }
 
       private void BuildingColorButton_OnClick(object sender, EventArgs e)
@@ -1087,6 +1326,8 @@ namespace ProjectionMappingGame.StateMachine
 
       #endregion
 
+      #endregion
+
       #region Rendering
 
       public override void Draw(SpriteBatch spriteBatch)
@@ -1097,16 +1338,22 @@ namespace ProjectionMappingGame.StateMachine
          {
             // Render the UV editor contents to a render target
             m_Game.GraphicsDevice.Viewport = m_UVEditor.Viewport;
-            m_UVEditor.DrawRenderTarget();
+            m_UVEditor.DrawRenderTarget(spriteBatch, false);
 
             m_Game.GraphicsDevice.Viewport = m_ProjectorPreview.Viewport;
-            m_ProjectorPreview.Draw();
+            m_ProjectorPreview.Draw(spriteBatch);
          }
          else
          {
             // Render the UV editor contents to a render target
             m_Game.GraphicsDevice.Viewport = m_UVEditor.Viewport;
-            m_UVEditor.DrawRenderTarget();
+            m_UVEditor.DrawRenderTarget(spriteBatch, true);
+
+            if (m_ProjectorPreview.RenderNormals)
+            {
+               m_Game.GraphicsDevice.Viewport = m_ProjectorPreview.Viewport;
+               m_ProjectorPreview.DrawRenderTarget(spriteBatch);
+            }
 
             // Render panels
             m_Game.GraphicsDevice.Viewport = defaultViewport;
@@ -1134,10 +1381,6 @@ namespace ProjectionMappingGame.StateMachine
             m_Game.GraphicsDevice.Viewport = m_UVGridEditor.Viewport;
             m_UVGridEditor.Draw(spriteBatch);
 
-            // Render the projector preview
-            m_Game.GraphicsDevice.Viewport = m_ProjectorPreview.Viewport;
-            m_ProjectorPreview.Draw();
-
             // Right menu
             m_Game.GraphicsDevice.Viewport = m_RightMenuViewport;
             spriteBatch.Begin();
@@ -1162,6 +1405,10 @@ namespace ProjectionMappingGame.StateMachine
                m_BuildingColorPicker.Draw(m_Game.GraphicsDevice, spriteBatch);
             }
 
+            // Render the projector preview
+            m_Game.GraphicsDevice.Viewport = m_ProjectorPreview.Viewport;
+            m_ProjectorPreview.Draw(spriteBatch);
+
             // Restore the default viewport
             m_Game.GraphicsDevice.Viewport = defaultViewport;
          }
@@ -1180,23 +1427,21 @@ namespace ProjectionMappingGame.StateMachine
          m_SelectedFaceP2Label.Draw(m_Game.GraphicsDevice, spriteBatch);
          m_SelectedFaceP3Label.Draw(m_Game.GraphicsDevice, spriteBatch);
 
-         if (m_UVEditor.IsQuadSelected)
+         for (int i = 0; i < 4; ++i)
          {
-            for (int i = 0; i < 4; ++i)
-               m_SelectedFaceUVSpinBox[i].Draw(m_Game.GraphicsDevice, spriteBatch);
+            m_SelectedFaceUVSpinBox[i].Draw(m_Game.GraphicsDevice, spriteBatch);
          }
-         else
-         {
-            m_SelectedFaceP0NoneLabel.Draw(m_Game.GraphicsDevice, spriteBatch);
-            m_SelectedFaceP1NoneLabel.Draw(m_Game.GraphicsDevice, spriteBatch);
-            m_SelectedFaceP2NoneLabel.Draw(m_Game.GraphicsDevice, spriteBatch);
-            m_SelectedFaceP3NoneLabel.Draw(m_Game.GraphicsDevice, spriteBatch);
-         }
+         if (m_UVEditor.IsQuadSelected && m_UVEditor.SelectedQuadIsWall)
+            m_SelectedFaceGameplayLayerSpinBox.IsActive = false;
+         m_SelectedFaceGameplayLayerSpinBox.Draw(m_Game.GraphicsDevice, spriteBatch);
+         m_SelectedFaceGameplayLayerLabel.Draw(m_Game.GraphicsDevice, spriteBatch);
+         m_SelectedFaceWallCheckbox.Draw(m_Game.GraphicsDevice, spriteBatch);
+         m_ToLocalCoordButton.Draw(m_Game.GraphicsDevice, spriteBatch);
       }
 
       private void RenderApplicationSection(SpriteBatch spriteBatch)
       {
-         RenderGradient(new Rectangle(GUI_TOOLBAR_X + 2, GUI_APP_Y, GUI_TOOLBAR_WIDTH - 2, 18), spriteBatch, Color.Gray, Color.LightGray);
+         RenderGradient(new Rectangle(2, GUI_APP_Y, GUI_TOOLBAR_WIDTH - 2, 18), spriteBatch, Color.Gray, Color.LightGray);
          m_AppHeaderLabel.Draw(m_Game.GraphicsDevice, spriteBatch);
          m_ModeButton.Draw(m_Game.GraphicsDevice, spriteBatch);
          m_PlayButton.Draw(m_Game.GraphicsDevice, spriteBatch);
@@ -1206,7 +1451,7 @@ namespace ProjectionMappingGame.StateMachine
 
       private void RenderGizmoSection(SpriteBatch spriteBatch)
       {
-         RenderGradient(new Rectangle(GUI_TOOLBAR_X + 2, GUI_GIZMO_Y, GUI_TOOLBAR_WIDTH - 2, 18), spriteBatch, Color.Gray, Color.LightGray);
+         RenderGradient(new Rectangle(2, GUI_GIZMO_Y, GUI_TOOLBAR_WIDTH - 2, 18), spriteBatch, Color.Gray, Color.LightGray);
          m_GizmoHeaderLabel.Draw(m_Game.GraphicsDevice, spriteBatch);
          //m_GizmoHeaderValueLabel.Draw(m_Game.GraphicsDevice, spriteBatch);
          m_TranslateButton.Draw(m_Game.GraphicsDevice, spriteBatch);
@@ -1216,7 +1461,7 @@ namespace ProjectionMappingGame.StateMachine
 
       private void RenderBuildingSection(SpriteBatch spriteBatch)
       {
-         RenderGradient(new Rectangle(GUI_TOOLBAR_X + 2, GUI_BUILDING_Y, GUI_TOOLBAR_WIDTH - 2, 18), spriteBatch, Color.Gray, Color.LightGray);
+         RenderGradient(new Rectangle(2, GUI_BUILDING_Y, GUI_TOOLBAR_WIDTH - 2, 18), spriteBatch, Color.Gray, Color.LightGray);
          m_BuildingHeaderLabel.Draw(m_Game.GraphicsDevice, spriteBatch);
          m_BuildingFilepathLabel.Draw(m_Game.GraphicsDevice, spriteBatch);
          m_BuildingFilepathValueLabel.Draw(m_Game.GraphicsDevice, spriteBatch);
@@ -1250,7 +1495,7 @@ namespace ProjectionMappingGame.StateMachine
 
       private void RenderProjectorSection(SpriteBatch spriteBatch)
       {
-         RenderGradient(new Rectangle(GUI_TOOLBAR_X + 2, GUI_PROJECTOR_Y + ((m_BuildingColorPicker.IsActive) ? 80 : 0), GUI_TOOLBAR_WIDTH - 2, 18), spriteBatch, Color.Gray, Color.LightGray);
+         RenderGradient(new Rectangle(2, GUI_PROJECTOR_Y + ((m_BuildingColorPicker.IsActive) ? 80 : 0), GUI_TOOLBAR_WIDTH - 2, 18), spriteBatch, Color.Gray, Color.LightGray);
          m_ProjectorHeaderLabel.Draw(m_Game.GraphicsDevice, spriteBatch);
          m_ProjectorFOVLabel.Draw(m_Game.GraphicsDevice, spriteBatch);
          m_ProjectorAspectRatioLabel.Draw(m_Game.GraphicsDevice, spriteBatch);
@@ -1278,15 +1523,15 @@ namespace ProjectionMappingGame.StateMachine
 
       private void RenderLayersSection(SpriteBatch spriteBatch)
       {
-         RenderGradient(new Rectangle(GUI_TOOLBAR_X + 2, GUI_LAYERS_Y + ((m_BuildingColorPicker.IsActive) ? 80 : 0), GUI_TOOLBAR_WIDTH - 2, 18), spriteBatch, Color.Gray, Color.LightGray);
+         RenderGradient(new Rectangle(2, GUI_LAYERS_Y + ((m_BuildingColorPicker.IsActive) ? 80 : 0), GUI_TOOLBAR_WIDTH - 2, 18), spriteBatch, Color.Gray, Color.LightGray);
          m_LayersHeaderLabel.Draw(m_Game.GraphicsDevice, spriteBatch);
 
          m_LayersScrollView.Draw(m_Game.GraphicsDevice, spriteBatch);
 
-         m_NewTextureLayerButton.Draw(m_Game.GraphicsDevice, spriteBatch);
-         m_NewParticleLayerButton.Draw(m_Game.GraphicsDevice, spriteBatch);
-         m_ShiftLayerDownButton.Draw(m_Game.GraphicsDevice, spriteBatch);
-         m_ShiftLayerUpButton.Draw(m_Game.GraphicsDevice, spriteBatch);
+         m_NewGameplayLayerButton.Draw(m_Game.GraphicsDevice, spriteBatch);
+         //m_NewParticleLayerButton.Draw(m_Game.GraphicsDevice, spriteBatch);
+         //m_ShiftLayerDownButton.Draw(m_Game.GraphicsDevice, spriteBatch);
+         //m_ShiftLayerUpButton.Draw(m_Game.GraphicsDevice, spriteBatch);
          m_TrashLayerButton.Draw(m_Game.GraphicsDevice, spriteBatch);
       }
 
@@ -1311,8 +1556,23 @@ namespace ProjectionMappingGame.StateMachine
          {
             // Assign the render target to the editors
             m_UVGridEditor.RenderTarget = value;
-            m_UVEditor.InputTexture = value;
             m_ProjectorPreview.ProjectorTexture = value;
+         }
+      }
+
+      public List<Layer> Layers
+      {
+         get
+         {
+            return m_LayersScrollView.Layers;
+         }
+      }
+
+      public Texture2D[] GameplayRenderTargets
+      {
+         set
+         {
+            m_UVEditor.SyncRenderTargets(value);
          }
       }
 

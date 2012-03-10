@@ -280,7 +280,10 @@ namespace ProjectionMappingGame.StateMachine
       {
           foreach (Keys k in keys)
           {
-              if (k == Keys.Escape)
+             // AJ changed because escape is used to exit the game in editor mode.  This
+             // caused the state machine to set the state to main menu anyways, because
+             // both the gameplay state and the editor state were on the stack.
+              if (k == Keys.LeftAlt)
               {
                   FiniteStateMachine.GetInstance().SetState(StateType.MainMenu);
               }

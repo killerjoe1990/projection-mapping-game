@@ -31,31 +31,40 @@ namespace ProjectionMappingGame.GUI
 
       protected const int SCROLL_BAR_WIDTH = 16;
 
+      protected MouseInput m_MouseInput;
+      protected Viewport m_Viewport;
       protected Rectangle m_DisplayBounds;
       protected Rectangle m_ScrollBounds;
       protected Rectangle m_ScrollBarBounds;
       protected Texture2D m_BackgroundTexture;
       protected Texture2D m_ScrollPadTexture;
       protected Texture2D m_ScrollAreaTexture;
+      protected Texture2D m_WhiteTexture;
+      protected bool m_IsActive;
 
-      public ScrollView(Rectangle displayBounds, Rectangle scrollBounds, Texture2D background, Texture2D scrollpad, Texture2D scrollarea, MouseInput mouse)
+      public ScrollView(Rectangle displayBounds, Rectangle scrollBounds, Texture2D background, Texture2D scrollpad, Texture2D scrollarea, Texture2D whiteTexture, MouseInput mouse)
       {
+         m_IsActive = true;
+         m_Viewport = new Viewport(displayBounds);
          m_DisplayBounds = displayBounds;
          m_ScrollBounds = scrollBounds;
          m_ScrollBarBounds = new Rectangle(displayBounds.X + displayBounds.Width - SCROLL_BAR_WIDTH, displayBounds.Y, SCROLL_BAR_WIDTH, displayBounds.Height);
          m_BackgroundTexture = background;
          m_ScrollPadTexture = scrollpad;
          m_ScrollAreaTexture = scrollarea;
+         m_WhiteTexture = whiteTexture;
+         m_MouseInput = mouse;
       }
 
       public override void Update(float deltaTime)
       {
+         m_MouseInput.HandleInput(PlayerIndex.One);
+
          // Update children
          for (int i = 0; i < m_Children.Count; ++i)
          {
             m_Children[i].Update(deltaTime);
          }
-
          base.Update(deltaTime);
       }
 
@@ -79,9 +88,16 @@ namespace ProjectionMappingGame.GUI
          get { return m_DisplayBounds; }
          set 
          {
+            m_Viewport = new Viewport(value);
             m_DisplayBounds = value;
             m_ScrollBarBounds = new Rectangle(m_DisplayBounds.X + m_DisplayBounds.Width - SCROLL_BAR_WIDTH, m_DisplayBounds.Y, SCROLL_BAR_WIDTH, m_DisplayBounds.Height);
          }
+      }
+
+      public bool IsActive
+      {
+         get { return m_IsActive; }
+         set { m_IsActive = value; }
       }
 
       #endregion

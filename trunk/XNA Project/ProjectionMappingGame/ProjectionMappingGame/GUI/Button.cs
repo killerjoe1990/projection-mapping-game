@@ -89,19 +89,22 @@ namespace ProjectionMappingGame.GUI
 
         public override void Draw(GraphicsDevice graphics, SpriteBatch sprite)
         {
-            if (m_Images[m_CurrentImage] != null)
-            {
-                sprite.Draw(m_Images[m_CurrentImage], m_Bounds, Color.White);
-            }
-            else
-            {
-                sprite.Draw(m_Images[(int)ImageType.NORMAL], m_Bounds, Color.White);
-            }
+           if (m_IsVisible)
+           {
+              if (m_Images[m_CurrentImage] != null)
+              {
+                 sprite.Draw(m_Images[m_CurrentImage], m_Bounds, Color.White);
+              }
+              else
+              {
+                 sprite.Draw(m_Images[(int)ImageType.NORMAL], m_Bounds, Color.White);
+              }
 
-            if (m_HasText)
-            {
-               sprite.DrawString(m_Font, m_Text, m_TextPos, m_TextColor);
-            }
+              if (m_HasText)
+              {
+                 sprite.DrawString(m_Font, m_Text, m_TextPos, m_TextColor);
+              }
+           }
         }
 
         public void RegisterOnClick(EventHandler handler)
@@ -111,45 +114,57 @@ namespace ProjectionMappingGame.GUI
 
         protected void OnOver(object sender, MouseEventArgs args)
         {
-            if (!m_BeenClicked)
-            {
-                if (IsOver(args.X, args.Y))
-                {
+           if (m_IsActive)
+           {
+              if (!m_BeenClicked)
+              {
+                 if (IsOver(args.X, args.Y))
+                 {
                     m_CurrentImage = (int)ImageType.OVER;
-                }
-                else
-                {
+                 }
+                 else
+                 {
                     m_CurrentImage = (int)ImageType.NORMAL;
-                }
-            }
-            else
-            {
-                if (!IsOver(args.X, args.Y))
-                {
+                 }
+              }
+              else
+              {
+                 if (!IsOver(args.X, args.Y))
+                 {
                     m_CurrentImage = (int)ImageType.NORMAL;
-                }
-            }
+                 }
+              }
+           }
+            
         }
 
         protected override void OnLeftDrag(object sender, MouseEventArgs args)
         {
-            if (IsOver(args.X, args.Y))
-            {
-                m_BeenClicked = true;
-                m_CurrentImage = (int)ImageType.CLICK;
-            }
+           if (m_IsActive)
+           {
+              if (IsOver(args.X, args.Y))
+              {
+                 m_BeenClicked = true;
+                 m_CurrentImage = (int)ImageType.CLICK;
+              }
+           }
+            
         }
 
         protected override void OnLeftClick(object sender, MouseEventArgs args)
         {
-            if (IsOver(args.X, args.Y))
-            {
-               if (m_OnClick != null)
-                  m_OnClick(this, new EventArgs());
-                m_CurrentImage = (int)ImageType.NORMAL;
-            }
+           if (m_IsActive)
+           {
+               if (IsOver(args.X, args.Y))
+               {
+                  if (m_OnClick != null)
+                     m_OnClick(this, new EventArgs());
+                   m_CurrentImage = (int)ImageType.NORMAL;
+               }
 
-            m_BeenClicked = false;
+               m_BeenClicked = false;
+           }
+            
         }
 
         public Vector2 TextPos

@@ -43,6 +43,10 @@ namespace ProjectionMappingGame
 
        //Platforms
       public const int TILE_DIM = 30;
+      public const int DEFAULT_TILES_WIDE = 30;
+      public const int DEFAULT_TILES_HIGH = 30;
+      public const int MAX_TILES_WIDE = 100;
+      public const int MAX_TILES_HIGH = 100;
       public const float PLATFORM_VELOCITY = 70;
       public const int PLAT_MAX_WIDTH = 6;
       public const int PLAT_MIN_WIDTH = 2;

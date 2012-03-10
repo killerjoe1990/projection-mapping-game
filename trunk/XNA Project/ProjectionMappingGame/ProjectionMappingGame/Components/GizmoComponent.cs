@@ -61,7 +61,7 @@ namespace ProjectionMappingGame.Components
 
       public int SelectedID
       {
-         get { return Selection[0].ID; }
+         get { if (Selection.Count == 0) return -1; else return Selection[0].ID; }
       }
 
       private Vector3 localForward = Vector3.Forward;
