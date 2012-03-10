@@ -81,13 +81,21 @@ float depthBias = 0.001f;
 
       input.Projector_pos /= input.Projector_pos.w;
 		
+      // Don't wrap around backwards
+      input.N = normalize(input.N);
+      float3 P = normalize(projectorPosition - input.pos_w);
+      float cutoff = dot(P, input.N);
+
 		if (input.Projector_pos.w >= 0
 		      && input.Projector_pos.x > 0 && input.Projector_pos.x < 1
 		      && input.Projector_pos.y > 0 && input.Projector_pos.y < 1)
       {
-			input.Projector_pos.y = 1.0 - input.Projector_pos.y;
-         projColor = tex2Dproj(projectiveMap, input.Projector_pos);
-		   projColor.w = projectorAlpha;
+         if (cutoff > 0.0f)
+         {
+			   input.Projector_pos.y = 1.0 - input.Projector_pos.y;
+            projColor = tex2Dproj(projectiveMap, input.Projector_pos);
+		      projColor.w = projectorAlpha;
+         }
       }
 
 		return projColor;

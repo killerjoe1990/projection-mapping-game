@@ -828,7 +828,10 @@ namespace ProjectionMappingGame.StateMachine
             {
                m_DEM_GAMES = false;
                m_ProjectorPreview.EditorMode = true;
-               m_ProjectorPreview.Viewport = new Viewport(GUI_PROJECTOR_PREVIEW_X + 2, GUI_PROJECTOR_PREVIEW_Y + 20, GUI_PROJECTOR_PREVIEW_WIDTH - 2, GUI_PROJECTOR_PREVIEW_HEIGHT - 20);
+
+               int offsetX = GameConstants.WindowWidth - GameConstants.DEFAULT_WINDOW_WIDTH;
+               int offsetY = GameConstants.WindowHeight - GameConstants.DEFAULT_WINDOW_HEIGHT;
+               m_ProjectorPreview.Viewport = new Viewport(GUI_PROJECTOR_PREVIEW_X + 2, GUI_PROJECTOR_PREVIEW_Y + 20, GUI_PROJECTOR_PREVIEW_WIDTH + offsetX - 2, GUI_PROJECTOR_PREVIEW_HEIGHT + offsetY - 20);
                m_ProjectorPreview.Camera.AspectRatio = (float)m_ProjectorPreview.Viewport.Width / (float)m_ProjectorPreview.Viewport.Height;
                m_ProjectorPreview.Camera.UpdateProjection();
                //m_ProjectorPreview.Projector.AspectRatio = (float)m_ProjectorPreview.Viewport.Width / (float)m_ProjectorPreview.Viewport.Height;
@@ -1341,7 +1344,7 @@ namespace ProjectionMappingGame.StateMachine
             m_UVEditor.DrawRenderTarget(spriteBatch, false);
 
             m_Game.GraphicsDevice.Viewport = m_ProjectorPreview.Viewport;
-            m_ProjectorPreview.Draw(spriteBatch);
+            m_ProjectorPreview.Draw(spriteBatch, m_DEM_GAMES);
          }
          else
          {
@@ -1407,7 +1410,7 @@ namespace ProjectionMappingGame.StateMachine
 
             // Render the projector preview
             m_Game.GraphicsDevice.Viewport = m_ProjectorPreview.Viewport;
-            m_ProjectorPreview.Draw(spriteBatch);
+            m_ProjectorPreview.Draw(spriteBatch, m_DEM_GAMES);
 
             // Restore the default viewport
             m_Game.GraphicsDevice.Viewport = defaultViewport;

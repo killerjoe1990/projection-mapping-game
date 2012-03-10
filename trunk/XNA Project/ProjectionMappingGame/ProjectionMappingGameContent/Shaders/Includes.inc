@@ -5,6 +5,9 @@ shared float4x4 projectionMatrix;
 shared float4x4 projectorViewMatrix;
 shared float4x4 projectorProjectionMatrix;
 
+// Projector properties
+shared float3 projectorPosition;
+
 // Camera Properties
 shared float3 cameraPosition;
 
