@@ -60,56 +60,71 @@ namespace ProjectionMappingGame.GUI
 
         public override void Draw(GraphicsDevice graphics, SpriteBatch sprite)
         {
-            sprite.Draw(m_BackImage, m_Bounds, Color.White);
+           if (m_IsVisible)
+           {
+               sprite.Draw(m_BackImage, m_Bounds, Color.White);
 
-            int slideHeight = (int)(m_Bounds.Height * (1 - 2 * SLIDER_PERCENT_BORDER));
-            int slideWidth = (int)(slideHeight / 3);
-            Rectangle slider = new Rectangle((int)(m_Bounds.X + m_Gradient * (m_Bounds.Width - slideWidth)), (int)(m_Bounds.Y + m_Bounds.Height * SLIDER_PERCENT_BORDER), slideWidth, slideHeight);
+               int slideHeight = (int)(m_Bounds.Height * (1 - 2 * SLIDER_PERCENT_BORDER));
+               int slideWidth = (int)(slideHeight / 3);
+               Rectangle slider = new Rectangle((int)(m_Bounds.X + m_Gradient * (m_Bounds.Width - slideWidth)), (int)(m_Bounds.Y + m_Bounds.Height * SLIDER_PERCENT_BORDER), slideWidth, slideHeight);
 
-            sprite.Draw(m_SlideImage, slider, Color.White);
+               sprite.Draw(m_SlideImage, slider, Color.White);
+           }
         }
 
         protected override void OnLeftDrag(object sender, MouseEventArgs args)
         {
-            if (IsOver(args.X, args.Y))
-            {
-                m_Clicked = true;
-                int posX = args.X - m_Bounds.X;
-                m_Gradient = MathHelper.Clamp((float)posX / (float)m_Bounds.Width, 0, 1);
-            }
-            else
-            {
-                if (m_Clicked)
-                {
+           if (m_IsActive)
+           {
+              if (IsOver(args.X, args.Y))
+              {
+                 m_Clicked = true;
+                 int posX = args.X - m_Bounds.X;
+                 m_Gradient = MathHelper.Clamp((float)posX / (float)m_Bounds.Width, 0, 1);
+              }
+              else
+              {
+                 if (m_Clicked)
+                 {
                     int posX = args.X - m_Bounds.X;
                     m_Gradient = MathHelper.Clamp((float)posX / (float)m_Bounds.Width, 0, 1);
-                }
-            }
+                 }
+              }
+           }
+            
         }
 
         protected override void OnLeftClick(object sender, MouseEventArgs args)
         {
-            if (IsOver(args.X, args.Y))
-            {
-                int posX = args.X - m_Bounds.X;
-                m_Gradient = MathHelper.Clamp((float)posX / (float)m_Bounds.Width, 0, 1);
-            }
-            else
-            {
-                m_Clicked = false;
-            }
+           if (m_IsActive)
+           {
+              if (IsOver(args.X, args.Y))
+              {
+                 int posX = args.X - m_Bounds.X;
+                 m_Gradient = MathHelper.Clamp((float)posX / (float)m_Bounds.Width, 0, 1);
+              }
+              else
+              {
+                 m_Clicked = false;
+              }
+           }
+            
         }
 
         public void OnKeyPress(object sender, Keys[] keys)
         {
-            if (keys.Contains(Keys.Left))
-            {
-                m_Gradient = MathHelper.Clamp(m_Gradient - m_StepSize, 0, 1);
-            }
-            if (keys.Contains(Keys.Right))
-            {
-                m_Gradient = MathHelper.Clamp(m_Gradient + m_StepSize, 0, 1);
-            }
+           if (m_IsActive)
+           {
+              if (keys.Contains(Keys.Left))
+              {
+                 m_Gradient = MathHelper.Clamp(m_Gradient - m_StepSize, 0, 1);
+              }
+              if (keys.Contains(Keys.Right))
+              {
+                 m_Gradient = MathHelper.Clamp(m_Gradient + m_StepSize, 0, 1);
+              }
+           }
+            
         }
     }
 }

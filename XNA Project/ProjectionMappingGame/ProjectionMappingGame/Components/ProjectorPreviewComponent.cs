@@ -32,50 +32,34 @@ namespace ProjectionMappingGame.Components
    
    class ProjectionPreviewComponent
    {
+      const string NORMALS_MESSAGE = "Use the mouse cursor to select a face normal from the model mesh. Right-click to cancel.";
+
+      // Projector fields
       Viewport m_Viewport;
       GameDriver m_Game;
-
-      // Shaders
-      Effect m_ProjectionMappingShader;
+      Effect m_ProjectionMappingShader;      // Shaders
       Effect m_SolidColorShader;
       Effect m_PhongShader;
-
-      // Models
-      Model m_GroundPlaneMesh;
-
-      // Materials
-      Material m_GroundPlaneMaterial;
-
-      // Projector
-      ProjectorComponent m_Projector;
+      Effect m_NormalsShader;
+      Model m_GroundPlaneMesh;               // Models
+      Vector3 m_SelectedNormal;
+      Material m_GroundPlaneMaterial;        // Materials
+      ProjectorComponent m_Projector;        // Projector
       bool m_RenderProjectorFrustum;
-
-      // Fonts
-      SpriteFont m_ArialFont;
-
-      // Camera
-      CameraComponent m_Camera;
-      Vector3 m_CameraLastTarget;
-      float m_CameraLastDistance;
-      float m_CameraLastYaw;
-      float m_CameraLastPitch;
-      bool m_EditorMode;
-
-      // 3rd party gizmo tool - I DID NOT WRITE THIS
-      GizmoComponent m_Gizmo;
-
-      // Lighting
-      PointLightComponent m_LightSource;
+      SpriteFont m_ArialFont;                // Fonts
+      CameraComponent m_Camera;              // Camera
+      bool m_EditorMode;                     // States
+      bool m_RenderNormals;
+      GizmoComponent m_Gizmo;                // 3rd party gizmo tool - I DID NOT WRITE THIS - AJ
+      PointLightComponent m_LightSource;     // Lighting
       Vector4 m_AmbientLight;
-
-      // Input
-      MouseState m_PrevMouseState;
+      MouseState m_PrevMouseState;           // Input
       KeyboardState m_PrevKeyboardState;
-
-      // Entities
-      ModelEntity m_BuildingEntity;
+      ModelEntity m_BuildingEntity;          // Entities
       ModelEntity m_ProjectorEntity;
       ModelEntity m_LightEntity;
+      RenderTarget2D m_RenderTarget;         // Render target
+      Texture2D m_RenderTargetTexture;
 
       public ProjectionPreviewComponent(GameDriver game, int x, int y, int w, int h)
       {
@@ -147,7 +131,7 @@ namespace ProjectionMappingGame.Components
             new Vector3(0.0f, 2.0f, 10.0f),
             new Vector3(0.0f, 2.0f, 0.0f),
             MathHelper.ToRadians(45.0f),
-            (float)GameConstants.WindowWidth / (float)GameConstants.WindowHeight,
+            1.0f,//(float)GameConstants.WindowWidth / (float)GameConstants.WindowHeight,
             10.0f,
             30.0f
          );
@@ -170,11 +154,15 @@ namespace ProjectionMappingGame.Components
          // Set defaults
          m_RenderProjectorFrustum = true;
          m_EditorMode = true;
-         //SnapCameraToProjector();
+         m_RenderNormals = false;
+         m_SelectedNormal = Vector3.Zero;
 
          // Initialize input
          m_PrevMouseState = Mouse.GetState();
          m_PrevKeyboardState = Keyboard.GetState();
+
+         // Initialize render target
+         m_RenderTarget = new RenderTarget2D(m_Game.GraphicsDevice, w, h, true, m_Game.GraphicsDevice.DisplayMode.Format, DepthFormat.Depth24);
       }
 
       public void Reset()
@@ -182,8 +170,6 @@ namespace ProjectionMappingGame.Components
          // Set defaults
          m_RenderProjectorFrustum = true;
          m_EditorMode = true;
-
-         //SnapCameraToProjector();
       }
 
       public void LoadContent(ContentManager content)
@@ -198,9 +184,11 @@ namespace ProjectionMappingGame.Components
          m_SolidColorShader.CurrentTechnique = m_SolidColorShader.Techniques["SolidColor"];
          m_PhongShader = content.Load<Effect>("Shaders/Phong");
          m_PhongShader.CurrentTechnique = m_PhongShader.Techniques["PhongDiffuseOnly"];
+         m_NormalsShader = content.Load<Effect>("Shaders/Normals");
+         m_NormalsShader.CurrentTechnique = m_NormalsShader.Techniques["NormalsOnly"];
 
          // Load fonts
-         m_ArialFont = content.Load<SpriteFont>("Fonts/Arial");
+         m_ArialFont = content.Load<SpriteFont>("Fonts/Arial10");
 
          // Load entities
          m_BuildingEntity.LoadContent(content);
@@ -240,7 +228,41 @@ namespace ProjectionMappingGame.Components
          // Get input states
          MouseState mouseState = Mouse.GetState();
          KeyboardState keyboardState = Keyboard.GetState();
+         
+         if (m_RenderNormals)
+         {
+            if (mouseState.LeftButton == ButtonState.Released && m_PrevMouseState.LeftButton == ButtonState.Pressed)
+            {
+               // Handle mesh picking to leave normal rendering
+               bool picked = false;
+               Vector3 normal = Vector3.Zero;
 
+               // Get the color the mouse clicked on
+               Color[] colors = new Color[m_RenderTargetTexture.Width * m_RenderTargetTexture.Height];
+               m_RenderTargetTexture.GetData(colors);
+               Color colorPicked = Color.Black;
+               Vector2 mousePos = new Vector2(mouseState.X - m_Viewport.X, mouseState.Y - m_Viewport.Y);
+               if (mousePos.X < m_RenderTargetTexture.Width && mousePos.Y < m_RenderTargetTexture.Height)
+               {
+                  colorPicked = colors[((int)mousePos.X + (int)mousePos.Y * m_RenderTargetTexture.Width)];
+               }
+               picked = (colorPicked != Color.Black);
+
+               if (picked)
+               {
+                  // Translate the color to the normal value; see shader for why I do this
+                  normal = new Vector3(colorPicked.R / 255.0f, colorPicked.G / 255.0f, colorPicked.B / 255.0f);
+                  normal -= new Vector3(0.5f);
+                  normal /= 0.5f;
+                  normal.Normalize();
+
+                  m_SelectedNormal = normal;
+                  if (m_OnLeaveNormalSelectionMode != null)
+                     m_OnLeaveNormalSelectionMode(this, new EventArgs());
+               }
+            }
+         }
+         
          // Handle camera/projector input
          if (m_EditorMode)
          {
@@ -250,8 +272,11 @@ namespace ProjectionMappingGame.Components
                m_Camera.HandleZoom(mouseState, m_PrevMouseState, keyboardState, elapsedTime);
             }
 
-            // Handle gizmo input
-            m_Gizmo.HandleInput(mouseState, m_PrevMouseState, keyboardState, m_PrevKeyboardState);
+            if (!m_RenderNormals)
+            {
+               // Handle gizmo input
+               m_Gizmo.HandleInput(mouseState, m_PrevMouseState, keyboardState, m_PrevKeyboardState);
+            }
          }
          else
          {
@@ -269,52 +294,96 @@ namespace ProjectionMappingGame.Components
          m_PrevMouseState = mouseState;
       }
 
+      EventHandler m_OnLeaveNormalSelectionMode;
+      public void RegisterOnLeaveNormalSelectionMode(EventHandler handler)
+      {
+         m_OnLeaveNormalSelectionMode += handler;
+      }
+
       #endregion
 
       #region Rendering
 
-      public void Draw()
+      public void DrawRenderTarget(SpriteBatch spriteBatch)
       {
          m_Game.GraphicsDevice.BlendState = BlendState.NonPremultiplied;
          m_Game.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
-         // Configure shaders
-         UpdateShaderParameters(m_PhongShader);
-         UpdateShaderParameters(m_SolidColorShader);
+         UpdateShaderParameters(m_NormalsShader);
+         UpdateShaderMaterialParameters(m_NormalsShader, m_BuildingEntity.Material);
+            
+         // Set the render target to capture a still of the screen
+         m_Game.GraphicsDevice.SetRenderTarget(m_RenderTarget);
+         //m_Game.GraphicsDevice.Viewport = m_Viewport;
+         m_Game.GraphicsDevice.Clear(Color.Black);
 
-         // Render ground plane
-         Matrix groundWorld = Matrix.Identity;
-         groundWorld *= Matrix.CreateScale(new Vector3(20.0f, 1.0f, 20.0f));
-         UpdateShaderMaterialParameters(m_PhongShader, m_GroundPlaneMaterial);
-         DrawModel(m_GroundPlaneMesh, m_PhongShader, groundWorld);
+         // Render building to the render target
+         m_BuildingEntity.Draw(m_NormalsShader, m_Game.GraphicsDevice);
 
-         // Render building entity
-         UpdateShaderMaterialParameters(m_PhongShader, m_BuildingEntity.Material);
-         m_BuildingEntity.Draw(m_PhongShader, m_Game.GraphicsDevice);
-         if (m_Projector.IsOn)
+         // Extract and store the contents of the render target in a texture
+         m_Game.GraphicsDevice.SetRenderTarget(null);
+         m_Game.GraphicsDevice.Clear(Color.Black);
+         m_Game.GraphicsDevice.Viewport = m_Viewport;
+         m_RenderTargetTexture = (Texture2D)m_RenderTarget;
+      }
+
+      public void Draw(SpriteBatch spriteBatch)
+      {
+         m_Game.GraphicsDevice.BlendState = BlendState.NonPremultiplied;
+         m_Game.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+
+         if (m_RenderNormals)
          {
-            UpdateShaderParameters(m_ProjectionMappingShader);                // Shared properties
-            UpdateProjectionShaderParameters(m_ProjectionMappingShader);      // Projection mapping only properties
-            UpdateShaderMaterialParameters(m_ProjectionMappingShader, m_BuildingEntity.Material);
-            m_BuildingEntity.Draw(m_ProjectionMappingShader, m_Game.GraphicsDevice);
+            UpdateShaderParameters(m_NormalsShader);
+            UpdateShaderMaterialParameters(m_NormalsShader, m_BuildingEntity.Material);
+            
+            // Render building to the screen now
+            m_BuildingEntity.Draw(m_NormalsShader, m_Game.GraphicsDevice);
+
+            // Render a message about how to select normals and how to cancel
+            spriteBatch.Begin();
+            spriteBatch.DrawString(m_ArialFont, NORMALS_MESSAGE, new Vector2(5, m_Viewport.Height - 20) + Vector2.One, Color.Black);
+            spriteBatch.DrawString(m_ArialFont, NORMALS_MESSAGE, new Vector2(5, m_Viewport.Height - 20), Color.White);
+            spriteBatch.End();
          }
-
-         // Render light source marker
-         UpdateShaderMaterialParameters(m_SolidColorShader, m_LightEntity.Material);
-         m_LightEntity.Draw(m_SolidColorShader, m_Game.GraphicsDevice);
-
-         // Render projector source marker
-         UpdateShaderMaterialParameters(m_SolidColorShader, m_ProjectorEntity.Material);
-         m_ProjectorEntity.Draw(m_SolidColorShader, m_Game.GraphicsDevice);
-
-         // Render projector frustum
-         if (m_RenderProjectorFrustum)
+         else
          {
-            DrawProjectorFrustum();
-         }
+            // Configure shaders
+            UpdateShaderParameters(m_PhongShader);
+            UpdateShaderParameters(m_SolidColorShader);
 
-         // Draw gizmo component
-         m_Gizmo.Draw3D();
+            // Render ground plane
+            Matrix groundWorld = Matrix.Identity;
+            groundWorld *= Matrix.CreateScale(new Vector3(20.0f, 1.0f, 20.0f));
+            UpdateShaderMaterialParameters(m_PhongShader, m_GroundPlaneMaterial);
+            DrawModel(m_GroundPlaneMesh, m_PhongShader, groundWorld);
+
+            // Render building entity
+            UpdateShaderMaterialParameters(m_PhongShader, m_BuildingEntity.Material);
+            m_BuildingEntity.Draw(m_PhongShader, m_Game.GraphicsDevice);
+            if (m_Projector.IsOn)
+            {
+               UpdateShaderParameters(m_ProjectionMappingShader);                // Shared properties
+               UpdateProjectionShaderParameters(m_ProjectionMappingShader);      // Projection mapping only properties
+               UpdateShaderMaterialParameters(m_ProjectionMappingShader, m_BuildingEntity.Material);
+               m_BuildingEntity.Draw(m_ProjectionMappingShader, m_Game.GraphicsDevice);
+            }
+
+            // Render light source marker
+            UpdateShaderMaterialParameters(m_SolidColorShader, m_LightEntity.Material);
+            m_LightEntity.Draw(m_SolidColorShader, m_Game.GraphicsDevice);
+
+            // Render projector source marker
+            UpdateShaderMaterialParameters(m_SolidColorShader, m_ProjectorEntity.Material);
+            m_ProjectorEntity.Draw(m_SolidColorShader, m_Game.GraphicsDevice);
+
+            // Render projector frustum
+            if (m_Gizmo.SelectedID == m_ProjectorEntity.ID)
+               DrawProjectorFrustum();
+
+            // Draw gizmo component
+            m_Gizmo.Draw3D();
+         }
       }
 
       #endregion
@@ -500,6 +569,17 @@ namespace ProjectionMappingGame.Components
          set { m_EditorMode = value; }
       }
 
+      public bool RenderNormals
+      {
+         get { return m_RenderNormals; }
+         set { m_RenderNormals = value; if (m_RenderNormals) m_Gizmo.DeselectAll(); }
+      }
+
+      public Vector3 SelectedNormal
+      {
+         get { return m_SelectedNormal; }
+      }
+
       public Vector3 CameraPosition
       {
          get { return m_Camera.Position; }
@@ -511,12 +591,16 @@ namespace ProjectionMappingGame.Components
          m_Viewport.Height += dy;
          m_Camera.AspectRatio = (float)m_Viewport.Width / (float)m_Viewport.Height;
          m_Camera.UpdateProjection();
+         m_RenderTarget = new RenderTarget2D(m_Game.GraphicsDevice, m_Viewport.Width, m_Viewport.Height, true, m_Game.GraphicsDevice.DisplayMode.Format, DepthFormat.Depth24);
       }
 
       public Viewport Viewport
       {
          get { return m_Viewport; }
-         set { m_Viewport = value; }
+         set
+         {
+            m_Viewport = value;
+         }
       }
 
       public Texture2D ProjectorTexture

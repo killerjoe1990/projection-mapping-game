@@ -123,19 +123,31 @@ namespace ProjectionMappingGame.StateMachine
 
       public void StartGame()
       {
+         ProjectionEditorState projectionEditor = (ProjectionEditorState)m_States[(int)StateType.ProjectionEditor];
          GamePlayState gameplay = (GamePlayState)m_States[(int)StateType.GamePlay];
-         //gameplay.RenderTargetMode = true;
          gameplay.Reset();
          m_GamePlayMode = true;
          m_ActiveStates.Clear();
          m_ActiveStates.Push((int)StateType.GamePlay);
          m_ActiveStates.Push((int)StateType.ProjectionEditor);
+
+         gameplay.Levels.Clear();
+         for (int i = 0; i < projectionEditor.Layers.Count; ++i)
+         {
+            if (projectionEditor.Layers[i].Type == Editor.LayerType.Gameplay)
+            {
+               gameplay.AddLevel(projectionEditor.Layers[i].Width, projectionEditor.Layers[i].Height);
+            }
+         }
+         for (int i = 0; i < gameplay.Levels.Count; ++i)
+         {
+            gameplay.Levels[i].RendterTargetMode = true;
+         }
       }
 
       public void QuitGame()
       {
          GamePlayState gameplay = (GamePlayState)m_States[(int)StateType.GamePlay];
-         //gameplay.RenderTargetMode = false;
          gameplay.Reset();
          m_GamePlayMode = false;
          m_ActiveStates.Clear();
@@ -212,7 +224,12 @@ namespace ProjectionMappingGame.StateMachine
          {
             GamePlayState gameplay = (GamePlayState)m_States[(int)StateType.GamePlay];
             ProjectionEditorState projectionEditor = (ProjectionEditorState)m_States[(int)StateType.ProjectionEditor];
-            projectionEditor.ProjectorInput = gameplay.GetRenderTarget(0);
+            Texture2D[] renderTargets = new Texture2D[gameplay.Levels.Count];
+            for (int i = 0; i < gameplay.Levels.Count; ++i)
+            {
+               renderTargets[i] = gameplay.GetRenderTarget(i);
+            }
+            projectionEditor.GameplayRenderTargets = renderTargets;
          }
 
          // Render all active and updatable states

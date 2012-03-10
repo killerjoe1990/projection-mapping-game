@@ -23,6 +23,7 @@ namespace ProjectionMappingGame.GUI
 
         SpriteFont m_Font;
         Texture2D m_BackgroundImg;
+        Texture2D m_WhiteTexture;
         Color m_Color;
 
         string m_EnteredNumber;
@@ -30,10 +31,11 @@ namespace ProjectionMappingGame.GUI
         KeyboardInput m_Keyboard;
         protected event EventHandler m_OnValueChanged;
 
-        public NumUpDown(Rectangle bounds, Texture2D background, Texture2D upButton, Texture2D downButton, SpriteFont font, Color color, float min, float max, float step, string precision, MouseInput mouse)
+        public NumUpDown(Rectangle bounds, Texture2D background, Texture2D white, Texture2D upButton, Texture2D downButton, SpriteFont font, Color color, float min, float max, float step, string precision, MouseInput mouse)
         {
             m_Keyboard = new KeyboardInput();
 
+            m_WhiteTexture = white;
             m_Precision = precision;
             m_Bounds = bounds;
             m_BackgroundImg = background;
@@ -41,7 +43,7 @@ namespace ProjectionMappingGame.GUI
             m_Min = min;
             m_Max = max;
             m_StepSize = step;
-            m_Current = 0;
+            m_Current = min;
 
             m_Font = font;
             m_Color = color;
@@ -83,6 +85,18 @@ namespace ProjectionMappingGame.GUI
             }
         }
 
+        public float Max
+        {
+           get { return m_Max; }
+           set { m_Max = value; }
+        }
+
+        public float Min
+        {
+           get { return m_Min; }
+           set { m_Min = value; }
+        }
+
         public override void SetContext(bool isInContext)
         {
             if (isInContext)
@@ -101,36 +115,50 @@ namespace ProjectionMappingGame.GUI
         
         public void OnUpClick(Object sender, EventArgs args)
         {
-            m_Current = MathHelper.Clamp(m_Current + m_StepSize, m_Min, m_Max);
-            m_OnValueChanged(this, new EventArgs());
+           if (m_IsActive)
+           {
+              m_Current = MathHelper.Clamp(m_Current + m_StepSize, m_Min, m_Max);
+              if (m_OnValueChanged != null)
+                 m_OnValueChanged(this, new EventArgs());
+           }
+            
         }
         public void OnDownClick(Object sender, EventArgs args)
         {
-            m_Current = MathHelper.Clamp(m_Current - m_StepSize, m_Min, m_Max);
-            m_OnValueChanged(this, new EventArgs());
+           if (m_IsActive)
+           {
+              m_Current = MathHelper.Clamp(m_Current - m_StepSize, m_Min, m_Max);
+              if (m_OnValueChanged != null)
+                 m_OnValueChanged(this, new EventArgs());
+           }
+            
         }
 
         public void OnKeyPressed(Object sender, Keys[] args)
         {
-            if (m_Context)
-            {
-                foreach (Keys k in args)
-                {
+           if (m_IsActive)
+           {
+              if (m_Context)
+              {
+                 foreach (Keys k in args)
+                 {
                     string s = k.ToString();
                     char x = s[s.Length - 1];
                     if (Char.IsDigit(x))
                     {
-                        m_EnteredNumber += x;
+                       m_EnteredNumber += x;
                     }
                     else
                     {
-                        if (k == Keys.Decimal && m_EnteredNumber.IndexOf('.') < 0)
-                        {
-                            m_EnteredNumber += '.';
-                        }
+                       if (k == Keys.Decimal && m_EnteredNumber.IndexOf('.') < 0)
+                       {
+                          m_EnteredNumber += '.';
+                       }
                     }
-                }
-            }
+                 }
+              }
+           }
+            
         }
 
         public override void Update(float deltaTime)
@@ -144,19 +172,29 @@ namespace ProjectionMappingGame.GUI
 
         public override void Draw(GraphicsDevice graphics, SpriteBatch sprite)
         {
-            Rectangle num = new Rectangle(m_Bounds.X, m_Bounds.Y, m_Bounds.Width, m_Bounds.Height);
-            sprite.Draw(m_BackgroundImg, num, Color.White);
+           if (m_IsVisible)
+           {
+              Rectangle num = new Rectangle(m_Bounds.X, m_Bounds.Y, m_Bounds.Width, m_Bounds.Height);
+              sprite.Draw(m_BackgroundImg, num, Color.White);
 
-            m_Up.Draw(graphics, sprite);
-            m_Down.Draw(graphics, sprite);
+              m_Up.Draw(graphics, sprite);
+              m_Down.Draw(graphics, sprite);
 
-            int x, y;
-            string val = String.Format(m_Precision, m_Current);
-            Vector2 dim = m_Font.MeasureString(val);
-            x = (int)(num.X + 4);
-            y = (int)(num.Y + 2);
+              int x, y;
+              string val = String.Format(m_Precision, m_Current);
+              Vector2 dim = m_Font.MeasureString(val);
+              x = (int)(num.X + 4);
+              y = (int)(num.Y + 2);
 
-            sprite.DrawString(m_Font, val, new Vector2(x, y), m_Color);
+              sprite.DrawString(m_Font, val, new Vector2(x, y), m_Color);
+
+              if (!m_IsActive)
+              {
+                 Color shade = Color.Black;
+                 shade.A = 128;
+                 sprite.Draw(m_WhiteTexture, m_Bounds, shade);
+              }
+           }
         }
     }
 }

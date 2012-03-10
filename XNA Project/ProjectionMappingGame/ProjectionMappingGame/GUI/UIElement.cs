@@ -21,9 +21,13 @@ namespace ProjectionMappingGame.GUI
     {
         protected List<UIElement> m_Children;
         protected Rectangle m_Bounds;
+        protected bool m_IsActive;
+        protected bool m_IsVisible;
 
         public UIElement()
         {
+           m_IsActive = true;
+           m_IsVisible = true;
             m_Children = new List<UIElement>();
             m_Bounds = Rectangle.Empty;
         }
@@ -44,8 +48,17 @@ namespace ProjectionMappingGame.GUI
             }
         }
 
-        
+        public bool IsActive
+        {
+           get { return m_IsActive; }
+           set { m_IsActive = value; }
+        }
 
+        public bool IsVisible
+        {
+           get { return m_IsVisible; }
+           set { m_IsVisible = value; }
+        }
 
         /// <summary>
         /// The width of the element in pixels.

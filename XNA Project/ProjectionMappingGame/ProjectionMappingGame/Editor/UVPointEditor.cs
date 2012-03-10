@@ -51,9 +51,11 @@ namespace ProjectionMappingGame.Editor
       // Graph structure
       List<UVVertex> m_GraphVertices;
       List<UVEdge> m_GraphEdges;
-      List<OrthoQuad> m_Quads;
+      List<UVQuad> m_Quads;
 
       // Textures
+      Texture2D m_QuadTexture;
+      Texture2D m_WallTexture;
       Texture2D m_WhiteTexture, m_RedTexture;
       Texture2D m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_SpinBoxFillTexture;
       Texture2D m_RenderTargetTexture;
@@ -88,7 +90,7 @@ namespace ProjectionMappingGame.Editor
 
          // Create empty graph
          m_GraphEdges = new List<UVEdge>();
-         m_Quads = new List<OrthoQuad>();
+         m_Quads = new List<UVQuad>();
          m_GraphVertices = new List<UVVertex>();
          
          // Compute space matrices
@@ -161,6 +163,8 @@ namespace ProjectionMappingGame.Editor
       public void LoadContent(ContentManager content)
       {
          m_Arial10 = content.Load<SpriteFont>("Fonts/Arial10");
+         m_QuadTexture = content.Load<Texture2D>("Textures/Layer0_2");
+         m_WallTexture = content.Load<Texture2D>("Textures/wall");
          m_WhiteTexture = content.Load<Texture2D>("Textures/white");
          m_RedTexture = content.Load<Texture2D>("Textures/red");
          m_SpinBoxFillTexture = content.Load<Texture2D>("Textures/GUI/spinbox_fill");
@@ -170,18 +174,16 @@ namespace ProjectionMappingGame.Editor
 
       public void Update(float elapsedTime)
       {
-         m_Quads.Clear();
+         //m_Quads.Clear();
 
          if (m_GraphEdges.Count > 0)
          {
-            for (int i = 0; i < m_GraphEdges.Count; i += 4)
+            for (int i = 0; i < m_Quads.Count; ++i)
             {
-               VertexPositionColorTexture[] vertices = new VertexPositionColorTexture[4];
-               vertices[0] = m_GraphVertices[m_GraphEdges[i + 0].P1].Vertex;
-               vertices[1] = m_GraphVertices[m_GraphEdges[i + 1].P1].Vertex;
-               vertices[2] = m_GraphVertices[m_GraphEdges[i + 2].P1].Vertex;
-               vertices[3] = m_GraphVertices[m_GraphEdges[i + 3].P1].Vertex;
-               m_Quads.Add(new OrthoQuad(vertices, m_GraphEdges[i + 0].P1, m_GraphEdges[i + 1].P1, m_GraphEdges[i + 2].P1, m_GraphEdges[i + 3].P1));
+               m_Quads[i].Vertices[0] = m_GraphVertices[m_Quads[i].P0].Vertex;
+               m_Quads[i].Vertices[1] = m_GraphVertices[m_Quads[i].P1].Vertex;
+               m_Quads[i].Vertices[2] = m_GraphVertices[m_Quads[i].P2].Vertex;
+               m_Quads[i].Vertices[3] = m_GraphVertices[m_Quads[i].P3].Vertex;
             }
 
             for (int i = 0; i < m_GraphEdges.Count; ++i)
@@ -360,7 +362,7 @@ namespace ProjectionMappingGame.Editor
 
       #region Rendering
 
-      public void DrawRenderTarget()
+      public void DrawRenderTarget(SpriteBatch spriteBatch, bool renderOverlay)
       {
          Color clear = new Color(0.0f, 0.0f, 0.0f, 0.0f);
 
@@ -368,10 +370,15 @@ namespace ProjectionMappingGame.Editor
          m_Game.GraphicsDevice.SetRenderTarget(m_RenderTarget);
          m_Game.GraphicsDevice.Clear(clear);
          RenderQuads();
+         if (renderOverlay)
+         {
+            RenderEdges();
+            RenderVertices(spriteBatch);
+         }
 
          // Extract and store the contents of the render target in a texture
          m_Game.GraphicsDevice.SetRenderTarget(null);
-         m_Game.GraphicsDevice.Clear(Color.CornflowerBlue);
+         m_Game.GraphicsDevice.Clear(Color.Black);
          m_Game.GraphicsDevice.Viewport = m_Viewport;
          m_RenderTargetTexture = (Texture2D)m_RenderTarget;
       }
@@ -380,64 +387,39 @@ namespace ProjectionMappingGame.Editor
       {
          // Now render the quads to the screen buffer
          RenderQuads();
-         RenderGraphOverlay(spriteBatch);
+         RenderEdges();
+         RenderVertices(spriteBatch);
+         RenderQuadLayerNumbers(spriteBatch);
       }
 
       private void RenderQuads()
       {
          for (int i = 0; i < m_Quads.Count; ++i)
          {
+            if (m_Quads[i].IsWall)
+               m_QuadEffect.Texture = m_WallTexture;
+            else
+               m_QuadEffect.Texture = m_Quads[i].Texture;
+            m_QuadEffect.Alpha = 1.0f;
             m_Quads[i].Draw(m_Game.GraphicsDevice, m_QuadEffect);
          }
 
          if (m_HoveredQuad > -1)
          {
-            Texture2D tex = m_QuadEffect.Texture;
             m_QuadEffect.Texture = m_WhiteTexture;
             m_QuadEffect.Alpha = 0.5f;
             m_Quads[m_HoveredQuad].Draw(m_Game.GraphicsDevice, m_QuadEffect);
-            m_QuadEffect.Texture = tex;
-            m_QuadEffect.Alpha = 1.0f;
          }
          if (m_SelectedQuad > -1)
          {
-            Texture2D tex = m_QuadEffect.Texture;
             m_QuadEffect.Texture = m_WhiteTexture;
             m_QuadEffect.Alpha = 0.5f;
             m_Quads[m_SelectedQuad].Draw(m_Game.GraphicsDevice, m_QuadEffect);
-            m_QuadEffect.Texture = tex;
-            m_QuadEffect.Alpha = 1.0f;
          }
       }
 
-      private void RenderGraphOverlay(SpriteBatch spriteBatch)
+      private void RenderEdges()
       {
-         /*VertexPositionColor[] points = new VertexPositionColor[m_GraphEdges.Count * 2];
-         short[] lineListIndices = new short[m_GraphEdges.Count * 2];
-         int pointsAdded = 0;
-         for (int i = 0; i < m_GraphEdges.Count; ++i)
-         {
-            points[pointsAdded] = new VertexPositionColor(m_GraphVertices[m_GraphEdges[i].P1].Vertex.Position, Color.White);
-            points[pointsAdded + 1] = new VertexPositionColor(m_GraphVertices[m_GraphEdges[i].P2].Vertex.Position, Color.White);
-            lineListIndices[pointsAdded] = (short)pointsAdded;
-            lineListIndices[pointsAdded + 1] = (short)(pointsAdded + 1);
-            pointsAdded += 2;
-         }
-
-         foreach (EffectPass pass in m_LineEffect.CurrentTechnique.Passes)
-         {
-            pass.Apply();
-
-            m_Game.GraphicsDevice.DrawUserIndexedPrimitives<VertexPositionColor>(
-                PrimitiveType.LineList,
-                points,
-                0,  // vertex buffer offset to add to each element of the index buffer
-                points.Length,  // number of vertices in pointList
-                lineListIndices,  // the index buffer
-                0,  // first index element to read
-                m_GraphEdges.Count   // number of primitives to draw
-            );
-         }*/
          // Render edges
          Texture2D tex = m_QuadEffect.Texture;
          m_QuadEffect.Texture = m_WhiteTexture;
@@ -461,7 +443,10 @@ namespace ProjectionMappingGame.Editor
             m_QuadEffect.Alpha = 1.0f;
          }
          m_QuadEffect.Texture = tex;
-         
+      }
+
+      private void RenderVertices(SpriteBatch spriteBatch)
+      {
          // Render vertices
          spriteBatch.Begin();
          for (int i = 0; i < m_GraphVertices.Count; ++i)
@@ -476,13 +461,57 @@ namespace ProjectionMappingGame.Editor
          spriteBatch.End();
       }
 
+      private void RenderQuadLayerNumbers(SpriteBatch spriteBatch)
+      {
+         // Render quad layer #s
+         spriteBatch.Begin();
+         for (int i = 0; i < m_Quads.Count; ++i)
+         {
+            if (m_Quads[i].IsWall) continue;
+            Vector2 textPos = CalculateCenter(m_Quads[i]);
+            spriteBatch.DrawString(m_Arial10, (1 + m_Quads[i].InputLayer).ToString(), textPos, Color.Black);
+         }
+         spriteBatch.End();
+      }
+
       #endregion
 
       #region Edge Graph Assembly
 
+      private Vector2 CalculateCenter(UVQuad q)
+      {
+         Vector2 center = Vector2.Zero;
+         Vector3[] verts = {
+            m_GraphVertices[q.P0].Vertex.Position,
+            m_GraphVertices[q.P1].Vertex.Position,
+            m_GraphVertices[q.P2].Vertex.Position,
+            m_GraphVertices[q.P3].Vertex.Position
+         };
+
+         // Find min/max x and y
+         float minX = float.MaxValue;
+         float maxX = float.MinValue;
+         float minY = float.MaxValue;
+         float maxY = float.MinValue;
+         for (int i = 0; i < 4; ++i)
+         {
+            if (verts[i].X < minX)
+               minX = verts[i].X;
+            if (verts[i].X > maxX)
+               maxX = verts[i].X;
+            if (verts[i].Y < minY)
+               minY = verts[i].Y;
+            if (verts[i].Y > maxY)
+               maxY = verts[i].Y;
+         }
+         center = new Vector2(minX + ((maxX - minX) / 2.0f), minY + ((maxY - minY) / 2.0f));
+         return center;
+      }
+
       private void CutPlane()
       {
          m_GraphEdges.Clear();
+         m_Quads.Clear();
 
          List<float> xCoords = ComputeOrderedXCoordinates();
          List<float> yCoords = ComputeOrderedYCoordinates();
@@ -531,6 +560,18 @@ namespace ProjectionMappingGame.Editor
                }
             }
          }
+
+         for (int i = 0; i < m_GraphEdges.Count; i += 4)
+         {
+            VertexPositionColorTexture[] vertices = new VertexPositionColorTexture[4];
+            vertices[0] = m_GraphVertices[m_GraphEdges[i + 0].P1].Vertex;
+            vertices[1] = m_GraphVertices[m_GraphEdges[i + 1].P1].Vertex;
+            vertices[2] = m_GraphVertices[m_GraphEdges[i + 2].P1].Vertex;
+            vertices[3] = m_GraphVertices[m_GraphEdges[i + 3].P1].Vertex;
+            m_Quads.Add(new UVQuad(vertices, m_GraphEdges[i + 0].P1, m_GraphEdges[i + 1].P1, m_GraphEdges[i + 2].P1, m_GraphEdges[i + 3].P1, 0, m_QuadTexture));
+         }
+
+         
       }
 
       private int GetCoordinateAt(float x, float y)
@@ -589,6 +630,12 @@ namespace ProjectionMappingGame.Editor
          m_OnQuadSelected += e;
       }
 
+      public bool SelectedQuadIsWall
+      {
+         get { return m_Quads[m_SelectedQuad].IsWall; }
+         set { m_Quads[m_SelectedQuad].IsWall = value; }
+      }
+
       public Vector2[] SelectedQuadTexCoords
       {
          get
@@ -602,13 +649,40 @@ namespace ProjectionMappingGame.Editor
          }
       }
 
+      public int SelectedInputLayer
+      {
+         get { return m_Quads[m_SelectedQuad].InputLayer; }
+         set { 
+            m_Quads[m_SelectedQuad].InputLayer = value; 
+         }
+      }
+
       public Viewport Viewport
       {
          get { return m_Viewport; }
       }
 
+      public void DeleteLayer(int layer)
+      {
+         for (int i = 0; i < m_Quads.Count; ++i)
+         {
+            if (m_Quads[i].InputLayer == layer)
+            {
+               m_Quads[i].InputLayer = 0;
+            }
+            else if (m_Quads[i].InputLayer > layer)
+            {
+               m_Quads[i].InputLayer--;
+            }
+         }
+      }
+
       public void SetUVs(Vector2[] uvs)
       {
+         m_Quads[m_SelectedQuad].Vertices[0].TextureCoordinate = uvs[0];
+         m_Quads[m_SelectedQuad].Vertices[1].TextureCoordinate = uvs[1];
+         m_Quads[m_SelectedQuad].Vertices[2].TextureCoordinate = uvs[2];
+         m_Quads[m_SelectedQuad].Vertices[3].TextureCoordinate = uvs[3];
          m_GraphVertices[m_Quads[m_SelectedQuad].P0].Vertex.TextureCoordinate = uvs[0];
          m_GraphVertices[m_Quads[m_SelectedQuad].P1].Vertex.TextureCoordinate = uvs[1];
          m_GraphVertices[m_Quads[m_SelectedQuad].P2].Vertex.TextureCoordinate = uvs[2];
@@ -626,9 +700,19 @@ namespace ProjectionMappingGame.Editor
          CutPlane();
       }
 
-      public Texture2D InputTexture
+      public void SyncRenderTargets(Texture2D[] renderTargets)
       {
-         set { m_QuadEffect.Texture = value; }
+         for (int i = 0; i < m_Quads.Count; ++i)
+         {
+            if (m_Quads[i].IsWall)
+            {
+               m_Quads[i].Texture = m_WallTexture;
+            }
+            else
+            {
+               m_Quads[i].Texture = renderTargets[m_Quads[i].InputLayer];
+            }
+         }
       }
 
       public MouseState PrevMouseState

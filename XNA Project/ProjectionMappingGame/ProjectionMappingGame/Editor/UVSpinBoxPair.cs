@@ -51,9 +51,9 @@ namespace ProjectionMappingGame.Editor
          m_ULabel.Font = font;
          m_VLabel.Font = font;
 
-         m_USpinBox = new NumUpDown(new Rectangle((int)location.X + 17, (int)location.Y + 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), spinboxFill, spinboxUp, spinboxDown, font, Color.Black, 0.0f, 1.0f, 0.025f, "{0:0.00}", mouseInput);
+         m_USpinBox = new NumUpDown(new Rectangle((int)location.X + 17, (int)location.Y + 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), spinboxFill, whiteTexture, spinboxUp, spinboxDown, font, Color.Black, 0.0f, 1.0f, 0.025f, "{0:0.00}", mouseInput);
          m_USpinBox.RegisterOnValueChanged(U_OnValueChanged);
-         m_VSpinBox = new NumUpDown(new Rectangle((int)location.X + 37 + GUI_SPINBOX_WIDTH, (int)location.Y + 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), spinboxFill, spinboxUp, spinboxDown, font, Color.Black, 0.0f, 1.0f, 0.025f, "{0:0.00}", mouseInput);
+         m_VSpinBox = new NumUpDown(new Rectangle((int)location.X + 37 + GUI_SPINBOX_WIDTH, (int)location.Y + 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), spinboxFill, whiteTexture, spinboxUp, spinboxDown, font, Color.Black, 0.0f, 1.0f, 0.025f, "{0:0.00}", mouseInput);
          m_VSpinBox.RegisterOnValueChanged(V_OnValueChanged);
       }
 
@@ -128,6 +128,19 @@ namespace ProjectionMappingGame.Editor
             m_USpinBox.Children[1].Location = m_Location + new Vector2(48, 12);
             m_VSpinBox.Children[0].Location = m_Location + new Vector2(48, GUI_SPINBOX_HEIGHT + 2);
             m_VSpinBox.Children[1].Location = m_Location + new Vector2(48, GUI_SPINBOX_HEIGHT + 12);
+         }
+      }
+
+      public bool IsEnabled
+      {
+         get
+         {
+            return m_USpinBox.IsActive;
+         }
+         set
+         {
+            m_USpinBox.IsActive = value;
+            m_VSpinBox.IsActive = value;
          }
       }
 
