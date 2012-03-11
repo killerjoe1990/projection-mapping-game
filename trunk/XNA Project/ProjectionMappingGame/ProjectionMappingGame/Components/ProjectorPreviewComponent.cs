@@ -95,7 +95,7 @@ namespace ProjectionMappingGame.Components
          m_AmbientLight = new Vector4(0.4f, 0.4f, 0.4f, 1.0f);
          m_LightSource = new PointLightComponent(
             new Vector3(20.0f, 20.0f, 20.0f),
-            new Vector4(0.33f, 0.33f, 0.0f, 1.0f),
+            new Vector4(1.0f, 1.0f, 1.0f, 1.0f),
             new Vector4(0.0f, 0.0f, 0.33f, 1.0f)
          );
          m_LightEntity = new ModelEntity(

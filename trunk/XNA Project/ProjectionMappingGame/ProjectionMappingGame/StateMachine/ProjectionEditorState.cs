@@ -79,9 +79,20 @@ namespace ProjectionMappingGame.StateMachine
       Texture2D m_EditLayerButtonTexture, m_EditLayerButtonTextureOnHover, m_EditLayerButtonTextureOnPress;
       Texture2D m_CheckboxCheckedTexture, m_CheckboxCheckedTextureOnHover, m_CheckboxCheckedTextureOnPress;
       Texture2D m_CheckboxUnCheckedTexture, m_CheckboxUnCheckedTextureOnHover, m_CheckboxUnCheckedTextureOnPress;
+      Texture2D m_NonUniformScaleButtonTexture, m_NonUniformScaleButtonTextureOnHover, m_NonUniformScaleButtonTextureOnPress;
 
       #region Left Menu
 
+      // Application section GUI objects
+      Label m_AppHeaderLabel;
+      Label m_AppModeLabel;
+      Label m_AppModeValueLabel;
+      Button m_ModeButton;
+      Button m_PlayButton;
+      Button m_QuitButton;
+      Button m_ResetButton;
+
+      // Selected face section GUI objects
       Label m_SelectedFaceHeaderLabel;
       Label m_SelectedFaceTexCoordLabel;
       Label m_SelectedFaceP0Label;
@@ -94,22 +105,15 @@ namespace ProjectionMappingGame.StateMachine
       NumUpDown m_SelectedFaceGameplayLayerSpinBox;
       Checkbox m_SelectedFaceWallCheckbox;
 
-      const int GUI_SELECTED_QUAD_Y = 2;
+      const int GUI_APP_NUM_ROWS = 3;
+      const int GUI_APP_Y = 2;
+      const int GUI_SELECTED_QUAD_Y = GUI_APP_Y + (GUI_MENU_ITEM_HEIGHT * GUI_APP_NUM_ROWS) + 16;
 
       #endregion
 
       #region Right Menu
 
       Viewport m_RightMenuViewport;
-
-      // Application section GUI objects
-      Label m_AppHeaderLabel;
-      Label m_AppModeLabel;
-      Label m_AppModeValueLabel;
-      Button m_ModeButton;
-      Button m_PlayButton;
-      Button m_QuitButton;
-      Button m_ResetButton;
 
       // Textures
       Texture2D m_ColorPickerPreviewPadTexture;
@@ -120,6 +124,7 @@ namespace ProjectionMappingGame.StateMachine
       Button m_TranslateButton;
       Button m_RotateButton;
       Button m_ScaleButton;
+      Button m_NonUniformScaleButton;
 
       // Building section GUI objects
       ColorPickerComponent m_BuildingColorPicker;
@@ -185,12 +190,10 @@ namespace ProjectionMappingGame.StateMachine
       //Button m_ShiftLayerDownButton;
       Button m_TrashLayerButton;
 
-      const int GUI_APP_NUM_ROWS = 3;
       const int GUI_GIZMO_NUM_ROWS = 2;
       const int GUI_BUILDING_NUM_ROWS = 10;
       const int GUI_PROJECTOR_NUM_ROWS = 10;
-      const int GUI_APP_Y = 2;
-      const int GUI_GIZMO_Y = GUI_APP_Y + (GUI_MENU_ITEM_HEIGHT * GUI_APP_NUM_ROWS) + 16;
+      const int GUI_GIZMO_Y = 2;
       const int GUI_BUILDING_Y = GUI_GIZMO_Y + (GUI_MENU_ITEM_HEIGHT * GUI_GIZMO_NUM_ROWS) + 10;
       const int GUI_PROJECTOR_Y = GUI_BUILDING_Y + (GUI_MENU_ITEM_HEIGHT * GUI_BUILDING_NUM_ROWS);
       const int GUI_LAYERS_Y = GUI_PROJECTOR_Y + (GUI_MENU_ITEM_HEIGHT * GUI_PROJECTOR_NUM_ROWS);
@@ -472,12 +475,15 @@ namespace ProjectionMappingGame.StateMachine
          m_CheckboxUnCheckedTexture = content.Load<Texture2D>("Textures/GUI/checkbox_off");
          m_CheckboxUnCheckedTextureOnHover = content.Load<Texture2D>("Textures/GUI/checkbox_off_on_hover");
          m_CheckboxUnCheckedTextureOnPress = content.Load<Texture2D>("Textures/GUI/checkbox_off_on_hover");
+         m_NonUniformScaleButtonTexture = content.Load<Texture2D>("Textures/GUI/nonuniform_scale");
+         m_NonUniformScaleButtonTextureOnHover = content.Load<Texture2D>("Textures/GUI/nonuniform_scale_on_hover");
+         m_NonUniformScaleButtonTextureOnPress = content.Load<Texture2D>("Textures/GUI/nonuniform_scale_on_hover");
 
          #endregion
 
          // Load layers scrollview
          m_ScrollMouseInput = new MouseInput(new Vector2(-(GUI_TOOLBAR_X + 2), -(GUI_LAYERS_Y + GUI_MENU_ITEM_HEIGHT * 1 - 2)));
-         m_LayersScrollView = new LayerScrollView(new Rectangle(GUI_TOOLBAR_X + 2, GUI_LAYERS_Y + GUI_MENU_ITEM_HEIGHT * 1 - 2, GUI_TOOLBAR_WIDTH - 2, 175 - 20),
+         m_LayersScrollView = new LayerScrollView(new Rectangle(GUI_TOOLBAR_X + 2, GUI_LAYERS_Y + GUI_MENU_ITEM_HEIGHT * 1 - 2, GUI_TOOLBAR_WIDTH - 2, 250 - 20),
             new Rectangle(),
             m_ScrollViewBackgroundTexture,
             m_ScrollViewScrollPadTexture,
@@ -501,7 +507,7 @@ namespace ProjectionMappingGame.StateMachine
          m_UVEditorPanel = new Panel(new Rectangle(GUI_UV_EDITOR_X, GUI_UV_EDITOR_Y, GUI_UV_EDITOR_WIDTH, GUI_UV_EDITOR_HEIGHT), "UV Editor", Color.Black, m_ArialFont10, Color.Gray, Color.LightGray, m_WhiteTexture, Color.White, Color.Black);
          m_ProjectionEditorPanel = new Panel(new Rectangle(GUI_PROJECTOR_PREVIEW_X, GUI_PROJECTOR_PREVIEW_Y, GUI_PROJECTOR_PREVIEW_WIDTH, GUI_PROJECTOR_PREVIEW_HEIGHT), "Projection Preview", Color.Black, m_ArialFont10, Color.Gray, Color.LightGray, m_WhiteTexture, Color.Black, Color.Black);
 
-         int menuColumn2X = (GUI_TOOLBAR_WIDTH / 2) + GUI_MENU_COLUMN_1_X;
+         int leftmenuColumn2X = (GUI_LEFT_TOOLBAR_WIDTH/ 2) + GUI_LEFT_MENU_COLUMN_1_X;
 
          #region SPINBOXES
 
@@ -550,19 +556,19 @@ namespace ProjectionMappingGame.StateMachine
 
          // Initialize buttons
          int toolbuttonpadding = 2;
-         m_ModeButton = new Button(new Rectangle(GUI_MENU_COLUMN_1_X_TABBED, GUI_APP_Y + GUI_MENU_ITEM_HEIGHT * 1, GUI_QUIT_BUTTON_WIDTH, GUI_QUIT_BUTTON_HEIGHT), m_ButtonTexture, m_RightMenuMouseInput, m_ArialFont10, "Preview", Color.Black);
+         m_ModeButton = new Button(new Rectangle(GUI_LEFT_MENU_COLUMN_1_X_TABBED, GUI_APP_Y + GUI_MENU_ITEM_HEIGHT * 1, (int)(GUI_QUIT_BUTTON_WIDTH * 0.9f), GUI_QUIT_BUTTON_HEIGHT), m_ButtonTexture, m_MouseInput, m_ArialFont10, "Preview", Color.Black);
          m_ModeButton.SetImage(Button.ImageType.OVER, m_ButtonTextureOnHover);
          m_ModeButton.SetImage(Button.ImageType.CLICK, m_ButtonTextureOnPress);
          m_ModeButton.RegisterOnClick(ModeButton_OnClick);
-         m_PlayButton = new Button(new Rectangle(menuColumn2X, GUI_APP_Y + GUI_MENU_ITEM_HEIGHT * 1, GUI_QUIT_BUTTON_WIDTH, GUI_QUIT_BUTTON_HEIGHT), m_ButtonTexture, m_RightMenuMouseInput, m_ArialFont10, "Play", Color.Black);
+         m_PlayButton = new Button(new Rectangle(leftmenuColumn2X, GUI_APP_Y + GUI_MENU_ITEM_HEIGHT * 1, (int)(GUI_QUIT_BUTTON_WIDTH * 0.9f), GUI_QUIT_BUTTON_HEIGHT), m_ButtonTexture, m_MouseInput, m_ArialFont10, "Play", Color.Black);
          m_PlayButton.SetImage(Button.ImageType.OVER, m_ButtonTextureOnHover);
          m_PlayButton.SetImage(Button.ImageType.CLICK, m_ButtonTextureOnPress);
          m_PlayButton.RegisterOnClick(PlayButton_OnClick);
-         m_ResetButton = new Button(new Rectangle(GUI_MENU_COLUMN_1_X_TABBED, GUI_APP_Y + 6 + GUI_MENU_ITEM_HEIGHT * 2, GUI_QUIT_BUTTON_WIDTH, GUI_QUIT_BUTTON_HEIGHT), m_ButtonTexture, m_RightMenuMouseInput, m_ArialFont10, "Reset", Color.Black);
+         m_ResetButton = new Button(new Rectangle(GUI_LEFT_MENU_COLUMN_1_X_TABBED, GUI_APP_Y + 6 + GUI_MENU_ITEM_HEIGHT * 2, (int)(GUI_QUIT_BUTTON_WIDTH * 0.9f), GUI_QUIT_BUTTON_HEIGHT), m_ButtonTexture, m_MouseInput, m_ArialFont10, "Reset", Color.Black);
          m_ResetButton.SetImage(Button.ImageType.OVER, m_ButtonTextureOnHover);
          m_ResetButton.SetImage(Button.ImageType.CLICK, m_ButtonTextureOnPress);
          m_ResetButton.RegisterOnClick(ResetButton_OnClick);
-         m_QuitButton = new Button(new Rectangle(menuColumn2X, GUI_APP_Y + 6 + GUI_MENU_ITEM_HEIGHT * 2, GUI_QUIT_BUTTON_WIDTH, GUI_QUIT_BUTTON_HEIGHT), m_ButtonTexture, m_RightMenuMouseInput, m_ArialFont10, "Quit", Color.Black);
+         m_QuitButton = new Button(new Rectangle(leftmenuColumn2X, GUI_APP_Y + 6 + GUI_MENU_ITEM_HEIGHT * 2, (int)(GUI_QUIT_BUTTON_WIDTH * 0.9f), GUI_QUIT_BUTTON_HEIGHT), m_ButtonTexture, m_MouseInput, m_ArialFont10, "Quit", Color.Black);
          m_QuitButton.SetImage(Button.ImageType.OVER, m_ButtonTextureOnHover);
          m_QuitButton.SetImage(Button.ImageType.CLICK, m_ButtonTextureOnPress);
          m_QuitButton.RegisterOnClick(QuitButton_OnClick);
@@ -578,6 +584,10 @@ namespace ProjectionMappingGame.StateMachine
          m_ScaleButton.SetImage(Button.ImageType.OVER, m_ScaleButtonTextureOnHover);
          m_ScaleButton.SetImage(Button.ImageType.CLICK, m_ScaleButtonTextureOnPress);
          m_ScaleButton.RegisterOnClick(ScaleButton_OnClick);
+         m_NonUniformScaleButton = new Button(new Rectangle(GUI_MENU_COLUMN_1_X_TABBED + toolbuttonpadding * 3 + GUI_GIZMO_BUTTON_WIDTH * 3, GUI_GIZMO_Y + GUI_MENU_ITEM_HEIGHT * 1, GUI_GIZMO_BUTTON_WIDTH, GUI_GIZMO_BUTTON_HEIGHT), m_NonUniformScaleButtonTexture, m_RightMenuMouseInput);
+         m_NonUniformScaleButton.SetImage(Button.ImageType.OVER, m_NonUniformScaleButtonTextureOnHover);
+         m_NonUniformScaleButton.SetImage(Button.ImageType.CLICK, m_NonUniformScaleButtonTextureOnPress);
+         m_NonUniformScaleButton.RegisterOnClick(NonUniformScaleButton_OnClick);
          m_ProjectorEnabledButton = new Button(new Rectangle(GUI_MENU_COLUMN_1_X_TABBED, GUI_PROJECTOR_Y + GUI_MENU_ITEM_HEIGHT * 8 + 4, GUI_QUIT_BUTTON_WIDTH, GUI_QUIT_BUTTON_HEIGHT), m_ButtonTexture, m_RightMenuMouseInput, m_ArialFont10, "Turn Off", Color.Black);
          m_ProjectorEnabledButton.SetImage(Button.ImageType.OVER, m_ButtonTextureOnHover);
          m_ProjectorEnabledButton.SetImage(Button.ImageType.CLICK, m_ButtonTextureOnPress);
@@ -609,8 +619,8 @@ namespace ProjectionMappingGame.StateMachine
          m_TrashLayerButton.SetImage(Button.ImageType.OVER, m_TrashTextureOnHover);
          m_TrashLayerButton.SetImage(Button.ImageType.CLICK, m_TrashTextureOnPress);
          m_TrashLayerButton.RegisterOnClick(TrashLayerButton_OnClick);
-         
-         m_ToLocalCoordButton = new Button(new Rectangle(GUI_LEFT_MENU_COLUMN_1_X + 5, GUI_LEFT_TOOLBAR_Y + GUI_MENU_ITEM_HEIGHT * 8 + 12, GUI_LOCAL_COORD_BUTTON_WIDTH, GUI_QUIT_BUTTON_HEIGHT), m_ButtonTexture, m_MouseInput, m_ArialFont10, "Reset To Local", Color.Black);
+
+         m_ToLocalCoordButton = new Button(new Rectangle(GUI_LEFT_MENU_COLUMN_1_X + 5, GUI_SELECTED_QUAD_Y + GUI_MENU_ITEM_HEIGHT * 8 + 12, GUI_LOCAL_COORD_BUTTON_WIDTH, GUI_QUIT_BUTTON_HEIGHT), m_ButtonTexture, m_MouseInput, m_ArialFont10, "Reset To Local", Color.Black);
          m_ToLocalCoordButton.SetImage(Button.ImageType.OVER, m_ButtonTextureOnHover);
          m_ToLocalCoordButton.SetImage(Button.ImageType.CLICK, m_ButtonTextureOnPress);
          m_ToLocalCoordButton.RegisterOnClick(ToLocalCoordButton_OnClick);
@@ -619,7 +629,7 @@ namespace ProjectionMappingGame.StateMachine
 
          // Checkboxes
          m_SelectedFaceWallCheckbox = new Checkbox(
-            new Rectangle(GUI_LEFT_MENU_COLUMN_1_X + 10, GUI_LEFT_TOOLBAR_Y + GUI_MENU_ITEM_HEIGHT * 7 + 4, 129, GUI_SPINBOX_HEIGHT),
+            new Rectangle(GUI_LEFT_MENU_COLUMN_1_X + 10, GUI_SELECTED_QUAD_Y + GUI_MENU_ITEM_HEIGHT * 7 + 4, 129, GUI_SPINBOX_HEIGHT),
             false,
             m_CheckboxCheckedTexture,
             m_CheckboxCheckedTextureOnHover,
@@ -640,10 +650,10 @@ namespace ProjectionMappingGame.StateMachine
 
          // UV Coords
          m_SelectedFaceUVSpinBox = new UVSpinBoxPair[4];
-         m_SelectedFaceUVSpinBox[0] = new UVSpinBoxPair(new Vector2(GUI_LEFT_TOOLBAR_X + 50, GUI_LEFT_TOOLBAR_Y + GUI_MENU_ITEM_HEIGHT * 2), m_WhiteTexture, m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, m_MouseInput);
-         m_SelectedFaceUVSpinBox[1] = new UVSpinBoxPair(new Vector2(GUI_LEFT_TOOLBAR_X + 50, GUI_LEFT_TOOLBAR_Y + GUI_MENU_ITEM_HEIGHT * 3), m_WhiteTexture, m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, m_MouseInput);
-         m_SelectedFaceUVSpinBox[2] = new UVSpinBoxPair(new Vector2(GUI_LEFT_TOOLBAR_X + 50, GUI_LEFT_TOOLBAR_Y + GUI_MENU_ITEM_HEIGHT * 4), m_WhiteTexture, m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, m_MouseInput);
-         m_SelectedFaceUVSpinBox[3] = new UVSpinBoxPair(new Vector2(GUI_LEFT_TOOLBAR_X + 50, GUI_LEFT_TOOLBAR_Y + GUI_MENU_ITEM_HEIGHT * 5), m_WhiteTexture, m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, m_MouseInput);
+         m_SelectedFaceUVSpinBox[0] = new UVSpinBoxPair(new Vector2(GUI_LEFT_TOOLBAR_X + 50, GUI_SELECTED_QUAD_Y + GUI_MENU_ITEM_HEIGHT * 2), m_WhiteTexture, m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, m_MouseInput);
+         m_SelectedFaceUVSpinBox[1] = new UVSpinBoxPair(new Vector2(GUI_LEFT_TOOLBAR_X + 50, GUI_SELECTED_QUAD_Y + GUI_MENU_ITEM_HEIGHT * 3), m_WhiteTexture, m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, m_MouseInput);
+         m_SelectedFaceUVSpinBox[2] = new UVSpinBoxPair(new Vector2(GUI_LEFT_TOOLBAR_X + 50, GUI_SELECTED_QUAD_Y + GUI_MENU_ITEM_HEIGHT * 4), m_WhiteTexture, m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, m_MouseInput);
+         m_SelectedFaceUVSpinBox[3] = new UVSpinBoxPair(new Vector2(GUI_LEFT_TOOLBAR_X + 50, GUI_SELECTED_QUAD_Y + GUI_MENU_ITEM_HEIGHT * 5), m_WhiteTexture, m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, m_MouseInput);
          
          // Initialize layers
          AssembleGameplayLayer();
@@ -998,12 +1008,14 @@ namespace ProjectionMappingGame.StateMachine
       {
          if (m_ProjectorPreview.Gizmo.SelectedID == m_ProjectorPreview.ProjectorEntity.ID)
          {
-            if (m_ProjectorPreview.Gizmo.ActiveMode == GizmoMode.UniformScale)
+            if (m_ProjectorPreview.Gizmo.ActiveMode == GizmoMode.UniformScale || 
+                m_ProjectorPreview.Gizmo.ActiveMode == GizmoMode.NonUniformScale)
                m_ProjectorPreview.Gizmo.ActiveMode = GizmoMode.Translate;
          }
          else if (m_ProjectorPreview.Gizmo.SelectedID == m_ProjectorPreview.LightEntity.ID)
          {
             if (m_ProjectorPreview.Gizmo.ActiveMode == GizmoMode.UniformScale ||
+                m_ProjectorPreview.Gizmo.ActiveMode == GizmoMode.NonUniformScale ||
                 m_ProjectorPreview.Gizmo.ActiveMode == GizmoMode.Rotate)
                m_ProjectorPreview.Gizmo.ActiveMode = GizmoMode.Translate;
          }
@@ -1060,30 +1072,24 @@ namespace ProjectionMappingGame.StateMachine
       {
          Vector3 scale = m_ProjectorPreview.Building.Scale;
          scale.X = m_BuildingScaleXSpinBox.Value;
-         scale.Y = m_BuildingScaleXSpinBox.Value;
-         scale.Z = m_BuildingScaleXSpinBox.Value;
-         m_BuildingScaleZSpinBox.Value = m_BuildingScaleXSpinBox.Value;
-         m_BuildingScaleYSpinBox.Value = m_BuildingScaleXSpinBox.Value;
+         scale.Y = m_BuildingScaleYSpinBox.Value;
+         scale.Z = m_BuildingScaleZSpinBox.Value;
          m_ProjectorPreview.Building.Scale = scale;
       }
       private void BuildingScaleY_OnValueChanged(object sender, EventArgs e)
       {
          Vector3 scale = m_ProjectorPreview.Building.Scale;
-         scale.X = m_BuildingScaleYSpinBox.Value;
+         scale.X = m_BuildingScaleXSpinBox.Value;
          scale.Y = m_BuildingScaleYSpinBox.Value;
-         scale.Z = m_BuildingScaleYSpinBox.Value;
-         m_BuildingScaleZSpinBox.Value = m_BuildingScaleYSpinBox.Value;
-         m_BuildingScaleXSpinBox.Value = m_BuildingScaleYSpinBox.Value;
+         scale.Z = m_BuildingScaleZSpinBox.Value;
          m_ProjectorPreview.Building.Scale = scale;
       }
       private void BuildingScaleZ_OnValueChanged(object sender, EventArgs e)
       {
          Vector3 scale = m_ProjectorPreview.Building.Scale;
-         scale.X = m_BuildingScaleZSpinBox.Value;
-         scale.Y = m_BuildingScaleZSpinBox.Value;
+         scale.X = m_BuildingScaleXSpinBox.Value;
+         scale.Y = m_BuildingScaleYSpinBox.Value;
          scale.Z = m_BuildingScaleZSpinBox.Value;
-         m_BuildingScaleXSpinBox.Value = m_BuildingScaleZSpinBox.Value;
-         m_BuildingScaleYSpinBox.Value = m_BuildingScaleZSpinBox.Value;
          m_ProjectorPreview.Building.Scale = scale;
       }
       private void ProjectorPositionX_OnValueChanged(object sender, EventArgs e)
@@ -1255,6 +1261,9 @@ namespace ProjectionMappingGame.StateMachine
          m_ProjectorRotationZSpinBox.Children[1].Location += offset;
          m_ProjectorEnabledButton.Location += offset;
          m_ProjectorEnabledButton.TextPos += offset;
+         m_ProjectorAlphaLabel.Location += offset;
+         m_ProjectorAlphaSlider.Location += offset;
+         m_ProjectorAlphaValueLabel.Location += offset;
       }
 
       private void ProjectorEnabledButton_OnClick(object sender, EventArgs e)
@@ -1273,6 +1282,11 @@ namespace ProjectionMappingGame.StateMachine
       private void TranslateButton_OnClick(object sender, EventArgs e)
       {
          m_ProjectorPreview.Gizmo.ActiveMode = GizmoMode.Translate;
+      }
+
+      private void NonUniformScaleButton_OnClick(object sender, EventArgs e)
+      {
+         m_ProjectorPreview.Gizmo.ActiveMode = GizmoMode.NonUniformScale;
       }
 
       private void ScaleButton_OnClick(object sender, EventArgs e)
@@ -1373,6 +1387,8 @@ namespace ProjectionMappingGame.StateMachine
             spriteBatch.Draw(m_WhiteTexture, new Rectangle(GUI_LEFT_TOOLBAR_X, 0, 2, m_RightMenuViewport.Height), Color.Black);
             spriteBatch.Draw(m_WhiteTexture, new Rectangle(GUI_LEFT_TOOLBAR_X, 0, GUI_LEFT_TOOLBAR_WIDTH, 2), Color.Black);
             spriteBatch.Draw(m_WhiteTexture, new Rectangle(GUI_LEFT_TOOLBAR_X + GUI_LEFT_TOOLBAR_WIDTH, 0, 2, m_RightMenuViewport.Height), Color.Black);
+            RenderApplicationSection(spriteBatch);
+            spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, GUI_SELECTED_QUAD_Y - 2, GUI_TOOLBAR_WIDTH, 2), Color.Black);
             RenderSelectedQuadSection(spriteBatch);
             spriteBatch.End();
 
@@ -1389,8 +1405,6 @@ namespace ProjectionMappingGame.StateMachine
             spriteBatch.Begin();
             spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, 0, GUI_TOOLBAR_WIDTH, m_RightMenuViewport.Height), Color.Gray);
             spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, 0, 2, m_RightMenuViewport.Height), Color.Black);
-            RenderApplicationSection(spriteBatch);
-            spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, GUI_APP_Y - 2, GUI_TOOLBAR_WIDTH, 2), Color.Black);
             RenderGizmoSection(spriteBatch);
             spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, GUI_GIZMO_Y - 2, GUI_TOOLBAR_WIDTH, 2), Color.Black);
             RenderBuildingSection(spriteBatch);
@@ -1444,7 +1458,7 @@ namespace ProjectionMappingGame.StateMachine
 
       private void RenderApplicationSection(SpriteBatch spriteBatch)
       {
-         RenderGradient(new Rectangle(2, GUI_APP_Y, GUI_TOOLBAR_WIDTH - 2, 18), spriteBatch, Color.Gray, Color.LightGray);
+         RenderGradient(new Rectangle(2, GUI_APP_Y, GUI_LEFT_TOOLBAR_WIDTH - 2, 18), spriteBatch, Color.Gray, Color.LightGray);
          m_AppHeaderLabel.Draw(m_Game.GraphicsDevice, spriteBatch);
          m_ModeButton.Draw(m_Game.GraphicsDevice, spriteBatch);
          m_PlayButton.Draw(m_Game.GraphicsDevice, spriteBatch);
@@ -1460,6 +1474,7 @@ namespace ProjectionMappingGame.StateMachine
          m_TranslateButton.Draw(m_Game.GraphicsDevice, spriteBatch);
          m_RotateButton.Draw(m_Game.GraphicsDevice, spriteBatch);
          m_ScaleButton.Draw(m_Game.GraphicsDevice, spriteBatch);
+         m_NonUniformScaleButton.Draw(m_Game.GraphicsDevice, spriteBatch);
       }
 
       private void RenderBuildingSection(SpriteBatch spriteBatch)
