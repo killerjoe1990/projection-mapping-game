@@ -78,4 +78,6 @@ Content\Textures\GUI\checkbox_off_on_hover.xnb
 Content\Textures\GUI\checkbox_on.xnb
 Content\Textures\GUI\checkbox_on_on_hover.xnb
 Content\Shaders\Normals.xnb
+Content\Textures\GUI\nonuniform_scale.xnb
+Content\Textures\GUI\nonuniform_scale_on_hover.xnb
 Content\Shaders\Includes.inc
