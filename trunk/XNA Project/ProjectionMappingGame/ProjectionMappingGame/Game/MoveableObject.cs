@@ -43,6 +43,8 @@ namespace ProjectionMappingGame.Game
             set
             {
                 m_Position = value;
+                m_Bounds.X = (int)m_Position.X;
+                m_Bounds.Y = (int)m_Position.Y;
             }
         }
 
