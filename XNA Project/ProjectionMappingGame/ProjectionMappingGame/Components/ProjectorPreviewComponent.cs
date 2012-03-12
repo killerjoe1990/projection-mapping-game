@@ -56,7 +56,8 @@ namespace ProjectionMappingGame.Components
       MouseState m_PrevMouseState;           // Input
       KeyboardState m_PrevKeyboardState;
       int m_SelectedProjector;
-      ModelEntity m_BuildingEntity;          // Entities
+      int m_SelectedBuilding;
+      List<ModelEntity> m_Buildings;          // Entities
       ModelEntity m_LightEntity;
       RenderTarget2D m_RenderTarget;         // Render target
       Texture2D m_RenderTargetTexture;
@@ -68,21 +69,8 @@ namespace ProjectionMappingGame.Components
          m_Viewport = new Viewport(x, y, w, h);
 
          // Initialize building
-         m_BuildingEntity = new ModelEntity(
-            EntityType.Building,
-            "Models/cube",
-            new Material(
-               new Vector4(0.0f, 0.0f, 0.0f, 1.0f),
-               new Vector4(0.0f, 0.0f, 0.0f, 1.0f),
-               new Vector4(0.6f, 0.6f, 0.6f, 1.0f),
-               new Vector4(1.0f, 1.0f, 1.0f, 1.0f),
-               14.0f
-            ),
-            new Vector3(0.0f, 2.5f, 0.0f),
-            true
-         );
-         m_BuildingEntity.Scale = Vector3.One * 5.0f;
-         m_BuildingEntity.UpdateWorld();
+         m_Buildings = new List<ModelEntity>();
+         AddBuilding();
 
          m_FrustumEffect = new BasicEffect(m_Game.GraphicsDevice);
          
@@ -141,6 +129,7 @@ namespace ProjectionMappingGame.Components
          m_RenderNormals = false;
          m_SelectedNormal = Vector3.Zero;
          m_SelectedProjector = -1;
+         m_SelectedBuilding = -1;
 
          // Initialize input
          m_PrevMouseState = Mouse.GetState();
@@ -176,7 +165,10 @@ namespace ProjectionMappingGame.Components
          m_ArialFont = content.Load<SpriteFont>("Fonts/Arial10");
 
          // Load entities
-         m_BuildingEntity.LoadContent(content);
+         for (int i = 0; i < m_Buildings.Count; ++i)
+         {
+            m_Buildings[i].LoadContent(content);
+         }
          for (int i = 0; i < m_Projectors.Count; ++i)
          {
             m_Projectors[i].Entity.LoadContent(content);
@@ -191,7 +183,10 @@ namespace ProjectionMappingGame.Components
       public void Update(float elapsedTime)
       {
          // Update entities
-         m_BuildingEntity.Update(elapsedTime);
+         for (int i = 0; i < m_Buildings.Count; ++i)
+         {
+            m_Buildings[i].Update(elapsedTime);
+         }
          m_LightEntity.Update(elapsedTime);
          for (int i = 0; i < m_Projectors.Count; ++i)
          {
@@ -307,7 +302,7 @@ namespace ProjectionMappingGame.Components
          m_Game.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
          UpdateShaderParameters(m_NormalsShader);
-         UpdateShaderMaterialParameters(m_NormalsShader, m_BuildingEntity.Material);
+         
             
          // Set the render target to capture a still of the screen
          m_Game.GraphicsDevice.SetRenderTarget(m_RenderTarget);
@@ -315,7 +310,11 @@ namespace ProjectionMappingGame.Components
          m_Game.GraphicsDevice.Clear(Color.Black);
 
          // Render building to the render target
-         m_BuildingEntity.Draw(m_NormalsShader, m_Game.GraphicsDevice);
+         for (int i = 0; i < m_Buildings.Count; ++i)
+         {
+            UpdateShaderMaterialParameters(m_NormalsShader, m_Buildings[i].Material);
+            m_Buildings[i].Draw(m_NormalsShader, m_Game.GraphicsDevice);
+         }
 
          // Extract and store the contents of the render target in a texture
          m_Game.GraphicsDevice.SetRenderTarget(null);
@@ -332,10 +331,13 @@ namespace ProjectionMappingGame.Components
          if (m_RenderNormals)
          {
             UpdateShaderParameters(m_NormalsShader);
-            UpdateShaderMaterialParameters(m_NormalsShader, m_BuildingEntity.Material);
             
             // Render building to the screen now
-            m_BuildingEntity.Draw(m_NormalsShader, m_Game.GraphicsDevice);
+            for (int i = 0; i < m_Buildings.Count; ++i)
+            {
+               UpdateShaderMaterialParameters(m_NormalsShader, m_Buildings[i].Material);
+               m_Buildings[i].Draw(m_NormalsShader, m_Game.GraphicsDevice);
+            }
 
             // Render a message about how to select normals and how to cancel
             spriteBatch.Begin();
@@ -359,16 +361,22 @@ namespace ProjectionMappingGame.Components
             }
 
             // Render building entity
-            UpdateShaderMaterialParameters(m_PhongShader, m_BuildingEntity.Material);
-            m_BuildingEntity.Draw(m_PhongShader, m_Game.GraphicsDevice);
+            for (int i = 0; i < m_Buildings.Count; ++i)
+            {
+               UpdateShaderMaterialParameters(m_PhongShader, m_Buildings[i].Material);
+               m_Buildings[i].Draw(m_PhongShader, m_Game.GraphicsDevice);
+            }
             for (int i = 0; i < m_Projectors.Count; ++i)
             {
                if (m_Projectors[i].IsOn)
                {
                   UpdateShaderParameters(m_ProjectionMappingShader);                // Shared properties
                   UpdateProjectionShaderParameters(m_ProjectionMappingShader, m_Projectors[i]);      // Projection mapping only properties
-                  UpdateShaderMaterialParameters(m_ProjectionMappingShader, m_BuildingEntity.Material);
-                  m_BuildingEntity.Draw(m_ProjectionMappingShader, m_Game.GraphicsDevice);
+                  for (int j = 0; j < m_Buildings.Count; ++j)
+                  {
+                     UpdateShaderMaterialParameters(m_ProjectionMappingShader, m_Buildings[j].Material);
+                     m_Buildings[j].Draw(m_ProjectionMappingShader, m_Game.GraphicsDevice);
+                  }
                }
             }
 
@@ -544,7 +552,37 @@ namespace ProjectionMappingGame.Components
 
       #endregion
 
-      #region Public Access TV
+      #region Public Interaction
+
+      public void ResetSelectedBuilding()
+      {
+         m_Buildings[m_SelectedBuilding].Scale = Vector3.One * 5.0f;
+         m_Buildings[m_SelectedBuilding].RotX = 0.0f;
+         m_Buildings[m_SelectedBuilding].RotY = 0.0f;
+         m_Buildings[m_SelectedBuilding].RotZ = 0.0f;
+         m_Buildings[m_SelectedBuilding].Position = new Vector3(0f, 2.5f, 0f);
+      }
+
+      public void AddBuilding()
+      {
+         ModelEntity building = new ModelEntity(
+            EntityType.Building,
+            "Models/cube",
+            new Material(
+               new Vector4(0.0f, 0.0f, 0.0f, 1.0f),
+               new Vector4(0.0f, 0.0f, 0.0f, 1.0f),
+               new Vector4(0.6f, 0.6f, 0.6f, 1.0f),
+               new Vector4(1.0f, 1.0f, 1.0f, 1.0f),
+               14.0f
+            ),
+            new Vector3(0.0f, 2.5f, 0.0f),
+            true
+         );
+         building.Scale = Vector3.One * 5.0f;
+         building.UpdateWorld();
+         building.LoadContent(m_Game.Content);
+         m_Buildings.Add(building);
+      }
 
       public void AddProjector()
       {
@@ -576,6 +614,26 @@ namespace ProjectionMappingGame.Components
          m_Projectors.Add(projector);
       }
 
+      public void DeleteProjector(int projectorIndex)
+      {
+         if (m_Gizmo.SelectedID == m_Projectors[projectorIndex].Entity.ID)
+         {
+            m_Gizmo.DeselectAll();
+         }
+         m_Projectors.RemoveAt(projectorIndex);
+         m_SelectedProjector = -1;
+      }
+
+      public void DeleteBuilding(int buildingIndex)
+      {
+         if (m_Gizmo.SelectedID == m_Buildings[buildingIndex].ID)
+         {
+            m_Gizmo.DeselectAll();
+         }
+         m_Buildings.RemoveAt(buildingIndex);
+         m_SelectedBuilding = -1;
+      }
+
       public void SelectProjector(int id)
       {
          for (int i = 0; i < m_Projectors.Count; ++i)
@@ -588,9 +646,26 @@ namespace ProjectionMappingGame.Components
          }
       }
 
+      public void SelectBuilding(int id)
+      {
+         for (int i = 0; i < m_Buildings.Count; ++i)
+         {
+            if (id == m_Buildings[i].ID)
+            {
+               m_SelectedBuilding = i;
+               break;
+            }
+         }
+      }
+
       public void DeSelectProjector()
       {
          m_SelectedProjector = -1;
+      }
+
+      public void DeSelectBuilding()
+      {
+         m_SelectedBuilding = -1;
       }
 
       public bool IsProjectorID(int id)
@@ -603,6 +678,65 @@ namespace ProjectionMappingGame.Components
          return false;
       }
 
+      public bool IsBuildingID(int id)
+      {
+         for (int i = 0; i < m_Buildings.Count; ++i)
+         {
+            if (id == m_Buildings[i].ID)
+               return true;
+         }
+         return false;
+      }
+
+      public void Resize(int dx, int dy)
+      {
+         m_Viewport.Width += dx;
+         m_Viewport.Height += dy;
+         m_Camera.AspectRatio = (float)m_Viewport.Width / (float)m_Viewport.Height;
+         m_Camera.UpdateProjection();
+         m_RenderTarget = new RenderTarget2D(m_Game.GraphicsDevice, m_Viewport.Width, m_Viewport.Height, true, m_Game.GraphicsDevice.DisplayMode.Format, DepthFormat.Depth24);
+      }
+
+      #endregion
+
+      #region Public Access TV
+
+      public bool RenderFrustum
+      {
+         get { return m_RenderProjectorFrustum; }
+         set { m_RenderProjectorFrustum = value; }
+      }
+
+      public bool EditorMode
+      {
+         get { return m_EditorMode; }
+         set { m_EditorMode = value; }
+      }
+
+      public bool RenderNormals
+      {
+         get { return m_RenderNormals; }
+         set { m_RenderNormals = value; if (m_RenderNormals) m_Gizmo.DeselectAll(); }
+      }
+
+      public Viewport Viewport
+      {
+         get { return m_Viewport; }
+         set { m_Viewport = value; }
+      }
+
+      public int SelectedProjector
+      {
+         get { return m_SelectedProjector; }
+         set { m_SelectedProjector = value; }
+      }
+
+      public int SelectedBuilding
+      {
+         get { return m_SelectedBuilding; }
+         set { m_SelectedBuilding = value; }
+      }
+
       public ModelEntity LightEntity
       {
          get { return m_LightEntity; }
@@ -613,7 +747,10 @@ namespace ProjectionMappingGame.Components
          get
          {
             List<EditorEntity> entities = new List<EditorEntity>();
-            entities.Add(m_BuildingEntity);
+            for (int i = 0; i < m_Buildings.Count; ++i)
+            {
+               entities.Add(m_Buildings[i]);
+            }
             for (int i = 0; i < m_Projectors.Count; ++i)
             {
                entities.Add(m_Projectors[i].Entity);
@@ -634,24 +771,6 @@ namespace ProjectionMappingGame.Components
          }
       }
 
-      public bool RenderFrustum
-      {
-         get { return m_RenderProjectorFrustum; }
-         set { m_RenderProjectorFrustum = value; }
-      }
-
-      public bool EditorMode
-      {
-         get { return m_EditorMode; }
-         set { m_EditorMode = value; }
-      }
-
-      public bool RenderNormals
-      {
-         get { return m_RenderNormals; }
-         set { m_RenderNormals = value; if (m_RenderNormals) m_Gizmo.DeselectAll(); }
-      }
-
       public Vector3 SelectedNormal
       {
          get { return m_SelectedNormal; }
@@ -660,30 +779,6 @@ namespace ProjectionMappingGame.Components
       public Vector3 CameraPosition
       {
          get { return m_Camera.Position; }
-      }
-
-      public void Resize(int dx, int dy)
-      {
-         m_Viewport.Width += dx;
-         m_Viewport.Height += dy;
-         m_Camera.AspectRatio = (float)m_Viewport.Width / (float)m_Viewport.Height;
-         m_Camera.UpdateProjection();
-         m_RenderTarget = new RenderTarget2D(m_Game.GraphicsDevice, m_Viewport.Width, m_Viewport.Height, true, m_Game.GraphicsDevice.DisplayMode.Format, DepthFormat.Depth24);
-      }
-
-      public Viewport Viewport
-      {
-         get { return m_Viewport; }
-         set
-         {
-            m_Viewport = value;
-         }
-      }
-
-      public int SelectedProjector
-      {
-         get { return m_SelectedProjector; }
-         set { m_SelectedProjector = value; }
       }
 
       public bool IsProjectorSelected
@@ -711,9 +806,14 @@ namespace ProjectionMappingGame.Components
          set { m_PrevMouseState = value; }
       }
 
-      public ModelEntity Building
+      public bool IsBuildingSelected
       {
-         get { return m_BuildingEntity; }
+         get { return (m_SelectedBuilding >= 0); }
+      }
+
+      public List<ModelEntity> Buildings
+      {
+         get { return m_Buildings; }
       }
 
       #endregion
