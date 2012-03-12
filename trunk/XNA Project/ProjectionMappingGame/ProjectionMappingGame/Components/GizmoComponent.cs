@@ -222,9 +222,14 @@ namespace ProjectionMappingGame.Components
       private float rotationSnapDelta;
 
       private event EventHandler m_OnSelectEvent = null;
+      private event EventHandler m_OnDeSelectEvent = null;
       public void RegisterOnSelect(EventHandler handler)
       {
          m_OnSelectEvent += handler;
+      }
+      public void RegisterOnDeSelect(EventHandler handler)
+      {
+         m_OnDeSelectEvent += handler;
       }
 
       public GizmoComponent(ProjectionPreviewComponent preview, ContentManager content, GraphicsDevice graphics)
@@ -417,7 +422,7 @@ namespace ProjectionMappingGame.Components
          }
 
 
-         if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton != ButtonState.Pressed && ActiveAxis == GizmoAxis.None)
+         if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton != ButtonState.Pressed)
          {
             // add to selection or clear current selection
             if (keyboardState.IsKeyDown(Keys.LeftControl) && !prevKeyboardState.IsKeyDown(Keys.LeftControl) &&
@@ -666,7 +671,7 @@ namespace ProjectionMappingGame.Components
                   #endregion
                }
             }
-            else
+            else if (mouseState.LeftButton != ButtonState.Pressed && prevMouseState.LeftButton != ButtonState.Pressed)
             {
                UpdateAxisSelection(new Vector2(mouseState.X, mouseState.Y));
             }
@@ -936,23 +941,33 @@ namespace ProjectionMappingGame.Components
                noneIntersected = false;
                if (!Selection.Contains(entity))
                {
+                  if (Selection.Count > 0)
+                  {
+                     Selection.Clear();
+                     m_OnDeSelectEvent(this, new EventArgs());
+                  }
                   Selection.Add(entity);
                   m_OnSelectEvent(this, new EventArgs());
                   break;
                }
                else
                {
-                  if (removeFromSelection)
+                  //if (removeFromSelection)
+                  //{
+                  if (Selection.Contains(entity))
                   {
                      Selection.Remove(entity);
+                     m_OnDeSelectEvent(this, new EventArgs());
                   }
+                  //}
                }
             }
          }
 
          if (noneIntersected)
          {
-            Selection.Clear();
+            //Selection.Clear();
+            
          }
       }
 

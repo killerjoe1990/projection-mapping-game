@@ -31,8 +31,8 @@ namespace ProjectionMappingGame.Editor
       Model m_Mesh;
       string m_MeshFilename;
 
-      public ModelEntity(string meshFilename, Material mat, Vector3 position, bool active)
-         : base (position, active)
+      public ModelEntity(EntityType type, string meshFilename, Material mat, Vector3 position, bool active)
+         : base(type, position, active)
       {
          m_Material = mat;
          m_MeshFilename = meshFilename;
@@ -103,6 +103,11 @@ namespace ProjectionMappingGame.Editor
       {
          get { return m_Material; }
          set { m_Material = value; }
+      }
+
+      public Matrix WorldMatrix
+      {
+         get { return m_WorldMatrix; }
       }
 
       #endregion
