@@ -15,6 +15,8 @@ namespace ProjectionMappingGame.Game
 
         float m_LastSpawnY;
 
+        bool m_SpawnFlag;
+
         int m_WindowTilesWide;
 
         Texture2D[][] m_PlatTextures;
@@ -24,14 +26,16 @@ namespace ProjectionMappingGame.Game
             //float yt = -GameConstants.JUMP_IMPULSE / (2 * GameConstants.GRAVITY);
             //float maxY = GameConstants.JUMP_IMPULSE * yt + GameConstants.GRAVITY * yt * yt;
             //float minY = maxY / 3.0f;
-            m_MaxRange = new Vector2(0, 500);
+            m_MaxRange = new Vector2(0, 400);
             m_MinRange = new Vector2(0, 100);
 
-            m_LastSpawnY = -GameConstants.TILE_DIM;
+            m_LastSpawnY = -GameConstants.TILE_DIM*2;
 
-            m_WindowTilesWide = windowWidth / GameConstants.TILE_DIM;
+            m_WindowTilesWide = 1 + windowWidth / GameConstants.TILE_DIM;
 
             m_PlatTextures = platformTextures;
+
+            m_SpawnFlag = false;
         }
 
         public List<Platform> SpawnPlatforms(float deltaTime)
@@ -43,32 +47,42 @@ namespace ProjectionMappingGame.Game
                 List<Platform> plats = new List<Platform>();
 
                 int tilesToSpawn = m_WindowTilesWide;
+                bool flag = m_SpawnFlag;
+                int num;
 
                 while (tilesToSpawn > 0)
                 {
-                    //spawn space
-                    int num = GameConstants.RANDOM.Next(GameConstants.PLAT_MAX_WIDTH - GameConstants.PLAT_MIN_WIDTH) + GameConstants.PLAT_MIN_WIDTH;
-                    if (num > tilesToSpawn)
+                    if (flag == true)
                     {
-                        num = tilesToSpawn;
+                        //spawn space
+                         num = GameConstants.RANDOM.Next(GameConstants.PLAT_MAX_WIDTH - GameConstants.PLAT_MIN_WIDTH) + GameConstants.PLAT_MIN_WIDTH + GameConstants.RANDOM.Next(0, 5);
+                        if (num > tilesToSpawn)
+                        {
+                            num = tilesToSpawn;
+                        }
+
+                        tilesToSpawn -= num;
+                        flag = !flag;
                     }
-
-                    tilesToSpawn -= num;
-
-                    //spawn platform
-                    num = GameConstants.RANDOM.Next(GameConstants.PLAT_MAX_WIDTH - GameConstants.PLAT_MIN_WIDTH) + GameConstants.PLAT_MIN_WIDTH;
-                    int tex = GameConstants.RANDOM.Next(m_PlatTextures.Length);
-
-                    if (num > tilesToSpawn)
+                    else
                     {
-                        num = tilesToSpawn;
-                    }
+                        //spawn platform
+                        num = GameConstants.RANDOM.Next(GameConstants.PLAT_MAX_WIDTH - GameConstants.PLAT_MIN_WIDTH) + GameConstants.PLAT_MIN_WIDTH;
+                        int tex = GameConstants.RANDOM.Next(m_PlatTextures.Length);
 
-                    plats.Add(new Platform(new Vector2((m_WindowTilesWide - tilesToSpawn) * GameConstants.TILE_DIM,-GameConstants.TILE_DIM), Vector2.UnitY * GameConstants.PLATFORM_VELOCITY, num, PlatformTypes.Platform, m_PlatTextures[tex]));
-                    tilesToSpawn -= num;
+                        if (num > tilesToSpawn)
+                        {
+                            num = tilesToSpawn;
+                        }
+
+                        plats.Add(new Platform(new Vector2((m_WindowTilesWide - tilesToSpawn) * GameConstants.TILE_DIM, -GameConstants.TILE_DIM * 2 - (GameConstants.RANDOM.Next(GameConstants.PLAT_MIN_Y_SPAWN_DELTA, GameConstants.PLAT_MAX_Y_SPAWN_DELTA))), Vector2.UnitY * GameConstants.PLATFORM_VELOCITY, num, PlatformTypes.Platform, m_PlatTextures[tex]));
+                        tilesToSpawn -= num;
+                        flag = !flag;
+                    }
                 }
 
-                m_LastSpawnY = -GameConstants.TILE_DIM;
+                m_LastSpawnY = -GameConstants.TILE_DIM*2;
+                m_SpawnFlag = flag;
 
                 return plats;
             }

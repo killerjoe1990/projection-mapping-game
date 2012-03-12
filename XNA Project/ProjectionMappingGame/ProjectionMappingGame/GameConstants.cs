@@ -39,35 +39,27 @@ namespace ProjectionMappingGame
       public const StateType DEFAULT_STATE = StateType.ProjectionEditor;
 
        // Physics
-      public const float GRAVITY = 1300.0f;
-      public const float MAX_FALL_SPEED = 2000.0f;
+      public const float GRAVITY = 1500.0f;
 
        //Platforms
       public const int TILE_DIM = 30;
       public const int DEFAULT_TILES_WIDE = 30;
       public const int DEFAULT_TILES_HIGH = 30;
-      public const int MAX_TILES_WIDE = 100;
+      public const int MAX_TILES_WIDE = 102;
       public const int MAX_TILES_HIGH = 100;
-      public const float PLATFORM_VELOCITY = 70;
+      public const float PLATFORM_VELOCITY = 160;
       public const int PLAT_MAX_WIDTH = 6;
-      public const int PLAT_MIN_WIDTH = 2;
+      public const int PLAT_MIN_WIDTH = 3;
       public const int MAX_PATHS = 3;
-
-       //Portals
-      public const int PORTAL_DIM = 75;
-      public const float MAX_PORTAL_Y = 0.7f;
-      public const float MAX_PORTAL_X = 0.7f;
-      public const float MIN_PORTAL_Y = 0.3f;
-      public const float MIN_PORTAL_X = 0.3f;
-      public const float PORTAL_DELAY = 1.0f;
-      public const float PORT_AGAIN_DELAY = 3.0f;
+      public const int PLAT_MAX_Y_SPAWN_DELTA = 65;
+      public const int PLAT_MIN_Y_SPAWN_DELTA = 0;
 
        //Game
       public const int MAX_PLAYERS = 4;
       public const int PLAYER_DIM_X = 35;
       public const int PLAYER_DIM_Y = 75;
-      public const float JUMP_IMPULSE = -37000;
-      public const float MOVE_SPEED = 7300;
+      public const float JUMP_IMPULSE = -47000;
+      public const float MOVE_SPEED = 12300;
       public const float BOUNCE_IMPULSE_UP = -25000;
       public const float BOUNCE_IMPULSE_DOWN = 0;
       public const int POINTS_FOR_KILL = 20;
@@ -77,15 +69,14 @@ namespace ProjectionMappingGame
       public const float START_SPACING = 10;
       public const float START_Y = 50;
 
-      public const int MAX_LAYERS = 10;
-
        //HUD
       public const int HUD_WIDTH = 200;
       public const int HUD_HEIGHT = 60;
       public const int HUD_ICON_DIM = 32;
       public static Color HUD_COLOR = Color.Black;
-      public static Color[] GAME_COLORS = new Color[]
+      public static Color[] PLAYER_COLORS = new Color[]
        {
+           Color.White,
            Color.Red,
            Color.Blue,
            Color.Green,
@@ -93,18 +84,11 @@ namespace ProjectionMappingGame
            Color.Purple,
            Color.Orange,
            Color.Pink,
-           Color.Gray,
-           Color.Cyan,
-           Color.White
+           Color.Gray
        };
 
        //animation
-      public const int PLAYER_JUMP_FRAMES = 11;
-      public const int PLAYER_RUN_FRAMES = 10;
       public const float PLAYER_FRAMERATE = 10;
-
-      public const float PORTAL_FRAMERATE = 5;
-      public const int PORTAL_FRAMES = 4;
 
        // random
       public static Random RANDOM = new Random();
