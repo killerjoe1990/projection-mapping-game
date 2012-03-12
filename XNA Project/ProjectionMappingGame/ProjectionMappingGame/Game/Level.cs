@@ -125,8 +125,8 @@ namespace ProjectionMappingGame.Game
         {
             foreach (Player p in m_Players)
             {
-                //m_Gamepad.HandleInput(p.PlayerNumber);
-                m_Keyboard.HandleInput(p.PlayerNumber);
+                m_Gamepad.HandleInput(p.PlayerNumber);
+                //m_Keyboard.HandleInput(p.PlayerNumber);
             }
         }
 
