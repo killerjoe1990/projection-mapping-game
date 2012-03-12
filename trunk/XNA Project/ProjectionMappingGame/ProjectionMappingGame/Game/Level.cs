@@ -13,6 +13,11 @@ namespace ProjectionMappingGame.Game
 {
     public class Level
     {
+        RenderTarget2D m_PlatformShadowTarget;
+        RenderTarget2D m_PlayerShadowTarget;
+        Vector2 m_ShadowOffset;
+        Color SHADOW_COLOR = new Color(0, 0, 0, 0.6f);
+
         //Parent
         StateMachine.GamePlayState m_GameState;
 
@@ -64,10 +69,19 @@ namespace ProjectionMappingGame.Game
             m_RenderTargetMode = false;
             m_RenderTarget = new RenderTarget2D(m_GameState.Graphics, m_WindowWidth, m_WindowHeight, true, m_GameState.Graphics.DisplayMode.Format, DepthFormat.Depth24);
 
+            m_PlatformShadowTarget = new RenderTarget2D(m_GameState.Graphics, m_WindowWidth, m_WindowHeight, true, m_GameState.Graphics.DisplayMode.Format, DepthFormat.Depth24);
+            m_PlayerShadowTarget = new RenderTarget2D(m_GameState.Graphics, m_WindowWidth, m_WindowHeight, true, m_GameState.Graphics.DisplayMode.Format, DepthFormat.Depth24);
+
+            // DEBUG
+            m_ShadowOffset = new Vector2(-10, -10);
+
         }
 
         public void Update(float elapsedTime)
         {
+            m_ShadowOffset.X += elapsedTime;
+            m_ShadowOffset.Y += elapsedTime;
+
             // Update any logic here
             List<Platform> newPlats = m_PlatSpawn.SpawnPlatforms(elapsedTime);
 
@@ -145,6 +159,8 @@ namespace ProjectionMappingGame.Game
 
         public void Draw(SpriteBatch spriteBatch, GraphicsDevice device)
         {
+            CreateShadows(spriteBatch, device);
+
             if (m_RenderTargetMode)
             {
                 Color clear = new Color(0.0f, 0.0f, 0.0f, 0.0f);
@@ -166,12 +182,50 @@ namespace ProjectionMappingGame.Game
             } 
         }
 
+        private void CreateShadows(SpriteBatch spriteBatch, GraphicsDevice device)
+        {
+            device.SetRenderTarget(m_PlatformShadowTarget);
+            device.Clear(Color.Transparent);
+
+            spriteBatch.Begin();
+
+            foreach (Platform platform in m_Platforms)
+            {
+                platform.Draw(spriteBatch);
+            }
+
+            spriteBatch.End();
+
+            device.SetRenderTarget(m_PlayerShadowTarget);
+            device.Clear(Color.Transparent);
+
+            spriteBatch.Begin();
+
+            foreach (Player player in m_Players)
+            {
+                if (player != null)
+                {
+                    player.Draw(spriteBatch);
+                }
+            }
+
+            spriteBatch.End();
+
+            device.SetRenderTarget(null);
+        }
+
         private void RenderGame(SpriteBatch spriteBatch)
         {
+
             spriteBatch.Begin();
 
             // Background always goes in the back.
             spriteBatch.Draw(m_Background, new Rectangle(0, 0, m_WindowWidth, m_WindowHeight), Color.White);
+
+            // draw Shadows
+            spriteBatch.Draw(m_PlatformShadowTarget, new Rectangle((int)m_ShadowOffset.X, (int)m_ShadowOffset.Y, m_WindowWidth, m_WindowHeight), SHADOW_COLOR);
+            // draw player shadow
+            spriteBatch.Draw(m_PlayerShadowTarget, new Rectangle((int)m_ShadowOffset.X, (int)m_ShadowOffset.Y, m_WindowWidth, m_WindowHeight), SHADOW_COLOR);
 
             // draw Portals.
             foreach (Portal portal in m_Portals)
@@ -185,6 +239,9 @@ namespace ProjectionMappingGame.Game
             {
                 platform.Draw(spriteBatch);
             }
+
+            
+
 
             // HUD goes BEHIND every player.
             foreach (Player player in m_Players)
