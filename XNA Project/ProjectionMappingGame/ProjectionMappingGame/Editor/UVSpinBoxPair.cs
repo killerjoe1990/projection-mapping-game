@@ -46,11 +46,8 @@ namespace ProjectionMappingGame.Editor
          m_Location = location;
          m_WhiteTexture = whiteTexture;
 
-         m_ULabel = new Label("U", (int)location.X + 4, (int)location.Y + 4, 10, GUI_SPINBOX_HEIGHT, Color.Black);
-         m_VLabel = new Label("V", (int)location.X + 24 + GUI_SPINBOX_WIDTH, (int)location.Y + 4, 10, GUI_SPINBOX_HEIGHT, Color.Black);
-         m_ULabel.Font = font;
-         m_VLabel.Font = font;
-
+         m_ULabel = new Label("U", (int)location.X + 4, (int)location.Y + 4, 10, GUI_SPINBOX_HEIGHT, Color.Black, font);
+         m_VLabel = new Label("V", (int)location.X + 24 + GUI_SPINBOX_WIDTH, (int)location.Y + 4, 10, GUI_SPINBOX_HEIGHT, Color.Black, font);
          m_USpinBox = new NumUpDown(new Rectangle((int)location.X + 17, (int)location.Y + 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), spinboxFill, whiteTexture, spinboxUp, spinboxDown, font, Color.Black, 0.0f, 1.0f, 0.025f, "{0:0.00}", mouseInput);
          m_USpinBox.RegisterOnValueChanged(U_OnValueChanged);
          m_VSpinBox = new NumUpDown(new Rectangle((int)location.X + 37 + GUI_SPINBOX_WIDTH, (int)location.Y + 2, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), spinboxFill, whiteTexture, spinboxUp, spinboxDown, font, Color.Black, 0.0f, 1.0f, 0.025f, "{0:0.00}", mouseInput);

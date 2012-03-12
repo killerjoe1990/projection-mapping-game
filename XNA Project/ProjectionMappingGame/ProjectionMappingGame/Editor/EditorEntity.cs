@@ -25,11 +25,20 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace ProjectionMappingGame.Editor
 {
+   public enum EntityType {
+      Building,
+      Projector,
+      Light
+   };
+
    abstract class EditorEntity
    {
       // Static Identification
       public static int ENTITY_COUNTER = 0;
       public int ID;
+
+      // Public identification
+      public EntityType Type;
 
       protected bool m_IsActive;
       protected float m_RotX, m_RotY, m_RotZ;
@@ -39,10 +48,11 @@ namespace ProjectionMappingGame.Editor
       protected Vector3 m_Up;
       protected Matrix m_WorldMatrix;
 
-      public EditorEntity(Vector3 position, bool active)
+      public EditorEntity(EntityType type, Vector3 position, bool active)
       {
          // ID the entity
          ID = ENTITY_COUNTER++;
+         Type = type;
 
          // Store default settings
          m_Position = position;
@@ -83,7 +93,10 @@ namespace ProjectionMappingGame.Editor
          m_WorldMatrix = Matrix.Identity;
          m_WorldMatrix *= Matrix.CreateScale(m_Scale);
          m_WorldMatrix *= Matrix.CreateRotationX(m_RotX);
-         m_WorldMatrix *= Matrix.CreateRotationY(m_RotY);
+         if (Type == EntityType.Projector)
+            m_WorldMatrix *= Matrix.CreateRotationY(-m_RotY);
+         else
+            m_WorldMatrix *= Matrix.CreateRotationY(m_RotY);
          m_WorldMatrix *= Matrix.CreateRotationZ(m_RotZ);
          m_WorldMatrix *= Matrix.CreateTranslation(m_Position);
       }

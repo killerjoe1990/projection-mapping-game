@@ -116,7 +116,9 @@
     <Compile Include="Components\ProjectorComponent.cs" />
     <Compile Include="Components\ProjectorPreviewComponent.cs" />
     <Compile Include="Editor\EditorEntity.cs" />
-    <Compile Include="Editor\UVPointEditor.cs" />
+    <Compile Include="Editor\UVDualEdgeGraph.cs" />
+    <Compile Include="Editor\UVDualEdgeGraphEditor.cs" />
+    <Compile Include="Editor\UVGrid.cs" />
     <Compile Include="Editor\UVGridEditor.cs" />
     <Compile Include="Editor\UVQuad.cs" />
     <Compile Include="Editor\UVSpinBoxPair.cs" />

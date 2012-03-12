@@ -13,7 +13,7 @@ namespace ProjectionMappingGame.GUI
       SpriteFont m_Font;
       Color m_Color;
 
-      public Label(string text, int x, int y, int w, int h, Color color)
+      public Label(string text, int x, int y, int w, int h, Color color, SpriteFont font)
          : base()
       {
          m_Color = color;
@@ -21,6 +21,7 @@ namespace ProjectionMappingGame.GUI
          Location = new Vector2(x, y);
          Width = w;
          Height = h;
+         m_Font = font;
       }
 
       public override void Update(float deltaTime)

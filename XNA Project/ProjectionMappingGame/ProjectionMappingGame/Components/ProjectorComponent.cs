@@ -22,6 +22,9 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
+// Local imports
+using ProjectionMappingGame.Editor;
+
 #endregion
 
 namespace ProjectionMappingGame.Components
@@ -37,6 +40,10 @@ namespace ProjectionMappingGame.Components
       Matrix m_ViewMatrix;
       float m_RotX, m_RotY, m_RotZ;
 
+      // Graph and Grid
+      UVGrid m_Grid;
+      UVDualEdgeGraph m_EdgeGraph;
+
       // Projection components
       float m_Fov;
       float m_AspectRatio;
@@ -45,6 +52,8 @@ namespace ProjectionMappingGame.Components
       Matrix m_ProjectionMatrix;
       Texture2D m_Texture;
       bool m_IsOn;
+      ModelEntity m_Entity;
+      float m_Alpha;
 
       // Constant fields
       const float KEYBOARD_TRANSLATE_SCALAR = 5.0f;
@@ -66,7 +75,10 @@ namespace ProjectionMappingGame.Components
          m_RotX = 0.0f;
          m_RotY = 0.0f;
          m_RotZ = 0.0f;
-         
+         m_EdgeGraph = new UVDualEdgeGraph();
+         m_Grid = new UVGrid(100, 100);
+         m_Alpha = 1.0f;
+
          // Create initial projection/view matrix
          UpdateProjection();
          UpdateView();
@@ -92,6 +104,7 @@ namespace ProjectionMappingGame.Components
          m_LocalY = new Vector3(m_ViewMatrix.M12, m_ViewMatrix.M22, m_ViewMatrix.M32);
          m_LocalZ = new Vector3(m_ViewMatrix.M13, m_ViewMatrix.M23, m_ViewMatrix.M33);
          m_Direction = -m_LocalZ;
+         m_Direction.Normalize();
       }
 
       public void UpdateProjection()
@@ -218,13 +231,24 @@ namespace ProjectionMappingGame.Components
 
          // Apply movement
          Vector3 translation = direction * KEYBOARD_TRANSLATE_SCALAR * elapsedTime;
-         Console.WriteLine(translation.ToString());
          Translate(translation.X, translation.Y, translation.Z);
       }
 
       #endregion
 
       #region Public Access TV
+
+      public float Alpha
+      {
+         get { return m_Alpha; }
+         set { m_Alpha = value; }
+      }
+
+      public ModelEntity Entity
+      {
+         get { return m_Entity; }
+         set { m_Entity = value; }
+      }
 
       /// <summary>
       /// Accessor for the projector's view matrix.
@@ -267,6 +291,22 @@ namespace ProjectionMappingGame.Components
       {
          get { return m_Texture; }
          set { m_Texture = value; }
+      }
+
+      /// <summary>
+      /// </summary>
+      public UVDualEdgeGraph EdgeGraph
+      {
+         get { return m_EdgeGraph; }
+         set { m_EdgeGraph = value; }
+      }
+
+      /// <summary>
+      /// </summary>
+      public UVGrid Grid
+      {
+         get { return m_Grid; }
+         set { m_Grid = value; }
       }
 
       /// <summary>

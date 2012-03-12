@@ -44,7 +44,7 @@ namespace ProjectionMappingGame.Components
       Model m_GroundPlaneMesh;               // Models
       Vector3 m_SelectedNormal;
       Material m_GroundPlaneMaterial;        // Materials
-      ProjectorComponent m_Projector;        // Projector
+      List<ProjectorComponent> m_Projectors; // Projectors
       bool m_RenderProjectorFrustum;
       SpriteFont m_ArialFont;                // Fonts
       CameraComponent m_Camera;              // Camera
@@ -55,11 +55,12 @@ namespace ProjectionMappingGame.Components
       Vector4 m_AmbientLight;
       MouseState m_PrevMouseState;           // Input
       KeyboardState m_PrevKeyboardState;
+      int m_SelectedProjector;
       ModelEntity m_BuildingEntity;          // Entities
-      ModelEntity m_ProjectorEntity;
       ModelEntity m_LightEntity;
       RenderTarget2D m_RenderTarget;         // Render target
       Texture2D m_RenderTargetTexture;
+      BasicEffect m_FrustumEffect;
 
       public ProjectionPreviewComponent(GameDriver game, int x, int y, int w, int h)
       {
@@ -68,6 +69,7 @@ namespace ProjectionMappingGame.Components
 
          // Initialize building
          m_BuildingEntity = new ModelEntity(
+            EntityType.Building,
             "Models/cube",
             new Material(
                new Vector4(0.0f, 0.0f, 0.0f, 1.0f),
@@ -82,6 +84,8 @@ namespace ProjectionMappingGame.Components
          m_BuildingEntity.Scale = Vector3.One * 5.0f;
          m_BuildingEntity.UpdateWorld();
 
+         m_FrustumEffect = new BasicEffect(m_Game.GraphicsDevice);
+         
          // Initialize materials
          m_GroundPlaneMaterial = new Material(
             new Vector4(0.0f, 0.0f, 0.0f, 1.0f),
@@ -99,6 +103,7 @@ namespace ProjectionMappingGame.Components
             new Vector4(0.0f, 0.0f, 0.33f, 1.0f)
          );
          m_LightEntity = new ModelEntity(
+            EntityType.Light,
             "Models/sphere",
             new Material(
                new Vector4(0.0f, 0.0f, 0.0f, 1.0f),
@@ -127,35 +132,15 @@ namespace ProjectionMappingGame.Components
          m_Camera.UpdateView();
 
          // Initialize projector
-         m_Projector = new ProjectorComponent(
-            new Vector3(0.0f, 2.0f, 10.0f),
-            new Vector3(0.0f, 2.0f, 0.0f),
-            MathHelper.ToRadians(45.0f),
-            1.0f,//(float)GameConstants.WindowWidth / (float)GameConstants.WindowHeight,
-            10.0f,
-            30.0f
-         );
-         m_Projector.UpdateView();
-         m_ProjectorEntity = new ModelEntity(
-            "Models/sphere",
-            new Material(
-               new Vector4(0.0f, 0.0f, 0.0f, 1.0f),
-               new Vector4(0.0f, 0.0f, 0.0f, 1.0f),
-               new Vector4(0.8f, 0.8f, 0.8f, 1.0f),
-               new Vector4(1.0f, 1.0f, 1.0f, 1.0f),
-               14.0f
-            ),
-            m_Projector.Position,
-            true
-         );
-         m_ProjectorEntity.Scale = 1.0f * Vector3.One;
-         m_ProjectorEntity.UpdateWorld();
-
+         m_Projectors = new List<ProjectorComponent>();
+         AddProjector();
+         
          // Set defaults
          m_RenderProjectorFrustum = true;
          m_EditorMode = true;
          m_RenderNormals = false;
          m_SelectedNormal = Vector3.Zero;
+         m_SelectedProjector = -1;
 
          // Initialize input
          m_PrevMouseState = Mouse.GetState();
@@ -192,7 +177,10 @@ namespace ProjectionMappingGame.Components
 
          // Load entities
          m_BuildingEntity.LoadContent(content);
-         m_ProjectorEntity.LoadContent(content);
+         for (int i = 0; i < m_Projectors.Count; ++i)
+         {
+            m_Projectors[i].Entity.LoadContent(content);
+         }
          m_LightEntity.LoadContent(content);
 
          // Initialize gizmo
@@ -204,8 +192,11 @@ namespace ProjectionMappingGame.Components
       {
          // Update entities
          m_BuildingEntity.Update(elapsedTime);
-         m_ProjectorEntity.Update(elapsedTime);
          m_LightEntity.Update(elapsedTime);
+         for (int i = 0; i < m_Projectors.Count; ++i)
+         {
+            m_Projectors[i].Entity.Update(elapsedTime);
+         }
 
          // Update camera
          m_Camera.UpdateView();
@@ -215,10 +206,13 @@ namespace ProjectionMappingGame.Components
 
          // Reflect possible updates in light/projector entities to their actual objects
          m_LightSource.Position = m_LightEntity.Position;
-         m_Projector.Position = m_ProjectorEntity.Position;
-         m_Projector.RotX = m_ProjectorEntity.RotX;
-         m_Projector.RotY = m_ProjectorEntity.RotY;
-         m_Projector.RotZ = m_ProjectorEntity.RotZ;
+         for (int i = 0; i < m_Projectors.Count; ++i)
+         {
+            m_Projectors[i].Position = m_Projectors[i].Entity.Position;
+            m_Projectors[i].RotX = m_Projectors[i].Entity.RotX;
+            m_Projectors[i].RotY = m_Projectors[i].Entity.RotY;
+            m_Projectors[i].RotZ = m_Projectors[i].Entity.RotZ;
+         }
       }
 
       #region Input Handling
@@ -266,7 +260,7 @@ namespace ProjectionMappingGame.Components
          // Handle camera/projector input
          if (m_EditorMode)
          {
-            if (m_Gizmo.ActiveAxis == GizmoAxis.None)
+            if (m_Gizmo.SelectedID == -1 || m_Gizmo.ActiveAxis == GizmoAxis.None)
             {
                m_Camera.HandleRotation(mouseState, m_PrevMouseState, elapsedTime);
                m_Camera.HandleZoom(mouseState, m_PrevMouseState, keyboardState, elapsedTime);
@@ -280,13 +274,16 @@ namespace ProjectionMappingGame.Components
          }
          else
          {
-            m_Projector.HandleTranslation(keyboardState, elapsedTime);
-            m_Projector.HandleRotation(mouseState, m_PrevMouseState, elapsedTime);
-            m_Projector.UpdateView();
-            m_ProjectorEntity.Position = m_Projector.Position;
-            m_ProjectorEntity.RotX = m_Projector.RotX;
-            m_ProjectorEntity.RotY = m_Projector.RotY;
-            m_ProjectorEntity.RotZ = m_Projector.RotZ;
+            if (m_SelectedProjector >= 0)
+            {
+               m_Projectors[m_SelectedProjector].HandleTranslation(keyboardState, elapsedTime);
+               m_Projectors[m_SelectedProjector].HandleRotation(mouseState, m_PrevMouseState, elapsedTime);
+               m_Projectors[m_SelectedProjector].UpdateView();
+               m_Projectors[m_SelectedProjector].Entity.Position = m_Projectors[m_SelectedProjector].Position;
+               m_Projectors[m_SelectedProjector].Entity.RotX = m_Projectors[m_SelectedProjector].RotX;
+               m_Projectors[m_SelectedProjector].Entity.RotY = m_Projectors[m_SelectedProjector].RotY;
+               m_Projectors[m_SelectedProjector].Entity.RotZ = m_Projectors[m_SelectedProjector].RotZ;
+            }
          }
 
          // Store input
@@ -364,12 +361,15 @@ namespace ProjectionMappingGame.Components
             // Render building entity
             UpdateShaderMaterialParameters(m_PhongShader, m_BuildingEntity.Material);
             m_BuildingEntity.Draw(m_PhongShader, m_Game.GraphicsDevice);
-            if (m_Projector.IsOn)
+            for (int i = 0; i < m_Projectors.Count; ++i)
             {
-               UpdateShaderParameters(m_ProjectionMappingShader);                // Shared properties
-               UpdateProjectionShaderParameters(m_ProjectionMappingShader);      // Projection mapping only properties
-               UpdateShaderMaterialParameters(m_ProjectionMappingShader, m_BuildingEntity.Material);
-               m_BuildingEntity.Draw(m_ProjectionMappingShader, m_Game.GraphicsDevice);
+               if (m_Projectors[i].IsOn)
+               {
+                  UpdateShaderParameters(m_ProjectionMappingShader);                // Shared properties
+                  UpdateProjectionShaderParameters(m_ProjectionMappingShader, m_Projectors[i]);      // Projection mapping only properties
+                  UpdateShaderMaterialParameters(m_ProjectionMappingShader, m_BuildingEntity.Material);
+                  m_BuildingEntity.Draw(m_ProjectionMappingShader, m_Game.GraphicsDevice);
+               }
             }
 
             if (!inGame)
@@ -378,13 +378,16 @@ namespace ProjectionMappingGame.Components
                UpdateShaderMaterialParameters(m_SolidColorShader, m_LightEntity.Material);
                m_LightEntity.Draw(m_SolidColorShader, m_Game.GraphicsDevice);
 
-               // Render projector source marker
-               UpdateShaderMaterialParameters(m_SolidColorShader, m_ProjectorEntity.Material);
-               m_ProjectorEntity.Draw(m_SolidColorShader, m_Game.GraphicsDevice);
+               for (int i = 0; i < m_Projectors.Count; ++i)
+               {
+                  // Render projector source marker
+                  UpdateShaderMaterialParameters(m_SolidColorShader, m_Projectors[i].Entity.Material);
+                  m_Projectors[i].Entity.Draw(m_SolidColorShader, m_Game.GraphicsDevice);
 
-               // Render projector frustum
-               if (m_Gizmo.SelectedID == m_ProjectorEntity.ID)
-                  DrawProjectorFrustum();
+                  // Render projector frustum
+                  if (m_Gizmo.SelectedID == m_Projectors[i].Entity.ID)
+                     DrawProjectorFrustum(m_FrustumEffect, m_Projectors[i]);
+               }
 
                // Draw gizmo component
                m_Gizmo.Draw3D();
@@ -405,7 +408,7 @@ namespace ProjectionMappingGame.Components
          }
          else
          {
-            effect.Parameters["viewMatrix"].SetValue(m_Projector.ViewMatrix);
+            effect.Parameters["viewMatrix"].SetValue(m_Projectors[0].ViewMatrix);
          }
          effect.Parameters["projectionMatrix"].SetValue(m_Camera.ProjectionMatrix);
 
@@ -418,19 +421,19 @@ namespace ProjectionMappingGame.Components
          // Camera
          effect.Parameters["cameraPosition"].SetValue(m_Camera.Position);
 
-         // Projector
-         effect.Parameters["projectorPosition"].SetValue(m_Projector.Position);
       }
 
-      private void UpdateProjectionShaderParameters(Effect effect)
+      private void UpdateProjectionShaderParameters(Effect effect, ProjectorComponent projector)
       {
          // Space matrices
-         effect.Parameters["projectorViewMatrix"].SetValue(m_Projector.ViewMatrix);
-         effect.Parameters["projectorProjectionMatrix"].SetValue(m_Projector.ProjectionMatrix);
+         effect.Parameters["projectorViewMatrix"].SetValue(projector.ViewMatrix);
+         effect.Parameters["projectorProjectionMatrix"].SetValue(projector.ProjectionMatrix);
 
          // Projector
-         effect.Parameters["projtex2D"].SetValue(m_Projector.Texture);
-         effect.Parameters["projecting"].SetValue(m_Projector.IsOn);
+         effect.Parameters["projtex2D"].SetValue(projector.Texture);
+         effect.Parameters["projecting"].SetValue(projector.IsOn);
+         effect.Parameters["projectorPosition"].SetValue(projector.Position);
+         m_ProjectionMappingShader.Parameters["projectorAlpha"].SetValue(projector.Alpha);
       }
 
       private void UpdateShaderMaterialParameters(Effect effect, Material material)
@@ -442,19 +445,24 @@ namespace ProjectionMappingGame.Components
          effect.Parameters["materialShine"].SetValue(material.Shine);
       }
 
-      private void DrawProjectorFrustum()
+      private void DrawProjectorFrustum(BasicEffect effect, ProjectorComponent projector)
       {
-         Vector3 projNearC = m_Projector.Direction * m_Projector.NearPlane;
-         Vector3 projFarC = m_Projector.Direction * m_Projector.FarPlane;
-         float nearHalfHeight = m_Projector.NearPlane * (float)Math.Tan(m_Projector.Fov);
-         float farHalfHeight = m_Projector.FarPlane * (float)Math.Tan(m_Projector.Fov);
-         float nearHalfWidth = nearHalfHeight * m_Projector.AspectRatio;
-         float farHalfWidth = farHalfHeight * m_Projector.AspectRatio;
+         Matrix projectorWorld = projector.Entity.WorldMatrix;
+         effect.World = projectorWorld;
+         effect.View = m_Camera.ViewMatrix;
+         effect.Projection = m_Camera.ProjectionMatrix;
 
-         Vector3 n1 = projNearC - nearHalfHeight * m_Projector.Up + nearHalfWidth * m_Projector.Right;
-         Vector3 n2 = projNearC + nearHalfHeight * m_Projector.Up + nearHalfWidth * m_Projector.Right;
-         Vector3 n3 = projNearC + nearHalfHeight * m_Projector.Up - nearHalfWidth * m_Projector.Right;
-         Vector3 n4 = projNearC - nearHalfHeight * m_Projector.Up - nearHalfWidth * m_Projector.Right;
+         Vector3 projNearC = Vector3.Forward * projector.NearPlane;
+         Vector3 projFarC = Vector3.Forward * projector.FarPlane;
+         float nearHalfHeight = projector.NearPlane * (float)Math.Tan(projector.Fov);
+         float farHalfHeight = projector.FarPlane * (float)Math.Tan(projector.Fov);
+         float nearHalfWidth = nearHalfHeight * projector.AspectRatio;
+         float farHalfWidth = farHalfHeight * projector.AspectRatio;
+
+         Vector3 n1 = projNearC + (-nearHalfHeight * Vector3.Up + nearHalfWidth * Vector3.Right);
+         Vector3 n2 = projNearC + (nearHalfHeight * Vector3.Up + nearHalfWidth * Vector3.Right);
+         Vector3 n3 = projNearC + (nearHalfHeight * Vector3.Up - nearHalfWidth * Vector3.Right);
+         Vector3 n4 = projNearC + (-nearHalfHeight * Vector3.Up - nearHalfWidth * Vector3.Right);
 
          VertexPositionColor[] pointList = new VertexPositionColor[5];
          pointList[0] = new VertexPositionColor(n1, Color.White);
@@ -482,15 +490,20 @@ namespace ProjectionMappingGame.Components
          lineListIndices[14] = (short)3; // far-bottom
          lineListIndices[15] = (short)4;
 
-         m_Game.GraphicsDevice.DrawUserIndexedPrimitives<VertexPositionColor>(
-             PrimitiveType.LineList,
-             pointList,
-             0,
-             pointList.Length,
-             lineListIndices,
-             0,
-             8
-         );
+         // For each pass in the shader effect
+         foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+         {
+            pass.Apply();
+            m_Game.GraphicsDevice.DrawUserIndexedPrimitives<VertexPositionColor>(
+                PrimitiveType.LineList,
+                pointList,
+                0,
+                pointList.Length,
+                lineListIndices,
+                0,
+                8
+            );
+         }
       }
 
       private void DrawModel(Model model, Effect effect, Matrix worldMatrix)
@@ -533,9 +546,61 @@ namespace ProjectionMappingGame.Components
 
       #region Public Access TV
 
-      public ModelEntity ProjectorEntity
+      public void AddProjector()
       {
-         get { return m_ProjectorEntity; }
+         ProjectorComponent projector = new ProjectorComponent(
+            new Vector3(0.0f, 2.0f, 10.0f),
+            new Vector3(0.0f, 2.0f, 0.0f),
+            MathHelper.ToRadians(45.0f),
+            1.0f,//(float)GameConstants.WindowWidth / (float)GameConstants.WindowHeight,
+            10.0f,
+            30.0f
+         );
+         projector.UpdateView();
+         projector.Entity = new ModelEntity(
+            EntityType.Projector,
+            "Models/sphere",
+            new Material(
+               new Vector4(0.0f, 0.0f, 0.0f, 1.0f),
+               new Vector4(0.0f, 0.0f, 0.0f, 1.0f),
+               new Vector4(0.8f, 0.8f, 0.8f, 1.0f),
+               new Vector4(1.0f, 1.0f, 1.0f, 1.0f),
+               14.0f
+            ),
+            projector.Position,
+            true
+         );
+         projector.Entity.Scale = 1.0f * Vector3.One;
+         projector.Entity.UpdateWorld();
+         projector.Entity.LoadContent(m_Game.Content);
+         m_Projectors.Add(projector);
+      }
+
+      public void SelectProjector(int id)
+      {
+         for (int i = 0; i < m_Projectors.Count; ++i)
+         {
+            if (id == m_Projectors[i].Entity.ID)
+            {
+               m_SelectedProjector = i;
+               break;
+            }
+         }
+      }
+
+      public void DeSelectProjector()
+      {
+         m_SelectedProjector = -1;
+      }
+
+      public bool IsProjectorID(int id)
+      {
+         for (int i = 0; i < m_Projectors.Count; ++i)
+         {
+            if (id == m_Projectors[i].Entity.ID)
+               return true;
+         }
+         return false;
       }
 
       public ModelEntity LightEntity
@@ -549,21 +614,24 @@ namespace ProjectionMappingGame.Components
          {
             List<EditorEntity> entities = new List<EditorEntity>();
             entities.Add(m_BuildingEntity);
-            entities.Add(m_ProjectorEntity);
+            for (int i = 0; i < m_Projectors.Count; ++i)
+            {
+               entities.Add(m_Projectors[i].Entity);
+            }
             entities.Add(m_LightEntity);
             return entities;
          }
       }
 
-      public bool ProjectorIsOn
-      {
-         get { return m_Projector.IsOn; }
-         set { m_Projector.IsOn = value; }
-      }
-
       public float ProjectorAlpha
       {
-         set { m_ProjectionMappingShader.Parameters["projectorAlpha"].SetValue(value); }
+         set 
+         {
+            if (IsProjectorSelected)
+            {
+               m_Projectors[m_SelectedProjector].Alpha = value;
+            }
+         }
       }
 
       public bool RenderFrustum
@@ -612,14 +680,20 @@ namespace ProjectionMappingGame.Components
          }
       }
 
-      public Texture2D ProjectorTexture
+      public int SelectedProjector
       {
-         set { m_Projector.Texture = value; }
+         get { return m_SelectedProjector; }
+         set { m_SelectedProjector = value; }
       }
 
-      public ProjectorComponent Projector
+      public bool IsProjectorSelected
       {
-         get { return m_Projector; }
+         get { return (m_SelectedProjector >= 0); }
+      }
+
+      public List<ProjectorComponent> Projectors
+      {
+         get { return m_Projectors; }
       }
 
       public CameraComponent Camera
