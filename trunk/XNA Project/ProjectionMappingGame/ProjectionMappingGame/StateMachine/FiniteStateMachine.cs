@@ -132,7 +132,6 @@ namespace ProjectionMappingGame.StateMachine
          m_ActiveStates.Push((int)StateType.ProjectionEditor);
 
          gameplay.Levels.Clear();
-
          for (int i = 0; i < projectionEditor.Layers.Count; ++i)
          {
             if (projectionEditor.Layers[i].Type == Editor.LayerType.Gameplay)
@@ -140,9 +139,6 @@ namespace ProjectionMappingGame.StateMachine
                gameplay.AddLevel(projectionEditor.Layers[i].Width, projectionEditor.Layers[i].Height);
             }
          }
-
-         gameplay.SetMainLevel(0);
-
          for (int i = 0; i < gameplay.Levels.Count; ++i)
          {
             gameplay.Levels[i].RendterTargetMode = true;

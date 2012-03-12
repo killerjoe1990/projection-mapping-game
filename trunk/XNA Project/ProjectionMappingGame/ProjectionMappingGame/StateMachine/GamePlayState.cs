@@ -53,9 +53,7 @@ namespace ProjectionMappingGame.StateMachine
       GUI.GamepadInput m_Gamepad;
 
       List<Game.Level> m_Levels;
-
-      int m_PortalColorIndex;
-
+      int m_LvlCount;
 
       public GamePlayState(GameDriver game)
          : base(game, StateType.GamePlay)
@@ -73,6 +71,7 @@ namespace ProjectionMappingGame.StateMachine
           m_Levels = new List<Game.Level>();
           m_Players = new Game.Player[GameConstants.MAX_PLAYERS];
 
+          m_LvlCount = 0;
       }
 
 
@@ -81,7 +80,7 @@ namespace ProjectionMappingGame.StateMachine
       {
          m_Levels.Clear();
 
-         //AddLevel(GameConstants.WindowWidth, GameConstants.WindowHeight);
+         AddLevel(GameConstants.WindowWidth, GameConstants.WindowHeight);
 
          m_Players[(int)PlayerIndex.One] = new Game.Player(m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, m_Keyboard, PlayerIndex.One);
 
@@ -91,17 +90,17 @@ namespace ProjectionMappingGame.StateMachine
 
          m_Players[(int)PlayerIndex.Four] = new Game.Player(m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, PlayerIndex.Four);
 
-         m_Players[(int)PlayerIndex.Four].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, GameConstants.PLAYER_RUN_FRAMES, GameConstants.PLAYER_FRAMERATE, true));
-         m_Players[(int)PlayerIndex.Four].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, GameConstants.PLAYER_JUMP_FRAMES, GameConstants.PLAYER_FRAMERATE, false));
+         m_Players[(int)PlayerIndex.Four].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_FRAMERATE, true));
+         m_Players[(int)PlayerIndex.Four].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_FRAMERATE, false));
 
-         m_Players[(int)PlayerIndex.Three].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, GameConstants.PLAYER_RUN_FRAMES, GameConstants.PLAYER_FRAMERATE, true));
-         m_Players[(int)PlayerIndex.Three].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, GameConstants.PLAYER_JUMP_FRAMES, GameConstants.PLAYER_FRAMERATE, false));
+         m_Players[(int)PlayerIndex.Three].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_FRAMERATE, true));
+         m_Players[(int)PlayerIndex.Three].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_FRAMERATE, false));
 
-         m_Players[(int)PlayerIndex.One].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, GameConstants.PLAYER_RUN_FRAMES, GameConstants.PLAYER_FRAMERATE, true));
-         m_Players[(int)PlayerIndex.One].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, GameConstants.PLAYER_JUMP_FRAMES, GameConstants.PLAYER_FRAMERATE, false));
+         m_Players[(int)PlayerIndex.One].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_FRAMERATE, true));
+         m_Players[(int)PlayerIndex.One].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_FRAMERATE, false));
 
-         m_Players[(int)PlayerIndex.Two].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, GameConstants.PLAYER_RUN_FRAMES, GameConstants.PLAYER_FRAMERATE, true));
-         m_Players[(int)PlayerIndex.Two].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, GameConstants.PLAYER_JUMP_FRAMES, GameConstants.PLAYER_FRAMERATE, false));
+         m_Players[(int)PlayerIndex.Two].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_FRAMERATE, true));
+         m_Players[(int)PlayerIndex.Two].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_FRAMERATE, false));
 
 
          m_Players[(int)PlayerIndex.One].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex);
@@ -109,13 +108,18 @@ namespace ProjectionMappingGame.StateMachine
          m_Players[(int)PlayerIndex.Three].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex);
          m_Players[(int)PlayerIndex.Four].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex);
 
-         m_PortalColorIndex = 0;
+         foreach (Game.Player p in m_Players)
+         {
+             p.MovePlayer(m_Levels[0]);
+             m_Levels[0].AddPlayer(p);
+         }
       }
 
       public override void Resize(int dx, int dy)
       {
 
       }
+
 
       public override void LoadContent(ContentManager content)
       {
@@ -125,8 +129,6 @@ namespace ProjectionMappingGame.StateMachine
          m_PlayerIdleTex = content.Load<Texture2D>("Sprites/Idle");
          m_PlayerRunTex = content.Load<Texture2D>("Sprites/Run");
          m_PlayerJumpTex = content.Load<Texture2D>("Sprites/Jump");
-
-         m_PortalTex = content.Load<Texture2D>("Sprites/Portal");
 
          m_PlatformTex = new Texture2D[][] 
           {
@@ -183,46 +185,12 @@ namespace ProjectionMappingGame.StateMachine
           }
       }
 
-      public void SetMainLevel(int lvl)
-      {
-          if (lvl >= 0 && lvl < m_Levels.Count)
-          {
-              foreach (Game.Player p in m_Players)
-              {
-                  p.MovePlayer(m_Levels[lvl]);
-                  m_Levels[lvl].AddPlayer(p);
-              }
-          }
-      }
-
       public int AddLevel(int w, int h)
       {
           Game.PlatformSpawner ps = new Game.PlatformSpawner(m_PlatformTex, w);
           int backIndex = GameConstants.RANDOM.Next(m_Backgrounds.Length);
-          Game.Level lvl = new Game.Level(this, m_Levels.Count, ps, m_Backgrounds[backIndex], m_Keyboard, m_Gamepad, w, h);
-
-          m_Levels.Add(lvl);
-
-          for (int i = 0; i < m_Levels.Count-1; ++i)
-          {
-              CreatePortalLink(m_Levels.Count-1, i);
-          }
-
-          
-
-          /*if (m_Levels.Count == 1)
-          {
-              foreach (Game.Player p in m_Players)
-              {
-                  if (p != null)
-                  {
-                      p.MovePlayer(m_Levels[0]);
-                      m_Levels[0].AddPlayer(p);
-                  }
-              }
-          }*/
-
-          return m_Levels.Count;
+          m_Levels.Add(new Game.Level(this, m_LvlCount, ps, m_Backgrounds[backIndex], m_Keyboard, m_Gamepad, w, h));
+          return ++m_LvlCount;
       }
 
       public Game.Player GetPlayer(PlayerIndex player)
@@ -243,16 +211,14 @@ namespace ProjectionMappingGame.StateMachine
       {
           if (lvlA != lvlB && lvlA < m_Levels.Count && lvlB < m_Levels.Count)
           {
-              m_Levels[lvlA].AddPortal(lvlB, m_PortalTex, GameConstants.GAME_COLORS[m_PortalColorIndex]);
-              m_Levels[lvlB].AddPortal(lvlA, m_PortalTex, GameConstants.GAME_COLORS[m_PortalColorIndex]);
-              m_PortalColorIndex++;
+              m_Levels[lvlA].AddPortal(lvlB, m_PortalTex, Color.Red);
+              m_Levels[lvlB].AddPortal(lvlA, m_PortalTex, Color.Red);
           }
       }
 
       public void TransferPlayer(Game.Player player, int from, int to)
       {
           player.State = Game.Player.States.PORTING;
-          player.MovePlayer(m_Levels[to]);
           m_Levels[to].AddPlayer(player, from);
       }
 
@@ -359,25 +325,6 @@ namespace ProjectionMappingGame.StateMachine
           get
           {
               return m_Levels;
-          }
-      }
-
-      public bool RenderTargetMode
-      {
-          get
-          {
-              if (m_Levels.Count > 0)
-              {
-                  return m_Levels[0].RendterTargetMode;
-              }
-              return false;
-          }
-          set
-          {
-              foreach (Game.Level l in m_Levels)
-              {
-                  l.RendterTargetMode = value;
-              }
           }
       }
 
