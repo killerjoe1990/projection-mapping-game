@@ -592,7 +592,8 @@ namespace ProjectionMappingGame.Components
             MathHelper.ToRadians(45.0f),
             1.0f,//(float)GameConstants.WindowWidth / (float)GameConstants.WindowHeight,
             10.0f,
-            30.0f
+            30.0f,
+            m_Game.Content
          );
          projector.UpdateView();
          projector.Entity = new ModelEntity(

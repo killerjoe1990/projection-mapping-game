@@ -359,7 +359,7 @@ namespace ProjectionMappingGame.Game
             }
         }
 
-        public bool RendterTargetMode
+        public bool RenderTargetMode
         {
             get
             {

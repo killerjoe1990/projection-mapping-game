@@ -59,7 +59,7 @@ namespace ProjectionMappingGame.Components
       const float KEYBOARD_TRANSLATE_SCALAR = 5.0f;
       const float MOUSE_MOVEMENT_SCALAR = 0.5f;
 
-      public ProjectorComponent(Vector3 pos, Vector3 lookAt, float fov, float ar, float near, float far)
+      public ProjectorComponent(Vector3 pos, Vector3 lookAt, float fov, float ar, float near, float far, ContentManager content)
       {
          // Store settings
          m_AspectRatio = ar;
@@ -75,7 +75,7 @@ namespace ProjectionMappingGame.Components
          m_RotX = 0.0f;
          m_RotY = 0.0f;
          m_RotZ = 0.0f;
-         m_EdgeGraph = new UVDualEdgeGraph();
+         m_EdgeGraph = new UVDualEdgeGraph(content.Load<Texture2D>("Textures/Layer0_2"));
          m_Grid = new UVGrid(100, 100);
          m_Alpha = 1.0f;
 
