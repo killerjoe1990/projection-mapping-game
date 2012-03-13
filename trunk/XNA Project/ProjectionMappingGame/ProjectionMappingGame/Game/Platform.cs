@@ -50,13 +50,21 @@ namespace ProjectionMappingGame.Game
         PlatformStatus m_Status;
         public Platform(Vector2 position, Vector2 velocity, int tilesWide, PlatformTypes type, Texture2D[] images)
         {
+            m_Status = PlatformStatus.Asleep;
             m_Tiles = new Tile[tilesWide];
 
-            for (int i = 0; i < tilesWide; ++i)
+            if (tilesWide > 0)
             {
-                int image = GameConstants.RANDOM.Next(images.Length);
-                m_Status = PlatformStatus.Asleep;
-                m_Tiles[i] = new Tile(new Vector2(position.X + (i * GameConstants.TILE_DIM), position.Y), velocity, images[image], type);
+                m_Tiles[0] = new Tile(new Vector2(position.X, position.Y), velocity, images[0], type);
+
+                for (int i = 1; i < tilesWide - 1; ++i)
+                {
+                    int image = GameConstants.RANDOM.Next(images.Length - 2) + 1;
+
+                    m_Tiles[i] = new Tile(new Vector2(position.X + (i * GameConstants.TILE_DIM), position.Y), velocity, images[image], type);
+                }
+
+                m_Tiles[tilesWide - 1] = new Tile(new Vector2(position.X + ((tilesWide - 1) * GameConstants.TILE_DIM), position.Y), velocity, images[images.Length - 1], type);
             }
         }
 
