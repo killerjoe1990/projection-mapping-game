@@ -99,8 +99,8 @@ namespace ProjectionMappingGame
        };
 
        //animation
-      public const int PLAYER_JUMP_FRAMES = 11;
-      public const int PLAYER_RUN_FRAMES = 10;
+      public const int PLAYER_JUMP_FRAMES = 4;
+      public const int PLAYER_RUN_FRAMES = 4;
       public const float PLAYER_FRAMERATE = 10;
 
       public const float PORTAL_FRAMERATE = 5;

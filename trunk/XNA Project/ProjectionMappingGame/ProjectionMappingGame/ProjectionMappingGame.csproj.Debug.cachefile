@@ -81,4 +81,7 @@ Content\Shaders\Normals.xnb
 Content\Textures\GUI\nonuniform_scale.xnb
 Content\Textures\GUI\nonuniform_scale_on_hover.xnb
 Content\Sprites\Portal.xnb
+Content\Sprites\Jump Complete.xnb
+Content\Sprites\Move Complete.xnb
+Content\Sprites\Idle Complete.xnb
 Content\Shaders\Includes.inc
