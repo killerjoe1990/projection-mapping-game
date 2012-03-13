@@ -21,20 +21,29 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
+// Local imports
+using ProjectionMappingGame.PrimitivesExt;
+
 #endregion
 
 namespace ProjectionMappingGame.Editor
 {
    class UVDualEdgeGraph
    {
-      List<UVVertex> m_GraphVertices;
-      List<UVEdge> m_GraphEdges;
+      List<UVVertex> m_Vertices;
+      List<UVEdge> m_Edges;
+      List<UVQuad> m_Quads;
+      Texture2D m_QuadTexture;
+      const int EDGE_BOUNDS_WIDTH = 1;
 
-      public UVDualEdgeGraph()
+      public UVDualEdgeGraph(Texture2D quadTexture)
       {
          // Create an empty graph
-         m_GraphEdges = new List<UVEdge>();
-         m_GraphVertices = new List<UVVertex>();
+         m_Edges = new List<UVEdge>();
+         m_Vertices = new List<UVVertex>();
+         m_Quads = new List<UVQuad>();
+
+         m_QuadTexture = quadTexture;
       }
 
       #region Graph Assembly
@@ -44,8 +53,9 @@ namespace ProjectionMappingGame.Editor
       /// </summary>
       public void Clear()
       {
-         m_GraphEdges.Clear();
-         m_GraphVertices.Clear();
+         m_Edges.Clear();
+         m_Vertices.Clear();
+         m_Quads.Clear();
       }
 
       public void AssembleGraph(List<VertexPositionColorTexture> points)
@@ -55,7 +65,7 @@ namespace ProjectionMappingGame.Editor
          for (int i = 0; i < points.Count; ++i)
          {
             UVVertex vert = new UVVertex(points[i]);
-            m_GraphVertices.Add(vert);
+            m_Vertices.Add(vert);
          }
 
          List<float> xCoords = ComputeOrderedXCoordinates();
@@ -70,7 +80,7 @@ namespace ProjectionMappingGame.Editor
                int c4 = GetCoordinateAt(xCoords[i + 1], yCoords[j]);
 
                // Create and link 4 edges in CCW fashion
-               int numEdges = m_GraphEdges.Count;
+               int numEdges = m_Edges.Count;
                UVEdge e1 = new UVEdge(c1, c2);
                UVEdge e2 = new UVEdge(c2, c3);
                UVEdge e3 = new UVEdge(c3, c4);
@@ -81,40 +91,51 @@ namespace ProjectionMappingGame.Editor
                e4.NextEdge = numEdges; e4.PrevEdge = numEdges + 2;
 
                // Store in graph
-               m_GraphEdges.Add(e1);
-               m_GraphEdges.Add(e2);
-               m_GraphEdges.Add(e3);
-               m_GraphEdges.Add(e4);
+               m_Edges.Add(e1);
+               m_Edges.Add(e2);
+               m_Edges.Add(e3);
+               m_Edges.Add(e4);
             }
          }
 
          // Link twin edges
-         for (int i = 0; i < m_GraphEdges.Count; ++i)
+         for (int i = 0; i < m_Edges.Count; ++i)
          {
-            if (m_GraphEdges[i].TwinEdge >= 0) continue;
+            if (m_Edges[i].TwinEdge >= 0) continue;
 
-            for (int j = 0; j < m_GraphEdges.Count; ++j)
+            for (int j = 0; j < m_Edges.Count; ++j)
             {
                if (i == j) continue;
-               if (m_GraphEdges[j].TwinEdge >= 0) continue;
+               if (m_Edges[j].TwinEdge >= 0) continue;
 
-               if (UVEdge.IsTwin(m_GraphEdges[i], m_GraphEdges[j]))
+               if (UVEdge.IsTwin(m_Edges[i], m_Edges[j]))
                {
-                  m_GraphEdges[i].TwinEdge = j;
-                  m_GraphEdges[j].TwinEdge = i;
+                  m_Edges[i].TwinEdge = j;
+                  m_Edges[j].TwinEdge = i;
                }
             }
+         }
+
+         // Create quads
+         for (int i = 0; i < m_Edges.Count; i += 4)
+         {
+            VertexPositionColorTexture[] vertices = new VertexPositionColorTexture[4];
+            vertices[0] = m_Vertices[m_Edges[i + 0].P1].Vertex;
+            vertices[1] = m_Vertices[m_Edges[i + 1].P1].Vertex;
+            vertices[2] = m_Vertices[m_Edges[i + 2].P1].Vertex;
+            vertices[3] = m_Vertices[m_Edges[i + 3].P1].Vertex;
+            m_Quads.Add(new UVQuad(vertices, m_Edges[i + 0].P1, m_Edges[i + 1].P1, m_Edges[i + 2].P1, m_Edges[i + 3].P1, 0, m_QuadTexture));
          }
       }
 
       private List<float> ComputeOrderedXCoordinates()
       {
          List<float> xCoords = new List<float>();
-         for (int i = 0; i < m_GraphVertices.Count; ++i)
+         for (int i = 0; i < m_Vertices.Count; ++i)
          {
-            if (!xCoords.Contains(m_GraphVertices[i].Vertex.Position.X))
+            if (!xCoords.Contains(m_Vertices[i].Vertex.Position.X))
             {
-               xCoords.Add(m_GraphVertices[i].Vertex.Position.X);
+               xCoords.Add(m_Vertices[i].Vertex.Position.X);
             }
          }
          xCoords.Sort();
@@ -124,11 +145,11 @@ namespace ProjectionMappingGame.Editor
       private List<float> ComputeOrderedYCoordinates()
       {
          List<float> yCoords = new List<float>();
-         for (int i = 0; i < m_GraphVertices.Count; ++i)
+         for (int i = 0; i < m_Vertices.Count; ++i)
          {
-            if (!yCoords.Contains(m_GraphVertices[i].Vertex.Position.Y))
+            if (!yCoords.Contains(m_Vertices[i].Vertex.Position.Y))
             {
-               yCoords.Add(m_GraphVertices[i].Vertex.Position.Y);
+               yCoords.Add(m_Vertices[i].Vertex.Position.Y);
             }
          }
          yCoords.Sort();
@@ -137,9 +158,9 @@ namespace ProjectionMappingGame.Editor
 
       private int GetCoordinateAt(float x, float y)
       {
-         for (int i = 0; i < m_GraphVertices.Count; ++i)
+         for (int i = 0; i < m_Vertices.Count; ++i)
          {
-            if (IsEqual(m_GraphVertices[i].Vertex.Position.X, x) && IsEqual(m_GraphVertices[i].Vertex.Position.Y, y))
+            if (IsEqual(m_Vertices[i].Vertex.Position.X, x) && IsEqual(m_Vertices[i].Vertex.Position.Y, y))
             {
                return i;
             }
@@ -157,14 +178,49 @@ namespace ProjectionMappingGame.Editor
 
       #region Calculated Properties
 
+      public void CalculateEdgeBounds()
+      {
+         int numEdges = m_Edges.Count;
+         if (numEdges > 0)
+         {
+            for (int i = 0; i < m_Quads.Count; ++i)
+            {
+               m_Quads[i].Vertices[0] = m_Vertices[m_Quads[i].P0].Vertex;
+               m_Quads[i].Vertices[1] = m_Vertices[m_Quads[i].P1].Vertex;
+               m_Quads[i].Vertices[2] = m_Vertices[m_Quads[i].P2].Vertex;
+               m_Quads[i].Vertices[3] = m_Vertices[m_Quads[i].P3].Vertex;
+            }
+
+            for (int i = 0; i < numEdges; ++i)
+            {
+               VertexPositionColorTexture[] vertices = new VertexPositionColorTexture[4];
+               vertices[0] = m_Vertices[m_Edges[i].P1].Vertex;
+               vertices[1] = m_Vertices[m_Edges[i].P1].Vertex;
+               vertices[2] = m_Vertices[m_Edges[i].P2].Vertex;
+               vertices[3] = m_Vertices[m_Edges[i].P2].Vertex;
+
+               Vector3 direction = m_Vertices[m_Edges[i].P2].Vertex.Position - m_Vertices[m_Edges[i].P1].Vertex.Position;
+               direction.Normalize();
+               Vector3 cross = Vector3.Cross(direction, new Vector3(0, 0, 1));
+               Vector3 normal = new Vector3(cross.X, cross.Y, 0);
+
+               vertices[0].Position += normal * EDGE_BOUNDS_WIDTH;
+               vertices[1].Position += normal * -EDGE_BOUNDS_WIDTH;
+               vertices[2].Position += normal * -EDGE_BOUNDS_WIDTH;
+               vertices[3].Position += normal * EDGE_BOUNDS_WIDTH;
+               m_Edges[i].Bounds = new OrthoQuad(vertices);
+            }
+         }
+      }
+
       public Vector2 CalculateQuadCenter(UVQuad q)
       {
          Vector2 center = Vector2.Zero;
          Vector3[] verts = {
-            m_GraphVertices[q.P0].Vertex.Position,
-            m_GraphVertices[q.P1].Vertex.Position,
-            m_GraphVertices[q.P2].Vertex.Position,
-            m_GraphVertices[q.P3].Vertex.Position
+            m_Vertices[q.P0].Vertex.Position,
+            m_Vertices[q.P1].Vertex.Position,
+            m_Vertices[q.P2].Vertex.Position,
+            m_Vertices[q.P3].Vertex.Position
          };
 
          // Find min/max x and y
@@ -193,12 +249,17 @@ namespace ProjectionMappingGame.Editor
 
       public List<UVEdge> Edges
       {
-         get { return m_GraphEdges; }
+         get { return m_Edges; }
       }
 
       public List<UVVertex> Vertices
       {
-         get { return m_GraphVertices; }
+         get { return m_Vertices; }
+      }
+
+      public List<UVQuad> Quads
+      {
+         get { return m_Quads; }
       }
 
       #endregion

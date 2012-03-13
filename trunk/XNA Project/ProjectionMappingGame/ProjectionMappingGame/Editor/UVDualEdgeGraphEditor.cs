@@ -32,8 +32,6 @@ namespace ProjectionMappingGame.Editor
 {
    class UVDualEdgeGraphEditor
    {
-      const int EDGE_BOUNDS_WIDTH = 1;
-
       Viewport m_Viewport;
       GameDriver m_Game;
 
@@ -50,8 +48,7 @@ namespace ProjectionMappingGame.Editor
 
       // Graph structure
       UVDualEdgeGraph m_DualEdgeGraph;
-      List<UVQuad> m_Quads;
-
+      
       // Textures
       Texture2D m_QuadTexture;
       Texture2D m_WallTexture;
@@ -91,7 +88,6 @@ namespace ProjectionMappingGame.Editor
 
          // Create empty graph
          m_DualEdgeGraph = null;
-         m_Quads = new List<UVQuad>();
          
          // Compute space matrices
          m_ViewMatrix = Matrix.CreateLookAt(new Vector3(0.0f, 0.0f, 1.0f), Vector3.Zero, Vector3.Up);
@@ -147,7 +143,6 @@ namespace ProjectionMappingGame.Editor
       public void Reset()
       {
          m_DualEdgeGraph.Clear();
-         m_Quads.Clear();
          m_DraggingVertex = false;
          m_SelectedVertex = -1;
          m_HoveredVertex = -1;
@@ -177,41 +172,9 @@ namespace ProjectionMappingGame.Editor
 
       public void Update(float elapsedTime)
       {
-         //m_Quads.Clear();
-
          if (m_DualEdgeGraph != null)
          {
-            int numEdges = m_DualEdgeGraph.Edges.Count;
-            if (numEdges > 0)
-            {
-               for (int i = 0; i < m_Quads.Count; ++i)
-               {
-                  m_Quads[i].Vertices[0] = m_DualEdgeGraph.Vertices[m_Quads[i].P0].Vertex;
-                  m_Quads[i].Vertices[1] = m_DualEdgeGraph.Vertices[m_Quads[i].P1].Vertex;
-                  m_Quads[i].Vertices[2] = m_DualEdgeGraph.Vertices[m_Quads[i].P2].Vertex;
-                  m_Quads[i].Vertices[3] = m_DualEdgeGraph.Vertices[m_Quads[i].P3].Vertex;
-               }
-
-               for (int i = 0; i < numEdges; ++i)
-               {
-                  VertexPositionColorTexture[] vertices = new VertexPositionColorTexture[4];
-                  vertices[0] = m_DualEdgeGraph.Vertices[m_DualEdgeGraph.Edges[i].P1].Vertex;
-                  vertices[1] = m_DualEdgeGraph.Vertices[m_DualEdgeGraph.Edges[i].P1].Vertex;
-                  vertices[2] = m_DualEdgeGraph.Vertices[m_DualEdgeGraph.Edges[i].P2].Vertex;
-                  vertices[3] = m_DualEdgeGraph.Vertices[m_DualEdgeGraph.Edges[i].P2].Vertex;
-
-                  Vector3 direction = m_DualEdgeGraph.Vertices[m_DualEdgeGraph.Edges[i].P2].Vertex.Position - m_DualEdgeGraph.Vertices[m_DualEdgeGraph.Edges[i].P1].Vertex.Position;
-                  direction.Normalize();
-                  Vector3 cross = Vector3.Cross(direction, new Vector3(0, 0, 1));
-                  Vector3 normal = new Vector3(cross.X, cross.Y, 0);
-
-                  vertices[0].Position += normal * EDGE_BOUNDS_WIDTH;
-                  vertices[1].Position += normal * -EDGE_BOUNDS_WIDTH;
-                  vertices[2].Position += normal * -EDGE_BOUNDS_WIDTH;
-                  vertices[3].Position += normal * EDGE_BOUNDS_WIDTH;
-                  m_DualEdgeGraph.Edges[i].Bounds = new OrthoQuad(vertices);
-               }
-            }
+            m_DualEdgeGraph.CalculateEdgeBounds();
          }
       }
 
@@ -294,10 +257,10 @@ namespace ProjectionMappingGame.Editor
             m_HoveredQuad = -1;
             if (!m_DraggingVertex && !m_DraggingEdge)
             {
-               int numQuads = m_Quads.Count;
+               int numQuads = m_DualEdgeGraph.Quads.Count;
                for (int i = 0; i < numQuads; ++i)
                {
-                  if (m_Quads[i].TestPointInsideConvexPolygon(mousePos))
+                  if (m_DualEdgeGraph.Quads[i].TestPointInsideConvexPolygon(mousePos))
                   {
                      m_HoveredQuad = i;
                      break;
@@ -324,10 +287,10 @@ namespace ProjectionMappingGame.Editor
             // Handle quad dragging
             if (m_DraggingQuad && m_SelectedQuad >= 0)
             {
-               m_DualEdgeGraph.Vertices[m_Quads[m_SelectedQuad].P0].Vertex.Position += new Vector3(dx, dy, 0.0f);
-               m_DualEdgeGraph.Vertices[m_Quads[m_SelectedQuad].P1].Vertex.Position += new Vector3(dx, dy, 0.0f);
-               m_DualEdgeGraph.Vertices[m_Quads[m_SelectedQuad].P2].Vertex.Position += new Vector3(dx, dy, 0.0f);
-               m_DualEdgeGraph.Vertices[m_Quads[m_SelectedQuad].P3].Vertex.Position += new Vector3(dx, dy, 0.0f);
+               m_DualEdgeGraph.Vertices[m_DualEdgeGraph.Quads[m_SelectedQuad].P0].Vertex.Position += new Vector3(dx, dy, 0.0f);
+               m_DualEdgeGraph.Vertices[m_DualEdgeGraph.Quads[m_SelectedQuad].P1].Vertex.Position += new Vector3(dx, dy, 0.0f);
+               m_DualEdgeGraph.Vertices[m_DualEdgeGraph.Quads[m_SelectedQuad].P2].Vertex.Position += new Vector3(dx, dy, 0.0f);
+               m_DualEdgeGraph.Vertices[m_DualEdgeGraph.Quads[m_SelectedQuad].P3].Vertex.Position += new Vector3(dx, dy, 0.0f);
             }
 
             // Handle vertex hovering and uv coord displays
@@ -464,27 +427,27 @@ namespace ProjectionMappingGame.Editor
 
       private void RenderQuads()
       {
-         for (int i = 0; i < m_Quads.Count; ++i)
+         for (int i = 0; i < m_DualEdgeGraph.Quads.Count; ++i)
          {
-            if (m_Quads[i].IsWall)
+            if (m_DualEdgeGraph.Quads[i].IsWall)
                m_QuadEffect.Texture = m_WallTexture;
             else
-               m_QuadEffect.Texture = m_Quads[i].Texture;
+               m_QuadEffect.Texture = m_DualEdgeGraph.Quads[i].Texture;
             m_QuadEffect.Alpha = 1.0f;
-            m_Quads[i].Draw(m_Game.GraphicsDevice, m_QuadEffect);
+            m_DualEdgeGraph.Quads[i].Draw(m_Game.GraphicsDevice, m_QuadEffect);
          }
 
          if (m_HoveredQuad > -1)
          {
             m_QuadEffect.Texture = m_WhiteTexture;
             m_QuadEffect.Alpha = 0.5f;
-            m_Quads[m_HoveredQuad].Draw(m_Game.GraphicsDevice, m_QuadEffect);
+            m_DualEdgeGraph.Quads[m_HoveredQuad].Draw(m_Game.GraphicsDevice, m_QuadEffect);
          }
          if (m_SelectedQuad > -1)
          {
             m_QuadEffect.Texture = m_WhiteTexture;
             m_QuadEffect.Alpha = 0.5f;
-            m_Quads[m_SelectedQuad].Draw(m_Game.GraphicsDevice, m_QuadEffect);
+            m_DualEdgeGraph.Quads[m_SelectedQuad].Draw(m_Game.GraphicsDevice, m_QuadEffect);
          }
       }
 
@@ -535,11 +498,11 @@ namespace ProjectionMappingGame.Editor
       {
          // Render quad layer #s
          spriteBatch.Begin();
-         for (int i = 0; i < m_Quads.Count; ++i)
+         for (int i = 0; i < m_DualEdgeGraph.Quads.Count; ++i)
          {
-            if (m_Quads[i].IsWall) continue;
-            Vector2 textPos = m_DualEdgeGraph.CalculateQuadCenter(m_Quads[i]);
-            spriteBatch.DrawString(m_Arial10, (1 + m_Quads[i].InputLayer).ToString(), textPos, Color.Black);
+            if (m_DualEdgeGraph.Quads[i].IsWall) continue;
+            Vector2 textPos = m_DualEdgeGraph.CalculateQuadCenter(m_DualEdgeGraph.Quads[i]);
+            spriteBatch.DrawString(m_Arial10, (1 + m_DualEdgeGraph.Quads[i].InputLayer).ToString(), textPos, Color.Black);
          }
          spriteBatch.End();
       }
@@ -550,29 +513,29 @@ namespace ProjectionMappingGame.Editor
 
       public void DeleteLayer(int layer)
       {
-         for (int i = 0; i < m_Quads.Count; ++i)
+         for (int i = 0; i < m_DualEdgeGraph.Quads.Count; ++i)
          {
-            if (m_Quads[i].InputLayer == layer)
+            if (m_DualEdgeGraph.Quads[i].InputLayer == layer)
             {
-               m_Quads[i].InputLayer = 0;
+               m_DualEdgeGraph.Quads[i].InputLayer = 0;
             }
-            else if (m_Quads[i].InputLayer > layer)
+            else if (m_DualEdgeGraph.Quads[i].InputLayer > layer)
             {
-               m_Quads[i].InputLayer--;
+               m_DualEdgeGraph.Quads[i].InputLayer--;
             }
          }
       }
 
       public void SetUVs(Vector2[] uvs)
       {
-         m_Quads[m_SelectedQuad].Vertices[0].TextureCoordinate = uvs[0];
-         m_Quads[m_SelectedQuad].Vertices[1].TextureCoordinate = uvs[1];
-         m_Quads[m_SelectedQuad].Vertices[2].TextureCoordinate = uvs[2];
-         m_Quads[m_SelectedQuad].Vertices[3].TextureCoordinate = uvs[3];
-         m_DualEdgeGraph.Vertices[m_Quads[m_SelectedQuad].P0].Vertex.TextureCoordinate = uvs[0];
-         m_DualEdgeGraph.Vertices[m_Quads[m_SelectedQuad].P1].Vertex.TextureCoordinate = uvs[1];
-         m_DualEdgeGraph.Vertices[m_Quads[m_SelectedQuad].P2].Vertex.TextureCoordinate = uvs[2];
-         m_DualEdgeGraph.Vertices[m_Quads[m_SelectedQuad].P3].Vertex.TextureCoordinate = uvs[3];
+         m_DualEdgeGraph.Quads[m_SelectedQuad].Vertices[0].TextureCoordinate = uvs[0];
+         m_DualEdgeGraph.Quads[m_SelectedQuad].Vertices[1].TextureCoordinate = uvs[1];
+         m_DualEdgeGraph.Quads[m_SelectedQuad].Vertices[2].TextureCoordinate = uvs[2];
+         m_DualEdgeGraph.Quads[m_SelectedQuad].Vertices[3].TextureCoordinate = uvs[3];
+         m_DualEdgeGraph.Vertices[m_DualEdgeGraph.Quads[m_SelectedQuad].P0].Vertex.TextureCoordinate = uvs[0];
+         m_DualEdgeGraph.Vertices[m_DualEdgeGraph.Quads[m_SelectedQuad].P1].Vertex.TextureCoordinate = uvs[1];
+         m_DualEdgeGraph.Vertices[m_DualEdgeGraph.Quads[m_SelectedQuad].P2].Vertex.TextureCoordinate = uvs[2];
+         m_DualEdgeGraph.Vertices[m_DualEdgeGraph.Quads[m_SelectedQuad].P3].Vertex.TextureCoordinate = uvs[3];
       }
 
       public void SetEdgeGraph(UVDualEdgeGraph graph)
@@ -580,7 +543,7 @@ namespace ProjectionMappingGame.Editor
          m_DualEdgeGraph = graph;
 
          // Build a set of quads from the edge graph data
-         m_Quads.Clear();
+         /*m_DualEdgeGraph.Quads.Clear();
          for (int i = 0; i < m_DualEdgeGraph.Edges.Count; i += 4)
          {
             VertexPositionColorTexture[] vertices = new VertexPositionColorTexture[4];
@@ -588,27 +551,29 @@ namespace ProjectionMappingGame.Editor
             vertices[1] = m_DualEdgeGraph.Vertices[m_DualEdgeGraph.Edges[i + 1].P1].Vertex;
             vertices[2] = m_DualEdgeGraph.Vertices[m_DualEdgeGraph.Edges[i + 2].P1].Vertex;
             vertices[3] = m_DualEdgeGraph.Vertices[m_DualEdgeGraph.Edges[i + 3].P1].Vertex;
-            m_Quads.Add(new UVQuad(vertices, m_DualEdgeGraph.Edges[i + 0].P1, m_DualEdgeGraph.Edges[i + 1].P1, m_DualEdgeGraph.Edges[i + 2].P1, m_DualEdgeGraph.Edges[i + 3].P1, 0, m_QuadTexture));
-         }
+            m_DualEdgeGraph.Quads.Add(new UVQuad(vertices, m_DualEdgeGraph.Edges[i + 0].P1, m_DualEdgeGraph.Edges[i + 1].P1, m_DualEdgeGraph.Edges[i + 2].P1, m_DualEdgeGraph.Edges[i + 3].P1, 0, m_QuadTexture));
+         }*/
       }
 
       public void DumpEdgeGraph()
       {
          m_DualEdgeGraph = null;
-         m_Quads.Clear();
       }
 
       public void SyncRenderTargets(Texture2D[] renderTargets)
       {
-         for (int i = 0; i < m_Quads.Count; ++i)
+         if (m_DualEdgeGraph != null)
          {
-            if (m_Quads[i].IsWall)
+            for (int i = 0; i < m_DualEdgeGraph.Quads.Count; ++i)
             {
-               m_Quads[i].Texture = m_WallTexture;
-            }
-            else
-            {
-               m_Quads[i].Texture = renderTargets[m_Quads[i].InputLayer];
+               if (m_DualEdgeGraph.Quads[i].IsWall)
+               {
+                  m_DualEdgeGraph.Quads[i].Texture = m_WallTexture;
+               }
+               else
+               {
+                  m_DualEdgeGraph.Quads[i].Texture = renderTargets[m_DualEdgeGraph.Quads[i].InputLayer];
+               }
             }
          }
       }
@@ -640,8 +605,8 @@ namespace ProjectionMappingGame.Editor
 
       public bool SelectedQuadIsWall
       {
-         get { return m_Quads[m_SelectedQuad].IsWall; }
-         set { m_Quads[m_SelectedQuad].IsWall = value; }
+         get { return m_DualEdgeGraph.Quads[m_SelectedQuad].IsWall; }
+         set { m_DualEdgeGraph.Quads[m_SelectedQuad].IsWall = value; }
       }
 
       public Vector2[] SelectedQuadTexCoords
@@ -649,18 +614,18 @@ namespace ProjectionMappingGame.Editor
          get
          {
             Vector2[] texCoords = new Vector2[4];
-            texCoords[0] = m_DualEdgeGraph.Vertices[m_Quads[m_SelectedQuad].P0].Vertex.TextureCoordinate;
-            texCoords[1] = m_DualEdgeGraph.Vertices[m_Quads[m_SelectedQuad].P1].Vertex.TextureCoordinate;
-            texCoords[2] = m_DualEdgeGraph.Vertices[m_Quads[m_SelectedQuad].P2].Vertex.TextureCoordinate;
-            texCoords[3] = m_DualEdgeGraph.Vertices[m_Quads[m_SelectedQuad].P3].Vertex.TextureCoordinate;
+            texCoords[0] = m_DualEdgeGraph.Vertices[m_DualEdgeGraph.Quads[m_SelectedQuad].P0].Vertex.TextureCoordinate;
+            texCoords[1] = m_DualEdgeGraph.Vertices[m_DualEdgeGraph.Quads[m_SelectedQuad].P1].Vertex.TextureCoordinate;
+            texCoords[2] = m_DualEdgeGraph.Vertices[m_DualEdgeGraph.Quads[m_SelectedQuad].P2].Vertex.TextureCoordinate;
+            texCoords[3] = m_DualEdgeGraph.Vertices[m_DualEdgeGraph.Quads[m_SelectedQuad].P3].Vertex.TextureCoordinate;
             return texCoords;
          }
       }
 
       public int SelectedInputLayer
       {
-         get { return m_Quads[m_SelectedQuad].InputLayer; }
-         set { m_Quads[m_SelectedQuad].InputLayer = value; }
+         get { return m_DualEdgeGraph.Quads[m_SelectedQuad].InputLayer; }
+         set { m_DualEdgeGraph.Quads[m_SelectedQuad].InputLayer = value; }
       }
 
       public Viewport Viewport

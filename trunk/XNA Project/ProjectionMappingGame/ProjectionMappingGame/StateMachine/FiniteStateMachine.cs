@@ -141,7 +141,7 @@ namespace ProjectionMappingGame.StateMachine
          }
          for (int i = 0; i < gameplay.Levels.Count; ++i)
          {
-            gameplay.Levels[i].RendterTargetMode = true;
+            gameplay.Levels[i].RenderTargetMode = true;
          }
 
          gameplay.SetMainLevel(0);

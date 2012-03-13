@@ -1371,12 +1371,20 @@ namespace ProjectionMappingGame.StateMachine
          if (m_BuildingColorPicker.IsActive)
          {
             m_BuildingColorPicker.HidePickerDialog();
+            m_BuildingDeleteButton.Location += new Vector2(0, -80);
+            m_BuildingResetButton.Location += new Vector2(0, -80);
+            m_BuildingDeleteButton.TextPos += new Vector2(0, -80);
+            m_BuildingResetButton.TextPos += new Vector2(0, -80);
             ShiftProjectionPanelContents(new Vector2(0, -80));
             ShiftLayerPanelContents(new Vector2(0, -80));
          }
          else
          {
             m_BuildingColorPicker.ShowPickerDialog();
+            m_BuildingDeleteButton.Location += new Vector2(0, 80);
+            m_BuildingResetButton.Location += new Vector2(0, 80);
+            m_BuildingDeleteButton.TextPos += new Vector2(0, 80);
+            m_BuildingResetButton.TextPos += new Vector2(0, 80);
             ShiftProjectionPanelContents(new Vector2(0, 80));
             ShiftLayerPanelContents(new Vector2(0, 80));
             
