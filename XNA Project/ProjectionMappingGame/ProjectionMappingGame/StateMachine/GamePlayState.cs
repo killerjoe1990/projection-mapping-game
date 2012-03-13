@@ -122,9 +122,9 @@ namespace ProjectionMappingGame.StateMachine
          // Load fonts
          m_ArialFont = content.Load<SpriteFont>("Fonts/Arial");
           // Load Sprites
-         m_PlayerIdleTex = content.Load<Texture2D>("Sprites/Idle");
-         m_PlayerRunTex = content.Load<Texture2D>("Sprites/Run");
-         m_PlayerJumpTex = content.Load<Texture2D>("Sprites/Jump");
+         m_PlayerIdleTex = content.Load<Texture2D>("Sprites/Idle Complete");
+         m_PlayerRunTex = content.Load<Texture2D>("Sprites/Move Complete");
+         m_PlayerJumpTex = content.Load<Texture2D>("Sprites/Jump Complete");
 
          m_PortalTex = content.Load<Texture2D>("Sprites/Portal");
 
