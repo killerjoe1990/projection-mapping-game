@@ -132,23 +132,25 @@ namespace ProjectionMappingGame.StateMachine
           {
               new Texture2D[] 
               { 
-                  content.Load<Texture2D>("Tiles/Type1/BlockA0"),
-                  content.Load<Texture2D>("Tiles/Type1/BlockA2"),
-                  content.Load<Texture2D>("Tiles/Type1/BlockA6")
+                  content.Load<Texture2D>("Tiles/Type1/left"),
+                  content.Load<Texture2D>("Tiles/Type1/Center"),
+                  content.Load<Texture2D>("Tiles/Type1/Center2"),
+                  content.Load<Texture2D>("Tiles/Type1/Center3"),
+                  content.Load<Texture2D>("Tiles/Type1/right")
               }, 
-              new Texture2D[] 
+              /*new Texture2D[] 
               { 
                   content.Load<Texture2D>("Tiles/Type2/BlockB0"),
                   content.Load<Texture2D>("Tiles/Type2/BlockB1"),
                   content.Load<Texture2D>("Tiles/Type2/Platform")
-              }
+              }*/
           };
 
          m_HUDTex = content.Load<Texture2D>("Textures/white");
 
          m_Backgrounds = new Texture2D[]
          {
-             content.Load<Texture2D>("Textures/Layer0_2")
+             content.Load<Texture2D>("Textures/Sky-512")
          };
       }
 
