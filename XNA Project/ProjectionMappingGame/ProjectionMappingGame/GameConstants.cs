@@ -43,9 +43,9 @@ namespace ProjectionMappingGame
       public const float MAX_FALL_SPEED = 2000.0f;
 
        //Platforms
-      public const int TILE_DIM = 30;
-      public const int DEFAULT_TILES_WIDE = 30;
-      public const int DEFAULT_TILES_HIGH = 30;
+      public const int TILE_DIM = 32;
+      public const int DEFAULT_TILES_WIDE = 32;
+      public const int DEFAULT_TILES_HIGH = 32;
       public const int MAX_TILES_WIDE = 100;
       public const int MAX_TILES_HIGH = 100;
       public const float PLATFORM_VELOCITY = 70;
@@ -64,8 +64,8 @@ namespace ProjectionMappingGame
 
        //Game
       public const int MAX_PLAYERS = 4;
-      public const int PLAYER_DIM_X = 35;
-      public const int PLAYER_DIM_Y = 75;
+      public const int PLAYER_DIM_X = 48;
+      public const int PLAYER_DIM_Y = 48;
       public const float JUMP_IMPULSE = -37000;
       public const float MOVE_SPEED = 7300;
       public const float BOUNCE_IMPULSE_UP = -25000;
