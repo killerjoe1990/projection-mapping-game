@@ -143,6 +143,8 @@ namespace ProjectionMappingGame.StateMachine
          {
             gameplay.Levels[i].RendterTargetMode = true;
          }
+
+         gameplay.SetMainLevel(0);
       }
 
       public void QuitGame()

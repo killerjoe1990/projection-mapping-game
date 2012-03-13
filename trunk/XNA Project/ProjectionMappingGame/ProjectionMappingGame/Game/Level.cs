@@ -13,6 +13,10 @@ namespace ProjectionMappingGame.Game
 {
     public class Level
     {
+        RenderTarget2D m_PlatformShadowTarget;
+        RenderTarget2D m_PlayerShadowTarget;
+        Vector2 m_ShadowOffset;
+        Color SHADOW_COLOR = new Color(0, 0, 0, 0.6f);
         //Parent
         StateMachine.GamePlayState m_GameState;
 
@@ -58,14 +62,26 @@ namespace ProjectionMappingGame.Game
             m_Gamepad = gamepad;
             m_Keyboard = keyboard;
 
+            m_Portals = new List<Portal>();
+
             // Initialize render target
             m_RenderTargetMode = false;
             m_RenderTarget = new RenderTarget2D(m_GameState.Graphics, m_WindowWidth, m_WindowHeight, true, m_GameState.Graphics.DisplayMode.Format, DepthFormat.Depth24);
+
+            m_PlatformShadowTarget = new RenderTarget2D(m_GameState.Graphics, m_WindowWidth, m_WindowHeight, true, m_GameState.Graphics.DisplayMode.Format, DepthFormat.Depth24);
+            m_PlayerShadowTarget = new RenderTarget2D(m_GameState.Graphics, m_WindowWidth, m_WindowHeight, true, m_GameState.Graphics.DisplayMode.Format, DepthFormat.Depth24);
+
+            // DEBUG
+            m_ShadowOffset = new Vector2(-10, -10);
 
         }
 
         public void Update(float elapsedTime)
         {
+            // DEBUG moving shadows
+            //m_ShadowOffset.X += elapsedTime;
+            //m_ShadowOffset.Y += elapsedTime;
+
             // Update any logic here
             List<Platform> newPlats = m_PlatSpawn.SpawnPlatforms(elapsedTime);
 
@@ -81,12 +97,28 @@ namespace ProjectionMappingGame.Game
                 platform.Update(elapsedTime);
             }
 
-            // Check all player/platform collisions
-            foreach (Player player in m_Players)
+            // Update portals
+            foreach (Portal portal in m_Portals)
             {
+                portal.Update(elapsedTime);
+            }
+
+            // Check all player/platform collisions and player/portal collisions
+            for (int i = m_Players.Count - 1; i >= 0; --i)
+            {
+                Game.Player player = m_Players[i];
+
                 if (player != null && player.State == Player.States.PLAYING)
                 {
                     player.CheckCollisions(m_Platforms, elapsedTime);
+
+                    int portalDest = player.CheckCollisions(m_Portals, elapsedTime);
+
+                    if (portalDest != -1)
+                    {
+                        m_Players.RemoveAt(i);
+                        m_GameState.TransferPlayer(player, m_LevelNum, portalDest);
+                    }
                 }
             }
 
@@ -112,11 +144,7 @@ namespace ProjectionMappingGame.Game
                 {
                     player.Update(elapsedTime);
 
-                    if (player.Position.Y > m_WindowHeight)
-                    {
-                        player.Kill();
-                        m_GameState.PlayerDied(player);
-                    }
+                    CheckBounds(player);
                 }
             }
         }
@@ -126,12 +154,12 @@ namespace ProjectionMappingGame.Game
             foreach (Player p in m_Players)
             {
                 m_Gamepad.HandleInput(p.PlayerNumber);
-                //m_Keyboard.HandleInput(p.PlayerNumber);
             }
         }
 
         public void Draw(SpriteBatch spriteBatch, GraphicsDevice device)
         {
+            CreateShadows(spriteBatch, device);
             if (m_RenderTargetMode)
             {
                 Color clear = new Color(0.0f, 0.0f, 0.0f, 0.0f);
@@ -153,19 +181,64 @@ namespace ProjectionMappingGame.Game
             } 
         }
 
+        private void CreateShadows(SpriteBatch spriteBatch, GraphicsDevice device)
+        {
+            device.SetRenderTarget(m_PlatformShadowTarget);
+            device.Clear(Color.Transparent);
+
+            spriteBatch.Begin();
+
+            foreach (Platform platform in m_Platforms)
+            {
+                platform.Draw(spriteBatch);
+            }
+
+            spriteBatch.End();
+
+            device.SetRenderTarget(m_PlayerShadowTarget);
+            device.Clear(Color.Transparent);
+
+            spriteBatch.Begin();
+
+            foreach (Player player in m_Players)
+            {
+                if (player != null)
+                {
+                    player.Draw(spriteBatch);
+                }
+            }
+
+            spriteBatch.End();
+
+            device.SetRenderTarget(null);
+        }
+
         private void RenderGame(SpriteBatch spriteBatch)
         {
+
             spriteBatch.Begin();
 
             // Background always goes in the back.
             spriteBatch.Draw(m_Background, new Rectangle(0, 0, m_WindowWidth, m_WindowHeight), Color.White);
 
+            // draw Shadows
+            spriteBatch.Draw(m_PlatformShadowTarget, new Rectangle((int)m_ShadowOffset.X, (int)m_ShadowOffset.Y, m_WindowWidth, m_WindowHeight), SHADOW_COLOR);
+            // draw player shadow
+            spriteBatch.Draw(m_PlayerShadowTarget, new Rectangle((int)m_ShadowOffset.X, (int)m_ShadowOffset.Y, m_WindowWidth, m_WindowHeight), SHADOW_COLOR);
 
+            // draw Portals.
+            foreach (Portal portal in m_Portals)
+            {
+                portal.Draw(spriteBatch);
+            }
             // Platforms next.
             foreach (Platform platform in m_Platforms)
             {
                 platform.Draw(spriteBatch);
             }
+
+            
+
 
             // HUD goes BEHIND every player.
             foreach (Player player in m_Players)
@@ -188,9 +261,59 @@ namespace ProjectionMappingGame.Game
             spriteBatch.End();
         }
 
+        private void CheckBounds(Player player)
+        {
+            if (player.State != Player.States.PLAYING)
+            {
+                return; 
+            }
+
+            Vector2 pos = player.Position;
+
+            if (player.Position.Y < 0)
+            {
+                pos.Y = 0;
+            }
+
+            if (player.Position.X < 0)
+            {
+                pos.X = 0;
+            }
+
+            if (player.Position.X + player.Bounds.Width > m_WindowWidth)
+            {
+                pos.X = m_WindowWidth - player.Bounds.Width;
+            }
+
+            if (player.Position.Y > m_WindowHeight)
+            {
+                player.Kill();
+                m_GameState.PlayerDied(player);
+            }
+
+            player.Position = pos;
+        }
+
         public void AddPortal(int dest, Texture2D image, Color c)
         {
-            Portal p = new Portal(Rectangle.Empty, dest, image, c);
+            float rangeX = GameConstants.MAX_PORTAL_X - GameConstants.MIN_PORTAL_X;
+            float rangeY = GameConstants.MAX_PORTAL_Y - GameConstants.MIN_PORTAL_Y;
+
+            float randX = (float)GameConstants.RANDOM.NextDouble() * rangeX + GameConstants.MIN_PORTAL_X;
+            float randY = (float)GameConstants.RANDOM.NextDouble() * rangeY + GameConstants.MIN_PORTAL_Y;
+
+            Rectangle portalRect = new Rectangle((int)(randX * m_WindowWidth),(int)(randY * m_WindowHeight),GameConstants.PORTAL_DIM, GameConstants.PORTAL_DIM);
+
+            foreach (Portal port in m_Portals)
+            {
+                if (port.Bounds.Intersects(portalRect))
+                {
+                    AddPortal(dest, image, c);
+                    return;
+                }
+            }
+
+            Portal p = new Portal(portalRect, dest, image, c);
             m_Portals.Add(p);
         }
 
@@ -202,7 +325,10 @@ namespace ProjectionMappingGame.Game
             {
                 if (portal.Destination == from)
                 {
-                    player.Position = portal.Position;
+                    Vector2 pos = player.Position;
+                    pos.X = portal.Position.X;
+                    pos.Y = portal.Position.Y;
+                    player.Position = pos;
                 }
             }
         }

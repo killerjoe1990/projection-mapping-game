@@ -143,10 +143,7 @@ namespace ProjectionMappingGame.Game
         {
             foreach (Tile t in m_Tiles)
             {
-                if (this.m_Status != PlatformStatus.Dead)
-                {
-                    t.Draw(batch);
-                }
+                t.Draw(batch);
             }
         }
     }
