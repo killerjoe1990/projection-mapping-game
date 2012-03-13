@@ -11,12 +11,13 @@ using Microsoft.Xna.Framework.Input;
 
 namespace ProjectionMappingGame.Game
 {
-    class Portal : MoveableObject
+    public class Portal : MoveableObject
     {
         public Portal(Rectangle bounds, int destination, Texture2D texture, Color c)
             : base(bounds, Vector2.Zero, texture)
         {
             Destination = destination;
+            m_CurrentAnimation = new Animation(texture, GameConstants.PORTAL_FRAMES, GameConstants.PORTAL_FRAMERATE, true);
             m_CurrentAnimation.SetColor(c);
         }
 
