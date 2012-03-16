@@ -882,6 +882,8 @@ namespace ProjectionMappingGame.StateMachine
                m_DEM_GAMES = false;
                m_ProjectorPreview.EditorMode = true;
                m_PlayButton.Text = "Play";
+               ToggleAppMenuEnabled(true);
+               ToggleSceneMenuEnabled(true);
                //int offsetX = GameConstants.WindowWidth - GameConstants.DEFAULT_WINDOW_WIDTH;
                //int offsetY = GameConstants.WindowHeight - GameConstants.DEFAULT_WINDOW_HEIGHT;
                //m_ProjectorPreview.Viewport = new Viewport(GUI_PROJECTOR_PREVIEW_X + 2, GUI_PROJECTOR_PREVIEW_Y + 20, GUI_PROJECTOR_PREVIEW_WIDTH + offsetX - 2, GUI_PROJECTOR_PREVIEW_HEIGHT + offsetY - 20);

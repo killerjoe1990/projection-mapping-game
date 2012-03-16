@@ -150,13 +150,35 @@ namespace ProjectionMappingGame.StateMachine
          AddWindowSizer("Projector 1");
       }
 
+      private Screen[] GetOrderedScreens()
+      {
+         Screen[] screens = System.Windows.Forms.Screen.AllScreens;
+         bool swapped = false;
+         do
+         {
+            swapped = false;
+            for (int i = 1; i < screens.Length; ++i)
+            {
+               if (screens[i - 1].Bounds.X > screens[i].Bounds.X)
+               {
+                  Screen temp = screens[i - 1];
+                  screens[i - 1] = screens[i];
+                  screens[i] = temp;
+                  swapped = true;
+               }
+            }
+         } while (swapped);
+         return screens;
+      }
+
       private void AddWindowSizer(string name)
       {
          int numScreens = m_WindowSizers.Count;
+         Screen[] screens = GetOrderedScreens();
 
          Microsoft.Xna.Framework.Rectangle sizerBounds = new Microsoft.Xna.Framework.Rectangle();
-         sizerBounds.Width = System.Windows.Forms.Screen.AllScreens[numScreens].Bounds.Width;
-         sizerBounds.Height = System.Windows.Forms.Screen.AllScreens[numScreens].Bounds.Height;
+         sizerBounds.Width = screens[numScreens].Bounds.Width;
+         sizerBounds.Height = screens[numScreens].Bounds.Height;
 
          int totalWidth = WINDOW_WIDTH * m_WindowSizers.Count + WINDOW_PADDING_X * m_WindowSizers.Count;
          totalWidth += (int)(sizerBounds.Width * WINDOW_SIZER_SCALE);
