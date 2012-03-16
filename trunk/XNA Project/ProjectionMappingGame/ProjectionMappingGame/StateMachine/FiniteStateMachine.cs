@@ -15,6 +15,7 @@
 // System includes
 using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
 
 // XNA includes
 using Microsoft.Xna.Framework;
@@ -120,6 +121,26 @@ namespace ProjectionMappingGame.StateMachine
       #endregion
 
       #region State Changing
+
+      public void StartEditor()
+      {
+         ProjectionEditorState projectionEditor = (ProjectionEditorState)m_States[(int)StateType.ProjectionEditor];
+         MainMenuState mainMenu = (MainMenuState)m_States[(int)StateType.MainMenu];
+         
+         int numProjectors = mainMenu.Windows.Count - 1;
+         for (int i = 0; i < numProjectors; ++i)
+         {
+            Rectangle bounds = new Rectangle(System.Windows.Forms.Screen.AllScreens[i + 1].Bounds.X, System.Windows.Forms.Screen.AllScreens[i + 1].Bounds.Y, System.Windows.Forms.Screen.AllScreens[i + 1].Bounds.Width, System.Windows.Forms.Screen.AllScreens[i + 1].Bounds.Height);
+
+            projectionEditor.AddProjector(bounds);
+         }
+      }
+
+      public void QuitEditor()
+      {
+         ProjectionEditorState projectionEditor = (ProjectionEditorState)m_States[(int)StateType.ProjectionEditor];
+         MainMenuState mainMenu = (MainMenuState)m_States[(int)StateType.MainMenu];
+      }
 
       public void StartGame()
       {
@@ -252,13 +273,14 @@ namespace ProjectionMappingGame.StateMachine
          int dx = width - GameConstants.WindowWidth;
          int dy = height - GameConstants.WindowHeight;
 
+         GameConstants.WindowWidth = width;
+         GameConstants.WindowHeight = height;
+
          for (int i = 0; i < m_States.Length; ++i)
          {
             m_States[i].Resize(dx, dy);
          }
 
-         GameConstants.WindowWidth = width;
-         GameConstants.WindowHeight = height;
       }
 
       #endregion

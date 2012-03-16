@@ -1,4 +1,5 @@
 using System;
+using System.Windows.Forms;
 
 namespace ProjectionMappingGame
 {
@@ -12,6 +13,8 @@ namespace ProjectionMappingGame
         {
             using (GameDriver game = new GameDriver())
             {
+               Form form = (Form)Form.FromHandle(game.Window.Handle);
+               form.FormBorderStyle = FormBorderStyle.None;
                 game.Run();
             }
         }

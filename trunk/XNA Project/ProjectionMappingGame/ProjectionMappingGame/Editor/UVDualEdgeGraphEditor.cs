@@ -142,7 +142,8 @@ namespace ProjectionMappingGame.Editor
 
       public void Reset()
       {
-         m_DualEdgeGraph.Clear();
+         if (m_DualEdgeGraph != null)
+            m_DualEdgeGraph.Clear();
          m_DraggingVertex = false;
          m_SelectedVertex = -1;
          m_HoveredVertex = -1;

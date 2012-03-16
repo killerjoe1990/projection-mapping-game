@@ -93,6 +93,8 @@
     <Reference Include="System">
       <Private>False</Private>
     </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml">
       <Private>False</Private>
     </Reference>
@@ -108,6 +110,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Components\ColorPickerComponent.cs" />
+    <Compile Include="Components\GridComponent.cs" />
     <Compile Include="Editor\Layer.cs" />
     <Compile Include="Editor\ModelEntity.cs" />
     <Compile Include="Components\CameraComponent.cs" />
@@ -142,6 +145,7 @@
     <Compile Include="GUI\Slider.cs" />
     <Compile Include="GUI\UIElement.cs" />
     <Compile Include="GUI\ViewPane.cs" />
+    <Compile Include="GUI\WindowSizerControl.cs" />
     <Compile Include="Material.cs" />
     <Compile Include="Editor\OrientedBoundingBox.cs" />
     <Compile Include="PrimitivesExt\OrthoQuad.cs" />

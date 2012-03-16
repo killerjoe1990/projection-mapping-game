@@ -212,10 +212,10 @@ namespace ProjectionMappingGame.Components
       private const float translationClampDistance = 1000;
 
 
-      public bool SnapEnabled = false;
+      public bool SnapEnabled = true;
 
-      public float TranslationSnapValue = 5;
-      public float RotationSnapValue = 30;
+      public float TranslationSnapValue = 1;
+      public float RotationSnapValue = 1;
       public float ScaleSnapValue = 0.5f;
 
       private Vector3 translationScaleSnapDelta;
