@@ -27,7 +27,7 @@
 		float4x4 worldViewProjMatrix = mul(mul(worldMatrix, viewMatrix), projectionMatrix);
 
 		// Calculate and store output for pixel shader vertex, normal and position
-		output.N = input.normal;
+		output.N = mul(input.normal, worldMatrix); 
 		output.position = mul(input.position, worldViewProjMatrix);
 
 		return output;

@@ -39,6 +39,7 @@ namespace ProjectionMappingGame.Components
       Vector3 m_Direction;
       Matrix m_ViewMatrix;
       float m_RotX, m_RotY, m_RotZ;
+      Viewport m_Viewport;
 
       // Graph and Grid
       UVGrid m_Grid;
@@ -59,7 +60,7 @@ namespace ProjectionMappingGame.Components
       const float KEYBOARD_TRANSLATE_SCALAR = 5.0f;
       const float MOUSE_MOVEMENT_SCALAR = 0.5f;
 
-      public ProjectorComponent(Vector3 pos, Vector3 lookAt, float fov, float ar, float near, float far, ContentManager content)
+      public ProjectorComponent(Rectangle displayBounds, Vector3 pos, Vector3 lookAt, float fov, float ar, float near, float far, ContentManager content)
       {
          // Store settings
          m_AspectRatio = ar;
@@ -78,6 +79,8 @@ namespace ProjectionMappingGame.Components
          m_EdgeGraph = new UVDualEdgeGraph(content.Load<Texture2D>("Textures/Layer0_2"));
          m_Grid = new UVGrid(100, 100);
          m_Alpha = 1.0f;
+
+         m_Viewport = new Viewport(displayBounds);
 
          // Create initial projection/view matrix
          UpdateProjection();
@@ -237,6 +240,12 @@ namespace ProjectionMappingGame.Components
       #endregion
 
       #region Public Access TV
+
+      public Viewport Viewport
+      {
+         get { return m_Viewport; }
+         set { m_Viewport = value; }
+      }
 
       public float Alpha
       {

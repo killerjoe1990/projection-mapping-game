@@ -110,7 +110,7 @@ namespace ProjectionMappingGame.Editor
          m_HoveredVertex = -1;
 
          // Reset the grid
-         m_Grid.Reset(m_Viewport.Width, m_Viewport.Height);
+         if (m_Grid != null) m_Grid.Reset(m_Viewport.Width, m_Viewport.Height);
          
          m_ViewMatrix = Matrix.CreateLookAt(new Vector3(0.0f, 0.0f, 1.0f), Vector3.Zero, Vector3.Up);
          m_ProjectionMatrix = Matrix.CreateOrthographicOffCenter(0, m_Viewport.Width, m_Viewport.Height, 0, 1.0f, 1000.0f);

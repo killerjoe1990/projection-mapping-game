@@ -36,13 +36,25 @@ namespace ProjectionMappingGame
       public const int DEFAULT_WINDOW_HEIGHT = 720;
 
       // FSM
-      public const StateType DEFAULT_STATE = StateType.ProjectionEditor;
+      public const StateType DEFAULT_STATE = StateType.MainMenu;
 
        // Physics
       public const float GRAVITY = 1300.0f;
       public const float MAX_FALL_SPEED = 2000.0f;
 
-       //Platforms
+      // Editor constants
+      public const float DEFAULT_CUBE_SCALE = 30.0f;
+      public const float PLANE_SCALE = 200.0f;
+      public const float PROJECTOR_SCALE = 3.0f;
+      public const float LIGHT_SCALE = 3.0f;
+      public static Vector3 DEFAULT_BUILDING_POSITION = new Vector3(0.0f, DEFAULT_CUBE_SCALE / 2.0f, 0.0f);
+      public static Vector3 DEFAULT_CAMERA_POSITION = new Vector3(0.0f, 0.0f, -100.0f);
+      public static Vector3 DEFAULT_PROJECTOR_POSITION1 = new Vector3(0.0f, DEFAULT_CUBE_SCALE / 2.0f, (DEFAULT_CUBE_SCALE * 2));
+      public static Vector3 DEFAULT_PROJECTOR_POSITION2 = new Vector3((DEFAULT_CUBE_SCALE * 2), DEFAULT_CUBE_SCALE / 2.0f, 0.0f);
+      public static Vector3 DEFAULT_PROJECTOR_POSITION3 = new Vector3(0.0f, DEFAULT_CUBE_SCALE / 2.0f, -(DEFAULT_CUBE_SCALE * 2));
+      public static Vector3 DEFAULT_PROJECTOR_POSITION4 = new Vector3(-(DEFAULT_CUBE_SCALE * 2), DEFAULT_CUBE_SCALE / 2.0f, 0.0f);
+
+       // Platforms
       public const int TILE_DIM = 32;
       public const int DEFAULT_TILES_WIDE = 32;
       public const int DEFAULT_TILES_HIGH = 32;

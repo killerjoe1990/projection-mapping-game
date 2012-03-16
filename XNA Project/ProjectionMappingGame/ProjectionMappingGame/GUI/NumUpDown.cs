@@ -60,12 +60,22 @@ namespace ProjectionMappingGame.GUI
 
             AddChild(m_Up);
             AddChild(m_Down);
+            mouse.RegisterMouseEvent(MouseEventType.LeftClick, OnLeftClick);
 
 
             m_Keyboard = new KeyboardInput();
             m_Keyboard.RegisterKeyPress(OnKeyPressed);
 
             m_EnteredNumber = "";
+        }
+
+        protected override void OnLeftClick(object sender, MouseEventArgs args)
+        {
+           if (m_IsActive)
+           {
+                 base.SetContext(IsOver(args.X, args.Y));
+           }
+
         }
 
         public void RegisterOnValueChanged(EventHandler handler)
@@ -166,6 +176,7 @@ namespace ProjectionMappingGame.GUI
             if (m_EnteredNumber != "")
             {
                 float.TryParse(m_EnteredNumber, out m_Current);
+                m_Current = MathHelper.Min(m_Current, m_Max);
             }
             m_Keyboard.HandleInput(PlayerIndex.One);
         }
@@ -175,8 +186,15 @@ namespace ProjectionMappingGame.GUI
            if (m_IsVisible)
            {
               Rectangle num = new Rectangle(m_Bounds.X, m_Bounds.Y, m_Bounds.Width, m_Bounds.Height);
-              sprite.Draw(m_BackgroundImg, num, Color.White);
 
+              if (m_Context)
+              {
+                 sprite.Draw(m_BackgroundImg, num, Color.LightGray);
+              }
+              else
+              {
+                 sprite.Draw(m_BackgroundImg, num, Color.White);
+              }
               m_Up.Draw(graphics, sprite);
               m_Down.Draw(graphics, sprite);
 
@@ -196,5 +214,6 @@ namespace ProjectionMappingGame.GUI
               }
            }
         }
+
     }
 }

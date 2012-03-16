@@ -51,7 +51,10 @@ namespace ProjectionMappingGame
       // Rendering members
       GraphicsDeviceManager m_GraphicsManager;  // Handle to active XNA graphics device controller
       SpriteBatch m_SpriteBatch;                // Sprite renderer for 2D
-
+      public GraphicsDeviceManager GraphicsManager
+      {
+         get { return m_GraphicsManager; }
+      }
       #region Initialization
 
       /// <summary>
@@ -66,7 +69,7 @@ namespace ProjectionMappingGame
          m_GraphicsManager.PreferredBackBufferHeight = GameConstants.DEFAULT_WINDOW_HEIGHT;
          m_GraphicsManager.PreferMultiSampling = true;
          m_GraphicsManager.ApplyChanges();
-         Window.AllowUserResizing = true;
+         //Window.AllowUserResizing = true;
          Window.ClientSizeChanged += new EventHandler<EventArgs>(Window_ClientSizeChanged);
 
          // Set content manager's root directory for asset loading.
