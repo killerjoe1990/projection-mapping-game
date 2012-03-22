@@ -1899,6 +1899,11 @@ namespace ProjectionMappingGame.StateMachine
          }
       }
 
+      public PointLightComponent Light
+      {
+          get { return m_ProjectorPreview.Light; }
+      }
+
       public List<Layer> Layers
       {
          get

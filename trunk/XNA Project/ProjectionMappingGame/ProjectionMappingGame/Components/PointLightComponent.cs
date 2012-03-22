@@ -26,7 +26,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace ProjectionMappingGame.Components
 {
-   class PointLightComponent
+   public class PointLightComponent
    {
       // Input constants; change to alter speed of movement
       const float ZOOM_SCALAR = 100.0f;

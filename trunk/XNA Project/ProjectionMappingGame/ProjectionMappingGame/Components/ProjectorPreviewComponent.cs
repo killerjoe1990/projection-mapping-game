@@ -742,6 +742,11 @@ namespace ProjectionMappingGame.Components
 
       #region Public Access TV
 
+      public PointLightComponent Light
+      {
+          get { return m_LightSource; }
+      }
+
       public bool RenderFrustum
       {
          get { return m_RenderProjectorFrustum; }

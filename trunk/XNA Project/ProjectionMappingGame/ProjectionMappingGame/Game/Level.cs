@@ -47,8 +47,9 @@ namespace ProjectionMappingGame.Game
         Game.PlatformSpawner m_PlatSpawn;
 
 
-        public Level(StateMachine.GamePlayState state, int lvlNum, Game.PlatformSpawner spawner, Texture2D background, GUI.KeyboardInput keyboard, GUI.GamepadInput gamepad, int width, int height)
+        public Level(StateMachine.GamePlayState state, int lvlNum, Game.PlatformSpawner spawner, Texture2D background, GUI.KeyboardInput keyboard, GUI.GamepadInput gamepad, int width, int height, Vector3 normal)
         {
+            SetNormal(normal);
             m_WindowHeight = height;
             m_WindowWidth = width;
 
@@ -381,13 +382,15 @@ namespace ProjectionMappingGame.Game
         {
             Vector3 tan, norm;
             VectorComponents(light, m_Normal, out tan, out norm);
+            light = light * -1.0f;
 
-            float offsetIntensity = MathHelper.Clamp(Vector3.Dot(light, m_Normal), 0, 1) * GameConstants.MAX_SHADOW;
+            float dp = Vector3.Dot(light, m_Normal);
+            float offsetIntensity = MathHelper.Clamp(dp, 0, 1) * GameConstants.MAX_SHADOW;
 
             tan.Normalize();
 
             tan = Vector3.Transform(tan, m_NormalRotation);
-            Vector2 dir = new Vector2(tan.X, tan.Y);
+            Vector2 dir = new Vector2(tan.X, -tan.Y);
             m_ShadowOffset = dir * offsetIntensity;
         }
 
