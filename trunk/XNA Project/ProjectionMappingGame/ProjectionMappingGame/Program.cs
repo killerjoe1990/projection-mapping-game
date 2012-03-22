@@ -15,7 +15,7 @@ namespace ProjectionMappingGame
             {
                Form form = (Form)Form.FromHandle(game.Window.Handle);
                form.FormBorderStyle = FormBorderStyle.None;
-                game.Run();
+               game.Run();
             }
         }
     }

@@ -748,11 +748,11 @@ namespace ProjectionMappingGame.StateMachine
                {
                   if (m_UVDualEdgeGraphEditor.RenderTargetTexture != null)
                   {
-                     Texture2D texture = new Texture2D(m_Game.GraphicsDevice, m_UVDualEdgeGraphEditor.RenderTargetTexture.Width, m_UVDualEdgeGraphEditor.RenderTargetTexture.Height);
-                     Color[] data = new Color[texture.Width * texture.Height];
-                     m_UVDualEdgeGraphEditor.RenderTargetTexture.GetData<Color>(data);
-                     texture.SetData<Color>(data);
-                     m_ProjectorPreview.Projectors[m_ProjectorPreview.SelectedProjector].Texture = texture;
+                     //Texture2D texture = new Texture2D(m_Game.GraphicsDevice, m_UVDualEdgeGraphEditor.RenderTargetTexture.Width, m_UVDualEdgeGraphEditor.RenderTargetTexture.Height);
+                     //Color[] data = new Color[texture.Width * texture.Height];
+                     //m_UVDualEdgeGraphEditor.RenderTargetTexture.GetData<Color>(data);
+                     //texture.SetData<Color>(data);
+                     m_ProjectorPreview.Projectors[m_ProjectorPreview.SelectedProjector].Texture = m_UVDualEdgeGraphEditor.RenderTargetTexture;
                   }
                }
 
@@ -1092,6 +1092,8 @@ namespace ProjectionMappingGame.StateMachine
 
             m_UVGridEditor.SetGrid(m_ProjectorPreview.Projectors[m_ProjectorPreview.SelectedProjector].Grid);
             m_UVDualEdgeGraphEditor.SetEdgeGraph(m_ProjectorPreview.Projectors[m_ProjectorPreview.SelectedProjector].EdgeGraph);
+            m_UVGridEditor.SetRenderTargetViewport(m_ProjectorPreview.Projectors[m_ProjectorPreview.SelectedProjector].Viewport);
+            m_UVDualEdgeGraphEditor.SetRenderTargetViewport(m_ProjectorPreview.Projectors[m_ProjectorPreview.SelectedProjector].Viewport);
 
             if (m_ProjectorPreview.Projectors[m_ProjectorPreview.SelectedProjector].IsOn)
             {
@@ -1340,22 +1342,7 @@ namespace ProjectionMappingGame.StateMachine
       {
          AddLayer(LayerType.Gameplay);
       }
-      /*
-      private void NewParticleLayerButton_OnClick(object sender, EventArgs e)
-      {
-         AddLayer(LayerType.Particle);
-      }
 
-      private void ShiftLayerUpButton_OnClick(object sender, EventArgs e)
-      {
-
-      }
-
-      private void ShiftLayerDownButton_OnClick(object sender, EventArgs e)
-      {
-
-      }
-      */
       private void TrashLayerButton_OnClick(object sender, EventArgs e)
       {
          if (m_LayersScrollView.SelectedLayer > 0)
@@ -1533,13 +1520,6 @@ namespace ProjectionMappingGame.StateMachine
          {
             // Play da gamez
             m_DEM_GAMES = true;
-            //m_ProjectorPreview.EditorMode = false;
-            //m_ProjectorPreview.Viewport = new Viewport(0, 0, GameConstants.WindowWidth, GameConstants.WindowHeight);
-            //m_ProjectorPreview.Camera.AspectRatio = (float)m_ProjectorPreview.Viewport.Width / (float)m_ProjectorPreview.Viewport.Height;
-            //m_ProjectorPreview.Camera.UpdateProjection();
-            //m_ProjectorPreview.Projector.AspectRatio = (float)m_ProjectorPreview.Viewport.Width / (float)m_ProjectorPreview.Viewport.Height;
-            //m_ProjectorPreview.Projector.UpdateProjection();
-
             m_PlayButton.Text = "Pause";
 
             FiniteStateMachine.GetInstance().StartGame();
@@ -1561,14 +1541,7 @@ namespace ProjectionMappingGame.StateMachine
             m_PlayButton.Text = "Play";
             ToggleAppMenuEnabled(true);
             ToggleSceneMenuEnabled(true);
-            //ToggleSelectedFaceMenuEnabled(true);
-            //int offsetX = GameConstants.WindowWidth - GameConstants.DEFAULT_WINDOW_WIDTH;
-            //int offsetY = GameConstants.WindowHeight - GameConstants.DEFAULT_WINDOW_HEIGHT;
-            //m_ProjectorPreview.Viewport = new Viewport(GUI_PROJECTOR_PREVIEW_X + 2, GUI_PROJECTOR_PREVIEW_Y + 20, GUI_PROJECTOR_PREVIEW_WIDTH + offsetX - 2, GUI_PROJECTOR_PREVIEW_HEIGHT + offsetY - 20);
-            //m_ProjectorPreview.Camera.AspectRatio = (float)m_ProjectorPreview.Viewport.Width / (float)m_ProjectorPreview.Viewport.Height;
-            //m_ProjectorPreview.Camera.UpdateProjection();
-            //m_ProjectorPreview.Projector.AspectRatio = (float)m_ProjectorPreview.Viewport.Width / (float)m_ProjectorPreview.Viewport.Height;
-            //m_ProjectorPreview.Projector.UpdateProjection();
+
             FiniteStateMachine.GetInstance().QuitGame();
          }
       }
@@ -1606,111 +1579,97 @@ namespace ProjectionMappingGame.StateMachine
       {
          Viewport defaultViewport = m_Game.GraphicsDevice.Viewport;
 
-//         if (m_DEM_GAMES)
-  //       {
-            // Render the UV editor contents to a render target
-            //m_Game.GraphicsDevice.Viewport = m_UVDualEdgeGraphEditor.Viewport;
-            //m_UVDualEdgeGraphEditor.DrawRenderTarget(spriteBatch, false);
-
-//            m_Game.GraphicsDevice.Viewport = m_ProjectorPreview.Viewport;
-  //          m_ProjectorPreview.Draw(spriteBatch, m_DEM_GAMES);
-    //     }
-      //   else
-        // {
-            // Render each projectors render target through the uv editor
-            m_Game.GraphicsDevice.Viewport = m_UVDualEdgeGraphEditor.Viewport;
-            UVDualEdgeGraph graph = m_UVDualEdgeGraphEditor.EdgeGraph;
-            for (int i = 0; i < m_ProjectorPreview.Projectors.Count; ++i)
-            {
-               m_UVDualEdgeGraphEditor.DumpEdgeGraph();
-               m_UVDualEdgeGraphEditor.SetEdgeGraph(m_ProjectorPreview.Projectors[i].EdgeGraph);
-               m_UVDualEdgeGraphEditor.DrawRenderTarget(spriteBatch, false);
-               m_ProjectorPreview.Projectors[i].Texture = m_UVDualEdgeGraphEditor.RenderTargetTexture;
-            }
+         UVDualEdgeGraph graph = m_UVDualEdgeGraphEditor.EdgeGraph;
+         for (int i = 0; i < m_ProjectorPreview.Projectors.Count; ++i)
+         {
             m_UVDualEdgeGraphEditor.DumpEdgeGraph();
-            m_UVDualEdgeGraphEditor.SetEdgeGraph(graph);
+            m_UVDualEdgeGraphEditor.SetEdgeGraph(m_ProjectorPreview.Projectors[i].EdgeGraph);
+            m_UVDualEdgeGraphEditor.SetRenderTargetViewport(m_ProjectorPreview.Projectors[i].Viewport);
+            m_Game.GraphicsDevice.Viewport = m_ProjectorPreview.Projectors[i].Viewport;
 
-            if (m_ProjectorPreview.RenderNormals)
-            {
-               m_Game.GraphicsDevice.Viewport = m_ProjectorPreview.Viewport;
-               m_ProjectorPreview.DrawRenderTarget(spriteBatch);
-            }
+            m_UVDualEdgeGraphEditor.DrawRenderTarget(spriteBatch, false);
+            m_ProjectorPreview.Projectors[i].Texture = m_UVDualEdgeGraphEditor.RenderTargetTexture;
+         }
+         m_UVDualEdgeGraphEditor.DumpEdgeGraph();
+         m_UVDualEdgeGraphEditor.SetEdgeGraph(graph);
 
-            // Render panels
-            m_Game.GraphicsDevice.Viewport = defaultViewport;
-            spriteBatch.Begin();
-            spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, 0, GameConstants.WindowWidth, GameConstants.WindowHeight), Color.Gray);
-            spriteBatch.End();
-            m_GridEditorPanel.Draw(m_Game.GraphicsDevice, spriteBatch);
-            m_UVEditorPanel.Draw(m_Game.GraphicsDevice, spriteBatch);
-            m_ProjectionEditorPanel.Draw(m_Game.GraphicsDevice, spriteBatch);
-
-            // Left menu
-            spriteBatch.Begin();
-            spriteBatch.Draw(m_WhiteTexture, new Rectangle(GUI_LEFT_TOOLBAR_X, 0, GUI_LEFT_TOOLBAR_WIDTH, m_RightMenuViewport.Height), Color.Gray);
-            spriteBatch.Draw(m_WhiteTexture, new Rectangle(GUI_LEFT_TOOLBAR_X, 0, 2, m_RightMenuViewport.Height), Color.Black);
-            spriteBatch.Draw(m_WhiteTexture, new Rectangle(GUI_LEFT_TOOLBAR_X, 0, GUI_LEFT_TOOLBAR_WIDTH, 2), Color.Black);
-            spriteBatch.Draw(m_WhiteTexture, new Rectangle(GUI_LEFT_TOOLBAR_X + GUI_LEFT_TOOLBAR_WIDTH, 0, 2, m_RightMenuViewport.Height), Color.Black);
-            RenderApplicationMenu(spriteBatch);
-            spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, GUI_SCENE_Y - 2, GUI_LEFT_TOOLBAR_WIDTH, 2), Color.Black);
-            RenderSceneMenu(spriteBatch);
-            spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, GUI_SELECTED_QUAD_Y - 2, GUI_LEFT_TOOLBAR_WIDTH, 2), Color.Black);
-            RenderSelectedQuadMenu(spriteBatch);
-            spriteBatch.End();
-
-            // Render the UV editor
-            m_Game.GraphicsDevice.Viewport = m_UVDualEdgeGraphEditor.Viewport;
-            m_UVDualEdgeGraphEditor.Draw(spriteBatch);
-
-            // Render the UV grid editor
-            m_Game.GraphicsDevice.Viewport = m_UVGridEditor.Viewport;
-            m_UVGridEditor.Draw(spriteBatch);
-
-            // Right menu
-            m_Game.GraphicsDevice.Viewport = m_RightMenuViewport;
-            spriteBatch.Begin();
-            spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, 0, GUI_TOOLBAR_WIDTH, m_RightMenuViewport.Height), Color.Gray);
-            spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, 0, 2, m_RightMenuViewport.Height), Color.Black);
-            RenderGizmoMenu(spriteBatch);
-            spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, GUI_GIZMO_Y - 2, GUI_TOOLBAR_WIDTH, 2), Color.Black);
-            RenderBuildingMenu(spriteBatch);
-            spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, GUI_BUILDING_Y - 2, GUI_TOOLBAR_WIDTH, 2), Color.Black);
-            RenderProjectorMenu(spriteBatch);
-            spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, GUI_PROJECTOR_Y - 2, GUI_TOOLBAR_WIDTH, 2), Color.Black);
-            RenderLayersMenu(spriteBatch);
-            spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, GUI_LAYERS_Y - 2, GUI_TOOLBAR_WIDTH, 2), Color.Black);
-            spriteBatch.End();
-
-            // Render color picker if it is active
-            //if (m_BuildingColorPicker.IsActive)
-            //{
-            //   m_Game.GraphicsDevice.Viewport = m_BuildingColorPicker.Viewport;
-            //   m_BuildingColorPicker.Draw(m_Game.GraphicsDevice, spriteBatch);
-            //}
-
-            // Render the projector preview
+         if (m_ProjectorPreview.RenderNormals)
+         {
             m_Game.GraphicsDevice.Viewport = m_ProjectorPreview.Viewport;
-            m_ProjectorPreview.Draw(spriteBatch, m_DEM_GAMES);
+            m_ProjectorPreview.DrawRenderTarget(spriteBatch);
+         }
 
-            // Render each projector window
-            for (int i = 0; i < m_ProjectorPreview.Projectors.Count; ++i)
-            {
-               m_Game.GraphicsDevice.Viewport = m_ProjectorPreview.Projectors[i].Viewport;
+         // Render panels
+         m_Game.GraphicsDevice.Viewport = defaultViewport;
+         spriteBatch.Begin();
+         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, 0, GameConstants.WindowWidth, GameConstants.WindowHeight), Color.Gray);
+         spriteBatch.End();
+         m_GridEditorPanel.Draw(m_Game.GraphicsDevice, spriteBatch);
+         m_UVEditorPanel.Draw(m_Game.GraphicsDevice, spriteBatch);
+         m_ProjectionEditorPanel.Draw(m_Game.GraphicsDevice, spriteBatch);
+
+         // Left menu
+         spriteBatch.Begin();
+         spriteBatch.Draw(m_WhiteTexture, new Rectangle(GUI_LEFT_TOOLBAR_X, 0, GUI_LEFT_TOOLBAR_WIDTH, m_RightMenuViewport.Height), Color.Gray);
+         spriteBatch.Draw(m_WhiteTexture, new Rectangle(GUI_LEFT_TOOLBAR_X, 0, 2, m_RightMenuViewport.Height), Color.Black);
+         spriteBatch.Draw(m_WhiteTexture, new Rectangle(GUI_LEFT_TOOLBAR_X, 0, GUI_LEFT_TOOLBAR_WIDTH, 2), Color.Black);
+         spriteBatch.Draw(m_WhiteTexture, new Rectangle(GUI_LEFT_TOOLBAR_X + GUI_LEFT_TOOLBAR_WIDTH, 0, 2, m_RightMenuViewport.Height), Color.Black);
+         RenderApplicationMenu(spriteBatch);
+         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, GUI_SCENE_Y - 2, GUI_LEFT_TOOLBAR_WIDTH, 2), Color.Black);
+         RenderSceneMenu(spriteBatch);
+         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, GUI_SELECTED_QUAD_Y - 2, GUI_LEFT_TOOLBAR_WIDTH, 2), Color.Black);
+         RenderSelectedQuadMenu(spriteBatch);
+         spriteBatch.End();
+
+         // Render the UV editor
+         m_Game.GraphicsDevice.Viewport = m_UVDualEdgeGraphEditor.Viewport;
+         m_UVDualEdgeGraphEditor.Draw(spriteBatch);
+
+         // Render the UV grid editor
+         m_Game.GraphicsDevice.Viewport = m_UVGridEditor.Viewport;
+         m_UVGridEditor.Draw(spriteBatch);
+
+         // Right menu
+         m_Game.GraphicsDevice.Viewport = m_RightMenuViewport;
+         spriteBatch.Begin();
+         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, 0, GUI_TOOLBAR_WIDTH, m_RightMenuViewport.Height), Color.Gray);
+         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, 0, 2, m_RightMenuViewport.Height), Color.Black);
+         RenderGizmoMenu(spriteBatch);
+         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, GUI_GIZMO_Y - 2, GUI_TOOLBAR_WIDTH, 2), Color.Black);
+         RenderBuildingMenu(spriteBatch);
+         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, GUI_BUILDING_Y - 2, GUI_TOOLBAR_WIDTH, 2), Color.Black);
+         RenderProjectorMenu(spriteBatch);
+         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, GUI_PROJECTOR_Y - 2, GUI_TOOLBAR_WIDTH, 2), Color.Black);
+         RenderLayersMenu(spriteBatch);
+         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, GUI_LAYERS_Y - 2, GUI_TOOLBAR_WIDTH, 2), Color.Black);
+         spriteBatch.End();
+
+         // Render color picker if it is active
+         //if (m_BuildingColorPicker.IsActive)
+         //{
+         //   m_Game.GraphicsDevice.Viewport = m_BuildingColorPicker.Viewport;
+         //   m_BuildingColorPicker.Draw(m_Game.GraphicsDevice, spriteBatch);
+         //}
+
+         // Render the projector preview
+         m_Game.GraphicsDevice.Viewport = m_ProjectorPreview.Viewport;
+         m_ProjectorPreview.Draw(spriteBatch, m_DEM_GAMES);
+
+         // Render each projector window
+         for (int i = 0; i < m_ProjectorPreview.Projectors.Count; ++i)
+         {
+            m_Game.GraphicsDevice.Viewport = m_ProjectorPreview.Projectors[i].Viewport;
                
-               if (m_ProjectorPreview.Projectors[i].Texture != null)
-               {
-                  spriteBatch.Begin();
-                  spriteBatch.Draw(m_ProjectorPreview.Projectors[i].Texture, new Rectangle(0, 0, m_ProjectorPreview.Projectors[i].Viewport.Width, m_ProjectorPreview.Projectors[i].Viewport.Height), Color.White);
-                  spriteBatch.End();
-               }
+            if (m_ProjectorPreview.Projectors[i].Texture != null)
+            {
+               spriteBatch.Begin();
+               spriteBatch.Draw(m_ProjectorPreview.Projectors[i].Texture, new Rectangle(0, 0, m_ProjectorPreview.Projectors[i].Viewport.Width, m_ProjectorPreview.Projectors[i].Viewport.Height), Color.White);
+               spriteBatch.End();
             }
-
-            // Restore the default viewport
-            m_Game.GraphicsDevice.Viewport = defaultViewport;
- //        }
+         }
 
          // Restore the default viewport
-         //m_Game.GraphicsDevice.Viewport = defaultViewport;
+         m_Game.GraphicsDevice.Viewport = defaultViewport;
       }
 
       private void RenderSceneMenu(SpriteBatch spriteBatch)
@@ -1863,7 +1822,8 @@ namespace ProjectionMappingGame.StateMachine
          m_ProjectorPreview.AddProjector(bounds);
 
          int lastIndex = m_ProjectorPreview.Projectors.Count - 1;
-         m_ProjectorPreview.Projectors[lastIndex].Grid.Reset(m_UVGridEditor.Viewport.Width, m_UVGridEditor.Viewport.Height);
+         float aspectRatio = (float)m_ProjectorPreview.Projectors[lastIndex].Viewport.Height / (float)m_ProjectorPreview.Projectors[lastIndex].Viewport.Width;
+         m_ProjectorPreview.Projectors[lastIndex].Grid.Reset(m_UVGridEditor.Viewport.Width, m_UVGridEditor.Viewport.Width * aspectRatio);
          m_ProjectorPreview.Projectors[lastIndex].EdgeGraph.AssembleGraph(m_ProjectorPreview.Projectors[lastIndex].Grid.GetIntersectionPoints());
       }
 
