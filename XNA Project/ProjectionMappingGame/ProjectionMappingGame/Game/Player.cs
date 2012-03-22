@@ -33,7 +33,10 @@ namespace ProjectionMappingGame.Game
         PlayerIndex m_Player;
         PlayerMenu m_PlayerHud;
 
-        int m_PlayerColor;
+        StateMachine.GamePlayState m_Parent;
+
+        int m_ColorIndex;
+        Color m_PlayerColor;
 
         Point m_WindowSize;
 
@@ -44,9 +47,11 @@ namespace ProjectionMappingGame.Game
         float m_PortalTimer;
         float m_PortAgainTimer;
 
-        public Player(Texture2D image, Rectangle bounds, GUI.KeyboardInput keyboard, PlayerIndex player) 
+        public Player(StateMachine.GamePlayState parent, Texture2D image, Rectangle bounds, GUI.KeyboardInput keyboard, PlayerIndex player) 
             : base(bounds, Vector2.Zero, image)
         {
+            m_Parent = parent;
+
             keyboard.RegisterKeyHeld(onKeyHeld);
             keyboard.RegisterKeyHeld(onKeyDown);
 
@@ -71,13 +76,16 @@ namespace ProjectionMappingGame.Game
             m_PortalTimer = GameConstants.PORTAL_DELAY;
             m_PortAgainTimer = GameConstants.PORT_AGAIN_DELAY;
 
-            m_PlayerColor = 0;
-            SetColor(GameConstants.GAME_COLORS[m_PlayerColor]);
+            m_ColorIndex = 0;
+            m_PlayerColor = m_Parent.Colors[m_ColorIndex];
+            SetColor(Color.White);
         }
 
-        public Player(Texture2D image, Rectangle bounds, GUI.GamepadInput gamepad, PlayerIndex player)
+        public Player(StateMachine.GamePlayState parent, Texture2D image, Rectangle bounds, GUI.GamepadInput gamepad, PlayerIndex player)
             : base(bounds, Vector2.Zero, image)
         {
+            m_Parent = parent;
+
             gamepad.RegisterAxisEvent(onAxisChange, player);
             gamepad.RegisterButtonEvent(GUI.GamepadEventType.BUTTON_DOWN, onButtonHold, player);
             gamepad.RegisterButtonEvent(GUI.GamepadEventType.BUTTON_DOWN, onButtonDown, player);
@@ -103,13 +111,16 @@ namespace ProjectionMappingGame.Game
             m_PortalTimer = GameConstants.PORTAL_DELAY;
             m_PortAgainTimer = GameConstants.PORT_AGAIN_DELAY;
 
-            m_PlayerColor = 0;
-            SetColor(GameConstants.GAME_COLORS[m_PlayerColor]);
+            m_ColorIndex = 0;
+            m_PlayerColor = m_Parent.Colors[m_ColorIndex];
+            SetColor(Color.White);
         }
 
-        public Player(Texture2D image, Rectangle bounds, GUI.GamepadInput gamepad, GUI.KeyboardInput keyboard, PlayerIndex player)
+        public Player(StateMachine.GamePlayState parent, Texture2D image, Rectangle bounds, GUI.GamepadInput gamepad, GUI.KeyboardInput keyboard, PlayerIndex player)
             : base(bounds, Vector2.Zero, image)
         {
+            m_Parent = parent;
+
             keyboard.RegisterKeyDown(onKeyDown);
             keyboard.RegisterKeyHeld(onKeyHeld);
 
@@ -136,8 +147,9 @@ namespace ProjectionMappingGame.Game
             m_PortalTimer = GameConstants.PORTAL_DELAY;
             m_PortAgainTimer = GameConstants.PORT_AGAIN_DELAY;
 
-            m_PlayerColor = 0;
-            SetColor(GameConstants.GAME_COLORS[m_PlayerColor]);
+            m_ColorIndex = 0;
+            m_PlayerColor = m_Parent.Colors[m_ColorIndex];
+            SetColor(Color.White);
         }
 
         public States State
@@ -245,25 +257,31 @@ namespace ProjectionMappingGame.Game
                 case States.SPAWNING:
                     if (keys.Contains(Keys.Space))
                     {
-                        SetColor(GameConstants.GAME_COLORS[m_PlayerColor]);
+                        m_ColorIndex %= m_Parent.Colors.Count;
+
+                        List<Color> colors = m_Parent.Colors;
+                        m_PlayerColor = colors[m_ColorIndex];
+                        colors.RemoveAt(m_ColorIndex);
+                        m_Parent.Colors = colors;
+
+                        SetColor(m_PlayerColor);
                         State = States.PLAYING;
                     }
                     if (keys.Contains(Keys.A))
                     {
-                        m_PlayerColor = (m_PlayerColor - 1) % GameConstants.GAME_COLORS.Length;
+                        m_ColorIndex = (m_ColorIndex - 1) % m_Parent.Colors.Count;
 
-                        if (m_PlayerColor < 0)
+                        if (m_ColorIndex < 0)
                         {
-                            m_PlayerColor = GameConstants.GAME_COLORS.Length - 1;
+                            m_ColorIndex = GameConstants.GAME_COLORS.Length - 1;
                         }
 
-                        m_Animations[(int)Animations.IDLE].SetColor(GameConstants.GAME_COLORS[m_PlayerColor]);
+                        m_Animations[(int)Animations.IDLE].SetColor(m_Parent.Colors[m_ColorIndex]);
                     }
                     if (keys.Contains(Keys.D))
                     {
-                        m_PlayerColor = (m_PlayerColor + 1) % GameConstants.GAME_COLORS.Length;
-
-                        m_Animations[(int)Animations.IDLE].SetColor(GameConstants.GAME_COLORS[m_PlayerColor]);
+                        m_ColorIndex = (m_ColorIndex + 1) % m_Parent.Colors.Count;
+                        m_Animations[(int)Animations.IDLE].SetColor(m_Parent.Colors[m_ColorIndex]);
                     }
                     break;
             }
@@ -324,26 +342,40 @@ namespace ProjectionMappingGame.Game
                     }
                     break;
                 case States.SPAWNING:
+                    List<Color> colors = m_Parent.Colors;
+
                     if (button.Equals(GUI.GamepadInput.Buttons.A))
                     {
-                        SetColor(GameConstants.GAME_COLORS[m_PlayerColor]);
+                        m_ColorIndex %= m_Parent.Colors.Count;
+
+                        m_PlayerColor = colors[m_ColorIndex];
+                        
+                        colors.RemoveAt(m_ColorIndex);
+                        m_Parent.Colors = colors;
+
+                        SetColor(m_PlayerColor);
                         State = States.PLAYING;
                     }
                     if (button.Equals(GUI.GamepadInput.Buttons.LB))
                     {
-                        m_PlayerColor = (m_PlayerColor - 1) % GameConstants.GAME_COLORS.Length;
+                        m_ColorIndex = (m_ColorIndex - 1) % m_Parent.Colors.Count;
 
-                        if (m_PlayerColor < 0)
+                        if (m_ColorIndex < 0)
                         {
-                            m_PlayerColor = GameConstants.GAME_COLORS.Length - 1;
+                            m_ColorIndex = colors.Count - 1;
                         }
 
-                        m_Animations[(int)Animations.IDLE].SetColor(GameConstants.GAME_COLORS[m_PlayerColor]);
+                        m_PlayerColor = colors[m_ColorIndex];
+
+                        m_Animations[(int)Animations.IDLE].SetColor(m_Parent.Colors[m_ColorIndex]);
                     }
                     if (button.Equals(GUI.GamepadInput.Buttons.RB))
                     {
-                        m_PlayerColor = (m_PlayerColor + 1) % GameConstants.GAME_COLORS.Length;
-                        m_Animations[(int)Animations.IDLE].SetColor(GameConstants.GAME_COLORS[m_PlayerColor]);
+                        m_ColorIndex = (m_ColorIndex + 1) % m_Parent.Colors.Count;
+
+                        m_PlayerColor = colors[m_ColorIndex];
+
+                        m_Animations[(int)Animations.IDLE].SetColor(m_Parent.Colors[m_ColorIndex]);
                     }
                     break;
             }
@@ -421,6 +453,11 @@ namespace ProjectionMappingGame.Game
 
                         State = States.PLAYING;
                     }
+                    break;
+
+                case States.SPAWNING:
+                    m_PlayerColor = m_Parent.Colors[m_ColorIndex];
+                    m_Animations[(int)Animations.IDLE].SetColor(m_PlayerColor);
                     break;
             }
         }
@@ -606,6 +643,10 @@ namespace ProjectionMappingGame.Game
 
         public void Kill()
         {
+            List<Color> colors = m_Parent.Colors;
+            colors.Add(m_PlayerColor);
+            m_Parent.Colors = colors;
+
             m_PlayerHud.Reset();
             m_Position = Vector2.Zero;
             m_Velocity = Vector2.Zero;
@@ -641,13 +682,13 @@ namespace ProjectionMappingGame.Game
             switch (State)
             {
                 case States.PLAYING:
-                    m_PlayerHud.DrawWithNoCharSelection(batch, GameConstants.GAME_COLORS[m_PlayerColor]);
+                    m_PlayerHud.DrawWithNoCharSelection(batch, m_PlayerColor);
                     break;
                 case States.SPAWNING:
-                    m_PlayerHud.DrawWithCharSelection(batch, GameConstants.GAME_COLORS[m_PlayerColor]);
+                    m_PlayerHud.DrawWithCharSelection(batch, m_PlayerColor);
                     break;
                 case States.PORTING:
-                    m_PlayerHud.DrawWithNoCharSelection(batch, GameConstants.GAME_COLORS[m_PlayerColor]);
+                    m_PlayerHud.DrawWithNoCharSelection(batch, m_PlayerColor);
                     break;
                 case States.DEAD:
                     break;

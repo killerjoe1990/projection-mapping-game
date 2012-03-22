@@ -40,7 +40,7 @@ namespace ProjectionMappingGame.StateMachine
 
       Texture2D[] m_Backgrounds;
 
-      Texture2D []m_PlayerColors;
+      List<Color> m_AvailableColors;
 
       Texture2D[][] m_PlatformTex;
 
@@ -73,6 +73,8 @@ namespace ProjectionMappingGame.StateMachine
           m_Levels = new List<Game.Level>();
           m_Players = new Game.Player[GameConstants.MAX_PLAYERS];
 
+
+          m_AvailableColors = new List<Color>();
       }
 
 
@@ -81,27 +83,30 @@ namespace ProjectionMappingGame.StateMachine
       {
          m_Levels.Clear();
 
+         m_AvailableColors.Clear();
+         m_AvailableColors.AddRange(GameConstants.GAME_COLORS);
+
          //AddLevel(GameConstants.WindowWidth, GameConstants.WindowHeight);
 
-         m_Players[(int)PlayerIndex.One] = new Game.Player(m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, m_Keyboard, PlayerIndex.One);
+         m_Players[(int)PlayerIndex.One] = new Game.Player(this, m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, m_Keyboard, PlayerIndex.One);
 
-         m_Players[(int)PlayerIndex.Two] = new Game.Player(m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, PlayerIndex.Two);
+         m_Players[(int)PlayerIndex.Two] = new Game.Player(this, m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, PlayerIndex.Two);
 
-         m_Players[(int)PlayerIndex.Three] = new Game.Player(m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, PlayerIndex.Three);
+         m_Players[(int)PlayerIndex.Three] = new Game.Player(this, m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, PlayerIndex.Three);
 
-         m_Players[(int)PlayerIndex.Four] = new Game.Player(m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, PlayerIndex.Four);
+         m_Players[(int)PlayerIndex.Four] = new Game.Player(this, m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, PlayerIndex.Four);
 
-         m_Players[(int)PlayerIndex.Four].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, GameConstants.PLAYER_RUN_FRAMES, GameConstants.PLAYER_FRAMERATE, true));
-         m_Players[(int)PlayerIndex.Four].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, GameConstants.PLAYER_JUMP_FRAMES, GameConstants.PLAYER_FRAMERATE, false));
+         m_Players[(int)PlayerIndex.Four].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, GameConstants.PLAYER_RUN_FRAMES, GameConstants.PLAYER_RUN_FRAMERATE, true));
+         m_Players[(int)PlayerIndex.Four].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, GameConstants.PLAYER_JUMP_FRAMES, GameConstants.PLAYER_JUMP_FRAMERATE, false));
 
-         m_Players[(int)PlayerIndex.Three].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, GameConstants.PLAYER_RUN_FRAMES, GameConstants.PLAYER_FRAMERATE, true));
-         m_Players[(int)PlayerIndex.Three].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, GameConstants.PLAYER_JUMP_FRAMES, GameConstants.PLAYER_FRAMERATE, false));
+         m_Players[(int)PlayerIndex.Three].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, GameConstants.PLAYER_RUN_FRAMES, GameConstants.PLAYER_RUN_FRAMERATE, true));
+         m_Players[(int)PlayerIndex.Three].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, GameConstants.PLAYER_JUMP_FRAMES, GameConstants.PLAYER_JUMP_FRAMERATE, false));
 
-         m_Players[(int)PlayerIndex.One].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, GameConstants.PLAYER_RUN_FRAMES, GameConstants.PLAYER_FRAMERATE, true));
-         m_Players[(int)PlayerIndex.One].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, GameConstants.PLAYER_JUMP_FRAMES, GameConstants.PLAYER_FRAMERATE, false));
+         m_Players[(int)PlayerIndex.One].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, GameConstants.PLAYER_RUN_FRAMES, GameConstants.PLAYER_RUN_FRAMERATE, true));
+         m_Players[(int)PlayerIndex.One].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, GameConstants.PLAYER_JUMP_FRAMES, GameConstants.PLAYER_JUMP_FRAMERATE, false));
 
-         m_Players[(int)PlayerIndex.Two].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, GameConstants.PLAYER_RUN_FRAMES, GameConstants.PLAYER_FRAMERATE, true));
-         m_Players[(int)PlayerIndex.Two].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, GameConstants.PLAYER_JUMP_FRAMES, GameConstants.PLAYER_FRAMERATE, false));
+         m_Players[(int)PlayerIndex.Two].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, GameConstants.PLAYER_RUN_FRAMES, GameConstants.PLAYER_RUN_FRAMERATE, true));
+         m_Players[(int)PlayerIndex.Two].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, GameConstants.PLAYER_JUMP_FRAMES, GameConstants.PLAYER_JUMP_FRAMERATE, false));
 
 
          m_Players[(int)PlayerIndex.One].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex);
@@ -110,6 +115,8 @@ namespace ProjectionMappingGame.StateMachine
          m_Players[(int)PlayerIndex.Four].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex);
 
          m_PortalColorIndex = 0;
+
+         
       }
 
       public override void Resize(int dx, int dy)
@@ -338,18 +345,18 @@ namespace ProjectionMappingGame.StateMachine
 
       public void StartNewGame()
       {
-         m_Players[(int)PlayerIndex.One] = new Game.Player(m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, m_Keyboard, PlayerIndex.One);
-         m_Players[(int)PlayerIndex.Two] = new Game.Player(m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, PlayerIndex.Two);
-         m_Players[(int)PlayerIndex.Three] = new Game.Player(m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, PlayerIndex.Three);
-         m_Players[(int)PlayerIndex.Four] = new Game.Player(m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, PlayerIndex.Four);
-         m_Players[(int)PlayerIndex.Four].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_FRAMERATE, true));
-         m_Players[(int)PlayerIndex.Four].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_FRAMERATE, false));
-         m_Players[(int)PlayerIndex.Three].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_FRAMERATE, true));
-         m_Players[(int)PlayerIndex.Three].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_FRAMERATE, false));
-         m_Players[(int)PlayerIndex.One].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_FRAMERATE, true));
-         m_Players[(int)PlayerIndex.One].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_FRAMERATE, false));
-         m_Players[(int)PlayerIndex.Two].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_FRAMERATE, true));
-         m_Players[(int)PlayerIndex.Two].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_FRAMERATE, false));
+         m_Players[(int)PlayerIndex.One] = new Game.Player(this, m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, m_Keyboard, PlayerIndex.One);
+         m_Players[(int)PlayerIndex.Two] = new Game.Player(this, m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, PlayerIndex.Two);
+         m_Players[(int)PlayerIndex.Three] = new Game.Player(this, m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, PlayerIndex.Three);
+         m_Players[(int)PlayerIndex.Four] = new Game.Player(this, m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, PlayerIndex.Four);
+         m_Players[(int)PlayerIndex.Four].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_RUN_FRAMERATE, true));
+         m_Players[(int)PlayerIndex.Four].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_RUN_FRAMERATE, false));
+         m_Players[(int)PlayerIndex.Three].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_RUN_FRAMERATE, true));
+         m_Players[(int)PlayerIndex.Three].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_RUN_FRAMERATE, false));
+         m_Players[(int)PlayerIndex.One].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_RUN_FRAMERATE, true));
+         m_Players[(int)PlayerIndex.One].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_RUN_FRAMERATE, false));
+         m_Players[(int)PlayerIndex.Two].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_RUN_FRAMERATE, true));
+         m_Players[(int)PlayerIndex.Two].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_RUN_FRAMERATE, false));
          m_Players[(int)PlayerIndex.One].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex);
          m_Players[(int)PlayerIndex.Two].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex);
          m_Players[(int)PlayerIndex.Three].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex);
@@ -409,6 +416,26 @@ namespace ProjectionMappingGame.StateMachine
           }
       }
 
+
+      public List<Color> Colors
+      {
+          get
+          {
+              return m_AvailableColors;
+          }
+          set
+          {
+              m_AvailableColors = value;
+          }
+      }
+
+      public void SetLight(Vector3 light)
+      {
+          foreach (Game.Level lvl in m_Levels)
+          {
+              lvl.SetLight(light);
+          }
+      }
       #endregion
 
    }

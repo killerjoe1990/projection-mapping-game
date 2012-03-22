@@ -91,6 +91,8 @@ namespace ProjectionMappingGame
 
       public const int MAX_LAYERS = 10;
 
+      public const float MAX_SHADOW = 20f;
+
        //HUD
       public const int HUD_WIDTH = 200;
       public const int HUD_HEIGHT = 60;
@@ -113,7 +115,8 @@ namespace ProjectionMappingGame
        //animation
       public const int PLAYER_JUMP_FRAMES = 4;
       public const int PLAYER_RUN_FRAMES = 4;
-      public const float PLAYER_FRAMERATE = 10;
+      public const float PLAYER_RUN_FRAMERATE = 10;
+      public const float PLAYER_JUMP_FRAMERATE = 20;
 
       public const float PORTAL_FRAMERATE = 5;
       public const int PORTAL_FRAMES = 4;
