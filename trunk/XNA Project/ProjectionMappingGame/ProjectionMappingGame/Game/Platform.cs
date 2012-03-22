@@ -11,7 +11,7 @@ namespace ProjectionMappingGame.Game
         {
             Passable,
             Impassable,
-            Platform
+            Regular
         }
 
     public enum PlatformStatus
@@ -21,50 +21,44 @@ namespace ProjectionMappingGame.Game
         Dead
     }
 
+    public enum CollisionDirections
+    {
+        Top,
+        Bot,
+        Left,
+        Right
+    }
+
     public class Tile : MoveableObject
     {
-        
 
-        PlatformTypes m_Type;
-        
-
-        public Tile(Vector2 position, Vector2 velocity, Texture2D image, PlatformTypes type)
+        public Tile(Vector2 position, Vector2 velocity, Texture2D image)
             : base(new Rectangle((int)position.X,(int)position.Y, GameConstants.TILE_DIM,GameConstants.TILE_DIM), velocity, image)
-        {
-            m_Type = type;
-            
-        }
-
-        public PlatformTypes Type
-        {
-            get
-            {
-                return m_Type;
-            }
+        {   
         }
     }
 
-    public class Platform
+    public abstract class Platform
     {
         Tile[] m_Tiles;
         PlatformStatus m_Status;
-        public Platform(Vector2 position, Vector2 velocity, int tilesWide, PlatformTypes type, Texture2D[] images)
+        public Platform(Vector2 position, Vector2 velocity, int tilesWide, Texture2D[] images)
         {
             m_Status = PlatformStatus.Asleep;
             m_Tiles = new Tile[tilesWide];
 
             if (tilesWide > 0)
             {
-                m_Tiles[0] = new Tile(new Vector2(position.X, position.Y), velocity, images[0], type);
+                m_Tiles[0] = new Tile(new Vector2(position.X, position.Y), velocity, images[0]);
 
                 for (int i = 1; i < tilesWide - 1; ++i)
                 {
                     int image = GameConstants.RANDOM.Next(images.Length - 2) + 1;
 
-                    m_Tiles[i] = new Tile(new Vector2(position.X + (i * GameConstants.TILE_DIM), position.Y), velocity, images[image], type);
+                    m_Tiles[i] = new Tile(new Vector2(position.X + (i * GameConstants.TILE_DIM), position.Y), velocity, images[image]);
                 }
 
-                m_Tiles[tilesWide - 1] = new Tile(new Vector2(position.X + ((tilesWide - 1) * GameConstants.TILE_DIM), position.Y), velocity, images[images.Length - 1], type);
+                m_Tiles[tilesWide - 1] = new Tile(new Vector2(position.X + ((tilesWide - 1) * GameConstants.TILE_DIM), position.Y), velocity, images[images.Length - 1]);
             }
         }
 
@@ -85,18 +79,6 @@ namespace ProjectionMappingGame.Game
             set
             {
                 m_Status = value;
-            }
-        }
-
-        public PlatformTypes Type
-        {
-            get
-            {
-                if (m_Tiles.Length > 0)
-                {
-                    return m_Tiles[0].Type;
-                }
-                return PlatformTypes.Passable;
             }
         }
 
@@ -139,7 +121,7 @@ namespace ProjectionMappingGame.Game
             }
         }
 
-        public void Update(float deltaTime)
+        public virtual void Update(float deltaTime)
         {
             foreach (Tile t in m_Tiles)
             {
@@ -147,12 +129,14 @@ namespace ProjectionMappingGame.Game
             }
         }
 
-        public void Draw(SpriteBatch batch)
+        public virtual void Draw(SpriteBatch batch)
         {
             foreach (Tile t in m_Tiles)
             {
                 t.Draw(batch);
             }
         }
+
+        public abstract void Collide(Player p, Tile t, CollisionDirections direction);
     }
 }

@@ -478,41 +478,21 @@ namespace ProjectionMappingGame.Game
                     Vector2 platPos = t.Position;
                     Rectangle platBounds = t.Bounds;
 
-                    switch (t.Type)
+                    if (CheckTop(nextPosition, platPos, platPos, platBounds))
                     {
-                        case PlatformTypes.Impassable:
-                            if (CheckTop(nextPosition, platPos, platPos, platBounds))
-                            {
-                                m_Velocity.Y = 0;
-                                m_Impulse.Y = 0;
-                            }
-                            if (CheckBot(nextPosition, platPos, platPos, platBounds))
-                            {
-                                m_Velocity.Y = t.Velocity.Y;
-                                m_SnapY = t.Position.Y - m_Bounds.Height - 0.00001f;
-                                m_OnGround = true;
-                            }
-                            if (CheckLeft(nextPosition, platPos, platBounds))
-                            {
-                                m_Velocity.X = 0;
-                                m_Move = (m_Move < 0) ? 0 : m_Move;
-                            }
-                            if (CheckRight(nextPosition, platPos, platBounds))
-                            {
-                                m_Velocity.X = 0;
-                                m_Move = (m_Move > 0) ? 0 : m_Move;
-                            }
-                            break;
-                        case PlatformTypes.Platform:
-                            if (CheckBot(nextPosition, platPos, platPos, platBounds))
-                            {
-                                m_Velocity.Y = t.Velocity.Y;
-                                m_SnapY = t.Position.Y - m_Bounds.Height - 0.00001f;
-                                m_OnGround = true;
-                            }
-                            break;
-                        case PlatformTypes.Passable:
-                            break;
+                        p.Collide(this, t, CollisionDirections.Top);
+                    }
+                    if (CheckBot(nextPosition, platPos, platPos, platBounds))
+                    {
+                        p.Collide(this, t, CollisionDirections.Bot);
+                    }
+                    if (CheckLeft(nextPosition, platPos, platBounds))
+                    {
+                        p.Collide(this, t, CollisionDirections.Left);        
+                    }
+                    if (CheckRight(nextPosition, platPos, platBounds))
+                    {
+                        p.Collide(this, t, CollisionDirections.Right);        
                     }
                 }
             }
@@ -693,6 +673,31 @@ namespace ProjectionMappingGame.Game
                 case States.DEAD:
                     break;
             }
+        }
+
+        public void CollideTop()
+        {
+            m_Velocity.Y = 0;
+            m_Impulse.Y = 0;
+        }
+
+        public void CollideBot(Tile t)
+        {
+            m_Velocity.Y = t.Velocity.Y;
+            m_SnapY = t.Position.Y - m_Bounds.Height - 0.00001f;
+            m_OnGround = true;
+        }
+
+        public void CollideLeft()
+        {
+            m_Velocity.X = 0;
+            m_Move = (m_Move < 0) ? 0 : m_Move;
+        }
+
+        public void CollideRight()
+        {
+            m_Velocity.X = 0;
+            m_Move = (m_Move > 0) ? 0 : m_Move;
         }
        
     }

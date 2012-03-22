@@ -130,8 +130,11 @@
     <Compile Include="Game\Animation.cs" />
     <Compile Include="Game\Level.cs" />
     <Compile Include="Game\MoveableObject.cs" />
+    <Compile Include="Game\ImpassablePlatform.cs" />
+    <Compile Include="Game\PassablePlatform.cs" />
     <Compile Include="Game\Platform.cs" />
     <Compile Include="Game\PlatformSpawner.cs" />
+    <Compile Include="Game\RegularPlatform.cs" />
     <Compile Include="Game\Player.cs" />
     <Compile Include="Game\Portal.cs" />
     <Compile Include="GUI\Button.cs" />
