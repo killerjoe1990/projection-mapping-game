@@ -157,7 +157,7 @@ namespace ProjectionMappingGame.StateMachine
          {
             if (projectionEditor.Layers[i].Type == Editor.LayerType.Gameplay)
             {
-               gameplay.AddLevel(projectionEditor.Layers[i].Width, projectionEditor.Layers[i].Height);
+                gameplay.AddLevel(projectionEditor.Layers[i].Width, projectionEditor.Layers[i].Height, projectionEditor.Layers[i].Normal);
             }
          }
          for (int i = 0; i < gameplay.Levels.Count; ++i)
@@ -253,6 +253,8 @@ namespace ProjectionMappingGame.StateMachine
                renderTargets[i] = gameplay.GetRenderTarget(i);
             }
             projectionEditor.GameplayRenderTargets = renderTargets;
+
+            gameplay.SetLight(projectionEditor.Light.Direction);
          }
 
          // Render all active and updatable states

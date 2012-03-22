@@ -204,11 +204,11 @@ namespace ProjectionMappingGame.StateMachine
           }
       }
 
-      public int AddLevel(int w, int h)
+      public int AddLevel(int w, int h, Vector3 n)
       {
           Game.PlatformSpawner ps = new Game.PlatformSpawner(m_PlatformTex, w);
           int backIndex = GameConstants.RANDOM.Next(m_Backgrounds.Length);
-          Game.Level lvl = new Game.Level(this, m_Levels.Count, ps, m_Backgrounds[backIndex], m_Keyboard, m_Gamepad, w, h);
+          Game.Level lvl = new Game.Level(this, m_Levels.Count, ps, m_Backgrounds[backIndex], m_Keyboard, m_Gamepad, w, h, n);
 
           m_Levels.Add(lvl);
 
