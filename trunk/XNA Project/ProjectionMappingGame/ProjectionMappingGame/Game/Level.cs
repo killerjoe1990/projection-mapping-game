@@ -17,6 +17,10 @@ namespace ProjectionMappingGame.Game
         RenderTarget2D m_PlayerShadowTarget;
         Vector2 m_ShadowOffset;
         Color SHADOW_COLOR = new Color(0, 0, 0, 0.6f);
+
+        Matrix m_NormalRotation;
+        Vector3 m_Normal;
+
         //Parent
         StateMachine.GamePlayState m_GameState;
 
@@ -74,6 +78,8 @@ namespace ProjectionMappingGame.Game
             // DEBUG
             m_ShadowOffset = new Vector2(-10, -10);
 
+            m_NormalRotation = Matrix.Identity;
+            m_Normal = Vector3.Backward;
         }
 
         public void Update(float elapsedTime)
@@ -369,6 +375,54 @@ namespace ProjectionMappingGame.Game
             {
                 m_RenderTargetMode = value;
             }
+        }
+
+        public void SetLight(Vector3 light)
+        {
+            Vector3 tan, norm;
+            VectorComponents(light, m_Normal, out tan, out norm);
+
+            float offsetIntensity = MathHelper.Clamp(Vector3.Dot(light, m_Normal), 0, 1) * GameConstants.MAX_SHADOW;
+
+            tan.Normalize();
+
+            tan = Vector3.Transform(tan, m_NormalRotation);
+            Vector2 dir = new Vector2(tan.X, tan.Y);
+            m_ShadowOffset = dir * offsetIntensity;
+        }
+
+        public void SetNormal(Vector3 normal)
+        {
+            normal.Normalize();
+
+            Vector3 forward = normal;
+            Vector3 left = Vector3.UnitX;
+            Vector3 up = Vector3.Cross(left, forward);
+
+            m_NormalRotation = Matrix.Identity;
+
+            m_NormalRotation.Forward = forward;
+            m_NormalRotation.Left = left;
+            m_NormalRotation.Up = up;
+
+            m_NormalRotation = Matrix.Invert(m_NormalRotation);
+
+            m_Normal = normal;
+        }
+
+        private void VectorComponents(Vector3 vector, Vector3 normal, out Vector3 tangentVec, out Vector3 normalVec)
+        {
+            //first, get the component of velocity along the normal.  If it is parallel, the tangental component is 0;
+            float normalComponent = Vector3.Dot(vector, normal);
+            normalVec = normal * normalComponent;
+
+            //the tangent vector of the velocity vector is 2 cross products.  The first gives you an orthogonal vector to the two
+            // the second gives the vector in the plane of the normal and velocity
+            Vector3 vCross = Vector3.Cross(vector, normal);
+            tangentVec = Vector3.Cross(normal, vCross);
+            tangentVec.Normalize();
+            float tangentComponent = Vector3.Dot(vector, tangentVec);
+            tangentVec = tangentVec * tangentComponent;
         }
     }
 }
