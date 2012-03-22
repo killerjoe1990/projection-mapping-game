@@ -233,10 +233,10 @@ namespace ProjectionMappingGame.Components
                   m_Distance = .001f;
          }
          // Via keyboard
-         else if (kState.IsKeyDown(Keys.PageDown))
-               m_Distance += ZOOM_SCALAR * elapsedTime;
-         else if (kState.IsKeyDown(Keys.PageUp))
-               m_Distance += ZOOM_SCALAR * elapsedTime;
+         //else if (kState.IsKeyDown(Keys.PageDown))
+         //      m_Distance += ZOOM_SCALAR * elapsedTime;
+         //else if (kState.IsKeyDown(Keys.PageUp))
+         //      m_Distance += ZOOM_SCALAR * elapsedTime;
 
          // Re-Compute view matrix
          UpdateView();

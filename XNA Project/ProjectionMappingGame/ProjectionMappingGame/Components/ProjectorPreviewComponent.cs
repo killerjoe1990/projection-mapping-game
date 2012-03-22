@@ -91,10 +91,14 @@ namespace ProjectionMappingGame.Components
          // Initialize lighting
          m_AmbientLight = new Vector4(0.4f, 0.4f, 0.4f, 1.0f);
          m_LightSource = new PointLightComponent(
-            new Vector3(100.0f, 100.0f, 100.0f),
+            new Vector3(0.0f, 0.0f, 100.0f),
+            new Vector3(0.0f, 0.0f, 0.0f),
             new Vector4(1.0f, 1.0f, 1.0f, 1.0f),
             new Vector4(0.0f, 0.0f, 0.33f, 1.0f)
          );
+         m_LightSource.OrbitRight(MathHelper.PiOver4);
+         m_LightSource.OrbitUp(MathHelper.PiOver4);
+         m_LightSource.UpdateOrientation();
          m_LightEntity = new ModelEntity(
             EntityType.Light,
             "Models/sphere",
@@ -204,7 +208,7 @@ namespace ProjectionMappingGame.Components
          m_Gizmo.Update(elapsedTime, m_Camera.ViewMatrix, m_Camera.ProjectionMatrix);
 
          // Reflect possible updates in light/projector entities to their actual objects
-         m_LightSource.Position = m_LightEntity.Position;
+         //m_LightSource.Position = m_LightEntity.Position;
          for (int i = 0; i < m_Projectors.Count; ++i)
          {
             m_Projectors[i].Position = m_Projectors[i].Entity.Position;
@@ -255,7 +259,15 @@ namespace ProjectionMappingGame.Components
                }
             }
          }
-         
+
+         if (inGame)
+         {
+            m_LightSource.HandleRotation(keyboardState, elapsedTime);
+            m_LightSource.HandleZoom(keyboardState, elapsedTime);
+            m_LightSource.UpdateOrientation();
+            m_LightEntity.Position = m_LightSource.Position;
+         }
+
          // Handle camera/projector input
          if (m_EditorMode)
          {
@@ -784,7 +796,7 @@ namespace ProjectionMappingGame.Components
             {
                entities.Add(m_Projectors[i].Entity);
             }
-            entities.Add(m_LightEntity);
+            //entities.Add(m_LightEntity);
             return entities;
          }
       }

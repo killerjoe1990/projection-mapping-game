@@ -32,6 +32,7 @@ namespace ProjectionMappingGame.Editor
 {
    class UVDualEdgeGraphEditor
    {
+      Viewport m_RenderTargetViewport;
       Viewport m_Viewport;
       GameDriver m_Game;
 
@@ -85,6 +86,7 @@ namespace ProjectionMappingGame.Editor
 
          // Initialize viewport
          m_Viewport = new Viewport(x, y, w, h);
+         m_RenderTargetViewport = m_Viewport;
 
          // Create empty graph
          m_DualEdgeGraph = null;
@@ -391,21 +393,21 @@ namespace ProjectionMappingGame.Editor
       {
          // Left side
          spriteBatch.Begin();
-         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, (m_Viewport.Height / 16), SMALL_TICK_WIDTH, 1), Color.Black);
-         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, (m_Viewport.Height / 8), MEDIUM_TICK_WIDTH, 1), Color.Black);
-         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, 3 * (m_Viewport.Height / 16), SMALL_TICK_WIDTH, 1), Color.Black);
-         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, (m_Viewport.Height / 4), LARGE_TICK_WIDTH, 1), Color.Black);
-         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, 5 * (m_Viewport.Height / 16), SMALL_TICK_WIDTH, 1), Color.Black);
-         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, 3 * (m_Viewport.Height / 8), MEDIUM_TICK_WIDTH, 1), Color.Black);
-         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, 7 * (m_Viewport.Height / 16), SMALL_TICK_WIDTH, 1), Color.Black);
-         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, (m_Viewport.Height / 2), LARGE_TICK_WIDTH, 1), Color.Black);
-         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, 9 * (m_Viewport.Height / 16), SMALL_TICK_WIDTH, 1), Color.Black);
-         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, 5 * (m_Viewport.Height / 8), MEDIUM_TICK_WIDTH, 1), Color.Black);
-         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, 11 * (m_Viewport.Height / 16), SMALL_TICK_WIDTH, 1), Color.Black);
-         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, 3 * (m_Viewport.Height / 4), LARGE_TICK_WIDTH, 1), Color.Black);
-         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, 13 * (m_Viewport.Height / 16), SMALL_TICK_WIDTH, 1), Color.Black);
-         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, 7 * (m_Viewport.Height / 8), MEDIUM_TICK_WIDTH, 1), Color.Black);
-         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, 15 * (m_Viewport.Height / 16), SMALL_TICK_WIDTH, 1), Color.Black);
+         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, (int)(m_Viewport.Height / 16.0f), SMALL_TICK_WIDTH, 1), Color.Black);
+         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, (int)(m_Viewport.Height / 8.0f), MEDIUM_TICK_WIDTH, 1), Color.Black);
+         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, (int)(3.0f * (m_Viewport.Height / 16.0f)), SMALL_TICK_WIDTH, 1), Color.Black);
+         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, (int)(m_Viewport.Height / 4.0f), LARGE_TICK_WIDTH, 1), Color.Black);
+         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, (int)(5.0f * (m_Viewport.Height / 16.0f)), SMALL_TICK_WIDTH, 1), Color.Black);
+         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, (int)(3.0f * (m_Viewport.Height / 8.0f)), MEDIUM_TICK_WIDTH, 1), Color.Black);
+         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, (int)(7.0f * (m_Viewport.Height / 16.0f)), SMALL_TICK_WIDTH, 1), Color.Black);
+         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, (int)(m_Viewport.Height / 2.0f), LARGE_TICK_WIDTH, 1), Color.Black);
+         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, (int)(9.0f * (m_Viewport.Height / 16.0f)), SMALL_TICK_WIDTH, 1), Color.Black);
+         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, (int)(5.0f * (m_Viewport.Height / 8.0f)), MEDIUM_TICK_WIDTH, 1), Color.Black);
+         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, (int)(11.0f * (m_Viewport.Height / 16.0f)), SMALL_TICK_WIDTH, 1), Color.Black);
+         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, (int)(3.0f * (m_Viewport.Height / 4.0f)), LARGE_TICK_WIDTH, 1), Color.Black);
+         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, (int)(13.0f * (m_Viewport.Height / 16.0f)), SMALL_TICK_WIDTH, 1), Color.Black);
+         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, (int)(7.0f * (m_Viewport.Height / 8.0f)), MEDIUM_TICK_WIDTH, 1), Color.Black);
+         spriteBatch.Draw(m_WhiteTexture, new Rectangle(0, (int)(15.0f * (m_Viewport.Height / 16.0f)), SMALL_TICK_WIDTH, 1), Color.Black);
 
          // Bottom side
          spriteBatch.Draw(m_WhiteTexture, new Rectangle((m_Viewport.Width / 16), m_Viewport.Height - SMALL_TICK_WIDTH, 1, SMALL_TICK_WIDTH), Color.Black);
@@ -511,6 +513,19 @@ namespace ProjectionMappingGame.Editor
       #endregion
 
       #region Public Interaction
+
+      public void SetRenderTargetViewport(Viewport viewport)
+      {
+         m_RenderTargetViewport = viewport;
+         float aspectRatio = (float)viewport.Height / (float)viewport.Width;
+         m_RenderTarget.Dispose();
+         m_RenderTarget = new RenderTarget2D(m_Game.GraphicsDevice, viewport.Width, viewport.Height, true, m_Game.GraphicsDevice.DisplayMode.Format, DepthFormat.Depth24);
+         m_Viewport.Height = (int)(m_Viewport.Width * aspectRatio);
+
+         m_ProjectionMatrix = Matrix.CreateOrthographicOffCenter(0, m_Viewport.Width, m_Viewport.Height, 0, 1.0f, 1000.0f);
+         m_QuadEffect.Projection = m_ProjectionMatrix;
+         m_LineEffect.Projection = m_ProjectionMatrix;
+      }
 
       public void DeleteLayer(int layer)
       {
