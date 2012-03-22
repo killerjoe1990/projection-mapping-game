@@ -168,6 +168,22 @@ namespace ProjectionMappingGame.StateMachine
          gameplay.SetMainLevel(0);
       }
 
+      public void StartGameWithoutEditor()
+      {
+          GamePlayState gameplay = (GamePlayState)m_States[(int)StateType.GamePlay];
+          gameplay.Reset();
+          m_GamePlayMode = true;
+
+          m_ActiveStates.Clear();
+          m_ActiveStates.Push((int)StateType.GamePlay);
+
+          gameplay.Levels.Clear();
+
+          gameplay.AddLevel(GameConstants.WindowWidth, GameConstants.WindowHeight, Vector3.Backward);
+          gameplay.Levels[0].RenderTargetMode = false;
+          gameplay.SetMainLevel(0);
+      }
+
       public void QuitGame()
       {
          GamePlayState gameplay = (GamePlayState)m_States[(int)StateType.GamePlay];
