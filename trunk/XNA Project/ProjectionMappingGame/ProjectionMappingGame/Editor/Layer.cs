@@ -21,13 +21,13 @@ namespace ProjectionMappingGame.Editor
 
    public abstract class Layer
    {
-      public const int LAYER_HEIGHT = 42;
+      public const int LAYER_HEIGHT = 63;
       public const int LAYER_WIDTH = 192;
       public const int LAYER_PADDING_Y = 2;
       public const int NAME_X = 2;
-      public const int VISIBILITY_BUTTON_X = 2;
-      public const int VISIBILITY_BUTTON_WIDTH = 16;
-      public const int VISIBILITY_BUTTON_HEIGHT = 16;
+      public const int LINK_BUTTON_X = 2;
+      public const int LINK_BUTTON_WIDTH = 16;
+      public const int LINK_BUTTON_HEIGHT = 11;
       public const int EDIT_BUTTON_X = LAYER_WIDTH - EDIT_BUTTON_WIDTH - 4;
       public const int EDIT_BUTTON_WIDTH = 16;
       public const int EDIT_BUTTON_HEIGHT = 16;
@@ -39,7 +39,8 @@ namespace ProjectionMappingGame.Editor
       public const int LABEL_HEIGHT = 20;
       public const int WIDTH_SPINBOX_X = WIDTH_X + WIDTH_WIDTH;
       public const int HEIGHT_SPINBOX_X = HEIGHT_X + HEIGHT_WIDTH;
-
+      public const int LINKS_X = WIDTH_X;
+      public const int LINKS_LIST_X = HEIGHT_X;
 
       // Static Identification
       public static int LAYER_COUNTER = 0;
@@ -55,20 +56,24 @@ namespace ProjectionMappingGame.Editor
       protected int m_Width;
       protected int m_Height;
       protected Vector3 m_Normal;
+      protected HashSet<int> m_LinkedLayers;
+      protected bool m_NeedToDragLine;
 
       protected Label m_NameLabel;
-      //protected Button m_VisibleButton;
+      protected Button m_LinkButton;
       protected Button m_EditButton;
       protected Label m_WidthLabel;
       protected Label m_HeightLabel;
       protected Label m_NormalsLabel;
+      protected Label m_LinkLabel;
+      protected Label m_LinkListLabel;
       protected NumUpDown m_WidthSpinBox;
       protected NumUpDown m_HeightSpinBox;
 
       protected Texture2D m_ColorTexture;
       protected Texture2D m_RenderTarget;
 
-      public Layer(LayerType type, Label nameLabel, Label widthLabel, Label heightLabel, Label normalsLabel, NumUpDown widthSpinBox, NumUpDown heightSpinBox, Button editBtn, Texture2D colorTexture)
+      public Layer(LayerType type, Label nameLabel, Label widthLabel, Label heightLabel, Label normalsLabel, Label linkLabel, Label linkListLabel, NumUpDown widthSpinBox, NumUpDown heightSpinBox, Button editBtn, Button linkBtn, Texture2D colorTexture)
       {
          // ID the layer
          ID = LAYER_COUNTER++;
@@ -79,11 +84,13 @@ namespace ProjectionMappingGame.Editor
          m_WidthLabel = widthLabel;
          m_HeightLabel = heightLabel;
          m_NormalsLabel = normalsLabel;
+         m_LinkLabel = linkLabel;
+         m_LinkListLabel = linkListLabel;
          m_WidthSpinBox = widthSpinBox;
          m_HeightSpinBox = heightSpinBox;
-         //m_VisibleButton = visibleBtn;
          m_EditButton = editBtn;
-         //m_VisibleButton.RegisterOnClick(VisibleButton_OnClicked);
+         m_LinkButton = linkBtn;
+         m_LinkButton.RegisterOnClick(LinkButton_OnClicked);
          m_EditButton.RegisterOnClick(EditButton_OnClicked);
          m_WidthSpinBox.RegisterOnValueChanged(WidthSpinBox_OnValueChanged);
          m_HeightSpinBox.RegisterOnValueChanged(HeightSpinBox_OnValueChanged);
@@ -92,10 +99,12 @@ namespace ProjectionMappingGame.Editor
          m_ColorTexture = colorTexture;
 
          // Defaults
+         m_LinkedLayers = new HashSet<int>();
          m_RenderTarget = null;
          m_IsSelected = false;
          m_IsVisible = true;
          m_NeedToSelectNormal = false;
+         m_NeedToDragLine = false;
          m_Normal = Vector3.Up;
       }
 
@@ -109,9 +118,9 @@ namespace ProjectionMappingGame.Editor
          m_Height = (int)m_HeightSpinBox.Value;
       }
 
-      private void VisibleButton_OnClicked(object sender, EventArgs e)
+      private void LinkButton_OnClicked(object sender, EventArgs e)
       {
-
+         m_NeedToDragLine = true;
       }
 
       private void EditButton_OnClicked(object sender, EventArgs e)
@@ -123,10 +132,12 @@ namespace ProjectionMappingGame.Editor
       {
          m_NameLabel.Draw(graphics, spriteBatch);
          m_EditButton.Draw(graphics, spriteBatch);
-         //m_VisibleButton.Draw(graphics, spriteBatch);
+         m_LinkButton.Draw(graphics, spriteBatch);
          m_WidthLabel.Draw(graphics, spriteBatch);
          m_HeightLabel.Draw(graphics, spriteBatch);
          m_NormalsLabel.Draw(graphics, spriteBatch);
+         m_LinkLabel.Draw(graphics, spriteBatch);
+         m_LinkListLabel.Draw(graphics, spriteBatch);
          m_WidthSpinBox.Draw(graphics, spriteBatch);
          m_HeightSpinBox.Draw(graphics, spriteBatch);
 
@@ -139,6 +150,46 @@ namespace ProjectionMappingGame.Editor
 
       #region Public Access TV
 
+      public void LinkWithLayer(int layer)
+      {
+         m_LinkedLayers.Add(layer);
+
+         List<int> set = m_LinkedLayers.ToList<int>();
+         string list = "";
+         for (int i = 0; i < set.Count; ++i)
+         {
+            list += (set[i] + 1).ToString();
+            if (i != set.Count - 1)
+               list += ",";
+         }
+         m_LinkListLabel.Text = list;
+      }
+
+      public void UnLinkWithLayer(int layer)
+      {
+         if (m_LinkedLayers.Contains(layer))
+         {
+            m_LinkedLayers.Remove(layer);
+         }
+
+         List<int> set = m_LinkedLayers.ToList<int>();
+         string list = "";
+         for (int i = 0; i < set.Count; ++i)
+         {
+            list += (set[i] + 1).ToString();
+            if (i != set.Count - 1)
+               list += ",";
+         }
+         if (set.Count == 0)
+            list = "None";
+         m_LinkListLabel.Text = list;
+      }
+
+      public bool AlreadyLinkedWithLayer(int layer)
+      {
+         return m_LinkedLayers.Contains(layer);
+      }
+
       public void Offset(Vector2 offset)
       {
          m_NameLabel.Location += offset;
@@ -146,6 +197,8 @@ namespace ProjectionMappingGame.Editor
          m_HeightLabel.Location += offset;
          //m_VisibleButton.Location += offset;
          m_NormalsLabel.Location += offset;
+         m_LinkLabel.Location += offset;
+         m_LinkListLabel.Location += offset;
          m_EditButton.Location += offset;
          m_WidthSpinBox.Location += offset;
          m_WidthSpinBox.Children[0].Location += offset;
@@ -179,6 +232,11 @@ namespace ProjectionMappingGame.Editor
       //{
       //   get { return m_VisibleButton; }
       //}
+
+      public List<int> LinkedLayers
+      {
+         get { return m_LinkedLayers.ToList<int>(); }
+      }
 
       public Button EditButton
       {
@@ -237,6 +295,12 @@ namespace ProjectionMappingGame.Editor
          set { m_NeedToSelectNormal = value; }
       }
 
+      public bool NeedToDragLine
+      {
+         get { return m_NeedToDragLine; }
+         set { m_NeedToDragLine = value; }
+      }
+
       public string Name
       {
          get { return m_LayerName; }
@@ -255,8 +319,8 @@ namespace ProjectionMappingGame.Editor
       // Static Identification
       public static int TYPE_COUNTER = 0;
 
-      public GameplayLayer(Label nameLabel, Label widthLabel, Label heightLabel, Label normalsLabel, NumUpDown widthSpinBox, NumUpDown heightSpinBox, Button editBtn, Texture2D colorTexture)
-         : base(LayerType.Gameplay, nameLabel, widthLabel, heightLabel, normalsLabel, widthSpinBox, heightSpinBox, editBtn, colorTexture)
+      public GameplayLayer(Label nameLabel, Label widthLabel, Label heightLabel, Label normalsLabel, Label linkLabel, Label linkListLabel, NumUpDown widthSpinBox, NumUpDown heightSpinBox, Button editBtn, Button linkBtn, Texture2D colorTexture)
+         : base(LayerType.Gameplay, nameLabel, widthLabel, heightLabel, normalsLabel, linkLabel, linkListLabel, widthSpinBox, heightSpinBox, editBtn, linkBtn, colorTexture)
       {
          TYPE_ID = TYPE_COUNTER++;
          m_IsEditable = false;

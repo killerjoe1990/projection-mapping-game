@@ -76,7 +76,7 @@ namespace ProjectionMappingGame.StateMachine
       Texture2D m_ScrollViewBackgroundTexture, m_ScrollViewScrollPadTexture, m_ScrollViewScrollAreaTexture;
       Texture2D m_SliderBarTexture, m_SliderPadTexture;
       Texture2D m_WhiteTexture;
-      Texture2D m_VisibleButtonTexture, m_VisibleButtonTextureOnHover, m_VisibleButtonTextureOnPress;
+      Texture2D m_LinkButtonTexture, m_LinkButtonTextureOnHover, m_LinkButtonTextureOnPress;
       Texture2D m_EditLayerButtonTexture, m_EditLayerButtonTextureOnHover, m_EditLayerButtonTextureOnPress;
       Texture2D m_CheckboxCheckedTexture, m_CheckboxCheckedTextureOnHover, m_CheckboxCheckedTextureOnPress;
       Texture2D m_CheckboxUnCheckedTexture, m_CheckboxUnCheckedTextureOnHover, m_CheckboxUnCheckedTextureOnPress;
@@ -379,9 +379,9 @@ namespace ProjectionMappingGame.StateMachine
          m_TrashTextureOnPress = content.Load<Texture2D>("Textures/GUI/trash_button_on_hover");
          m_SliderBarTexture = content.Load<Texture2D>("Textures/GUI/slider_bar");
          m_SliderPadTexture = content.Load<Texture2D>("Textures/GUI/slider_pad");
-         m_VisibleButtonTexture = content.Load<Texture2D>("Textures/GUI/visible_layer_button");
-         m_VisibleButtonTextureOnHover = content.Load<Texture2D>("Textures/GUI/visible_layer_button_on_hover");
-         m_VisibleButtonTextureOnPress = content.Load<Texture2D>("Textures/GUI/visible_layer_button_on_hover");
+         m_LinkButtonTexture = content.Load<Texture2D>("Textures/GUI/link_layer_button");
+         m_LinkButtonTextureOnHover = content.Load<Texture2D>("Textures/GUI/link_layer_button_on_hover");
+         m_LinkButtonTextureOnPress = content.Load<Texture2D>("Textures/GUI/link_layer_button_on_hover");
          m_EditLayerButtonTexture = content.Load<Texture2D>("Textures/GUI/edit_layer_button");
          m_EditLayerButtonTextureOnHover = content.Load<Texture2D>("Textures/GUI/edit_layer_button_on_hover");
          m_EditLayerButtonTextureOnPress = content.Load<Texture2D>("Textures/GUI/edit_layer_button_on_hover");
@@ -656,7 +656,7 @@ namespace ProjectionMappingGame.StateMachine
 
          // Scrollview
          m_ScrollMouseInput = new MouseInput(new Vector2(-(GUI_TOOLBAR_X + 2), -(GUI_LAYERS_Y + GUI_MENU_ITEM_HEIGHT * 1 - 2)));
-         m_LayersScrollView = new LayerScrollView(new Rectangle(GUI_TOOLBAR_X + 2, GUI_LAYERS_Y + GUI_MENU_ITEM_HEIGHT * 1 - 2, GUI_TOOLBAR_WIDTH - 2, 210),
+         m_LayersScrollView = new LayerScrollView(m_Game, new Rectangle(GUI_TOOLBAR_X + 2, GUI_LAYERS_Y + GUI_MENU_ITEM_HEIGHT * 1 - 2, GUI_TOOLBAR_WIDTH - 2, 210),
             new Rectangle(),
             m_ScrollViewBackgroundTexture,
             m_ScrollViewScrollPadTexture,
@@ -1858,6 +1858,8 @@ namespace ProjectionMappingGame.StateMachine
          displayBounds.X += dx;
          displayBounds.Height += dy;
          m_LayersScrollView.DisplayBounds = displayBounds;
+         m_LayersScrollView.UpdateProjection();
+
          m_ScrollMouseInput.Offset = new Vector2(-displayBounds.X, -displayBounds.Y);
       }
 
@@ -1867,18 +1869,20 @@ namespace ProjectionMappingGame.StateMachine
          Label defaultWidthLabel = new Label("Width", Layer.WIDTH_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT + Layer.LABEL_HEIGHT, Layer.WIDTH_WIDTH, Layer.LABEL_HEIGHT, Color.Black, m_ArialFont10);
          Label defaultHeightLabel = new Label("Height", Layer.HEIGHT_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT + Layer.LABEL_HEIGHT, Layer.HEIGHT_WIDTH, Layer.LABEL_HEIGHT, Color.Black, m_ArialFont10);
          Label defaultNormalsLabel = new Label("Normal", Layer.NORMALS_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT, Layer.HEIGHT_WIDTH, Layer.LABEL_HEIGHT, Color.Black, m_ArialFont10);
+         Label linkLabel = new Label("Linked Layers:", Layer.LINKS_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT + Layer.LABEL_HEIGHT * 2, Layer.HEIGHT_WIDTH, Layer.LABEL_HEIGHT, Color.Black, m_ArialFont10);
+         Label linkListLabel = new Label("None", Layer.LINKS_LIST_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT + Layer.LABEL_HEIGHT * 2, Layer.HEIGHT_WIDTH, Layer.LABEL_HEIGHT, Color.Black, m_ArialFont10);
          NumUpDown widthSpinBox = new NumUpDown(new Rectangle(Layer.WIDTH_SPINBOX_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT + Layer.LABEL_HEIGHT - 2, 40, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_WhiteTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, GameConstants.TILE_DIM, GameConstants.TILE_DIM * GameConstants.MAX_TILES_WIDE, GameConstants.TILE_DIM, "{0:0}", m_ScrollMouseInput);
          NumUpDown heightSpinBox = new NumUpDown(new Rectangle(Layer.HEIGHT_SPINBOX_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT + Layer.LABEL_HEIGHT - 2, 40, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_WhiteTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, GameConstants.TILE_DIM, GameConstants.TILE_DIM * GameConstants.MAX_TILES_HIGH, GameConstants.TILE_DIM, "{0:0}", m_ScrollMouseInput);
          widthSpinBox.Value = GameConstants.TILE_DIM * GameConstants.DEFAULT_TILES_WIDE;
          heightSpinBox.Value = GameConstants.TILE_DIM * GameConstants.DEFAULT_TILES_HIGH;
 
-         //Button visibleBtn = new Button(new Rectangle(Layer.VISIBILITY_BUTTON_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT, Layer.VISIBILITY_BUTTON_WIDTH, Layer.VISIBILITY_BUTTON_HEIGHT), m_VisibleButtonTexture, m_ScrollMouseInput);
-         //visibleBtn.SetImage(Button.ImageType.OVER, m_VisibleButtonTextureOnHover);
-         //visibleBtn.SetImage(Button.ImageType.CLICK, m_VisibleButtonTextureOnPress);
+         Button linkBtn = new Button(new Rectangle(Layer.LINK_BUTTON_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT + Layer.LABEL_HEIGHT * 2 + 2, Layer.LINK_BUTTON_WIDTH, Layer.LINK_BUTTON_HEIGHT), m_LinkButtonTexture, m_ScrollMouseInput);
+         linkBtn.SetImage(Button.ImageType.OVER, m_LinkButtonTextureOnHover);
+         linkBtn.SetImage(Button.ImageType.CLICK, m_LinkButtonTextureOnPress);
          Button editBtn = new Button(new Rectangle(Layer.EDIT_BUTTON_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT, Layer.EDIT_BUTTON_WIDTH, Layer.EDIT_BUTTON_HEIGHT), m_EditLayerButtonTexture, m_ScrollMouseInput);
          editBtn.SetImage(Button.ImageType.OVER, m_EditLayerButtonTextureOnHover);
          editBtn.SetImage(Button.ImageType.CLICK, m_EditLayerButtonTextureOnPress);
-         m_LayersScrollView.AddLayer(new GameplayLayer(defaultGameplayLabel, defaultWidthLabel, defaultHeightLabel, defaultNormalsLabel, widthSpinBox, heightSpinBox, editBtn, m_ColorPickerPreviewPadTexture));
+         m_LayersScrollView.AddLayer(new GameplayLayer(defaultGameplayLabel, defaultWidthLabel, defaultHeightLabel, defaultNormalsLabel, linkLabel, linkListLabel, widthSpinBox, heightSpinBox, editBtn, linkBtn, m_ColorPickerPreviewPadTexture));
       }
 
       #endregion
