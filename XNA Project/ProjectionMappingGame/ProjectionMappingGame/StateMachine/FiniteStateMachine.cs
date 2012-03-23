@@ -26,6 +26,22 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace ProjectionMappingGame.StateMachine
 {
+   public class LinkLayerPair<T, U>
+   {
+      public LinkLayerPair()
+      {
+      }
+
+      public LinkLayerPair(T first, U second)
+      {
+         this.First = first;
+         this.Second = second;
+      }
+
+      public T First { get; set; }
+      public U Second { get; set; }
+   };
+
    // All possible states
    public enum StateType
    {
@@ -160,12 +176,45 @@ namespace ProjectionMappingGame.StateMachine
                 gameplay.AddLevel(projectionEditor.Layers[i].Width, projectionEditor.Layers[i].Height, projectionEditor.Layers[i].Normal);
             }
          }
+
+         // Determine level pairs
+         List<LinkLayerPair<int, int>> uniqueLayers = new List<LinkLayerPair<int, int>>();
+         
+         for (int i = 0; i < projectionEditor.Layers.Count; ++i)
+         {
+            List<int> set = projectionEditor.Layers[i].LinkedLayers;
+
+            for (int j = 0; j < set.Count; ++j)
+            {
+               int i0 = Math.Min(i, set[j]);
+               int i1 = Math.Max(i, set[j]);
+               LinkLayerPair<int, int> link = new LinkLayerPair<int, int>(i0, i1);
+               if (!AlreadyInList(uniqueLayers, link))
+                  uniqueLayers.Add(link);
+            }
+         }
+
+         for (int i = 0; i < uniqueLayers.Count; ++i)
+         {
+            gameplay.CreatePortalLink(uniqueLayers[i].First, uniqueLayers[i].Second);
+         }
+
          for (int i = 0; i < gameplay.Levels.Count; ++i)
          {
             gameplay.Levels[i].RenderTargetMode = true;
          }
 
          gameplay.SetMainLevel(0);
+      }
+
+      private bool AlreadyInList(List<LinkLayerPair<int, int>> pairs, LinkLayerPair<int, int> link)
+      {
+         for (int i = 0; i < pairs.Count; ++i)
+         {
+            if (pairs[i].First == link.First && pairs[i].Second == link.Second)
+               return true;
+         }
+         return false;
       }
 
       public void StartGameWithoutEditor()

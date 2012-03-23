@@ -212,10 +212,10 @@ namespace ProjectionMappingGame.StateMachine
 
           m_Levels.Add(lvl);
 
-          for (int i = 0; i < m_Levels.Count-1; ++i)
-          {
-              CreatePortalLink(m_Levels.Count-1, i);
-          }
+          //for (int i = 0; i < m_Levels.Count-1; ++i)
+          //{
+          //    CreatePortalLink(m_Levels.Count-1, i);
+          //}
 
           
 

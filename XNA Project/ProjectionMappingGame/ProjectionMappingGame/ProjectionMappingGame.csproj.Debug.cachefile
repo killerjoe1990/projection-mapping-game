@@ -89,4 +89,6 @@ Content\Tiles\Type1\left.xnb
 Content\Tiles\Type1\right.xnb
 Content\Textures\GUI\window_sizer_background.xnb
 Content\Textures\GUI\window_sizer_border.xnb
+Content\Textures\GUI\link_layer_button.xnb
+Content\Textures\GUI\link_layer_button_on_hover.xnb
 Content\Shaders\Includes.inc
