@@ -40,7 +40,7 @@ namespace ProjectionMappingGame.StateMachine
 
       Texture2D[] m_Backgrounds;
 
-      List<Color> m_AvailableColors;
+      List<int> m_AvailableColors;
 
       Texture2D[][] m_PlatformTex;
 
@@ -54,8 +54,10 @@ namespace ProjectionMappingGame.StateMachine
 
       List<Game.Level> m_Levels;
 
-      int m_PortalColorIndex;
+      Game.Collectable[] m_Collectables;
 
+      int m_PortalColorIndex;
+      float m_PowerUpTimer;
 
       public GamePlayState(GameDriver game)
          : base(game, StateType.GamePlay)
@@ -72,9 +74,9 @@ namespace ProjectionMappingGame.StateMachine
 
           m_Levels = new List<Game.Level>();
           m_Players = new Game.Player[GameConstants.MAX_PLAYERS];
+          m_Collectables = new Game.Collectable[GameConstants.NUM_COLLECTABLES];
 
-
-          m_AvailableColors = new List<Color>();
+          m_AvailableColors = new List<int>();
       }
 
 
@@ -84,7 +86,10 @@ namespace ProjectionMappingGame.StateMachine
          m_Levels.Clear();
 
          m_AvailableColors.Clear();
-         m_AvailableColors.AddRange(GameConstants.GAME_COLORS);
+         for (int i = 0; i < GameConstants.GAME_COLORS.Length; ++i)
+         {
+             m_AvailableColors.Add(i);
+         }
 
          //AddLevel(GameConstants.WindowWidth, GameConstants.WindowHeight);
 
@@ -116,7 +121,7 @@ namespace ProjectionMappingGame.StateMachine
 
          m_PortalColorIndex = 0;
 
-         
+         m_PowerUpTimer = (float)GameConstants.RANDOM.NextDouble() * (GameConstants.POWERUP_TIME_MAX - GameConstants.POWERUP_TIME_MIN) + GameConstants.POWERUP_TIME_MIN;
       }
 
       public override void Resize(int dx, int dy)
@@ -159,12 +164,29 @@ namespace ProjectionMappingGame.StateMachine
          {
              content.Load<Texture2D>("Textures/Sky-512")
          };
+
+         m_Collectables[0] = new Game.InvinciblePowerup(new Rectangle(0, 0, GameConstants.POWERUP_DIM, GameConstants.POWERUP_DIM), Vector2.Zero, null);
+         m_Collectables[0].SetAnimation(content.Load<Texture2D>("Sprites/Powerups/invincible"), GameConstants.POWERUP_FRAMERATE, GameConstants.POWERUP_FRAMES);
+
+         m_Collectables[1] = new Game.SpeedBoost(new Rectangle(0, 0, GameConstants.POWERUP_DIM, GameConstants.POWERUP_DIM), Vector2.Zero, null);
+         m_Collectables[1].SetAnimation(content.Load<Texture2D>("Sprites/Powerups/speedy"), GameConstants.POWERUP_FRAMERATE, GameConstants.POWERUP_FRAMES);
       }
 
        
 
       public override void Update(float elapsedTime)
       {
+          m_PowerUpTimer -= elapsedTime;
+
+          if (m_PowerUpTimer < 0)
+          {
+              int powerup = GameConstants.RANDOM.Next(m_Collectables.Length);
+
+              m_PowerUpTimer = (float)GameConstants.RANDOM.NextDouble() * (GameConstants.POWERUP_TIME_MAX - GameConstants.POWERUP_TIME_MIN) + GameConstants.POWERUP_TIME_MIN;
+              int lvl = GameConstants.RANDOM.Next(m_Levels.Count);
+              m_Collectables[powerup].Activate(m_Levels[lvl]);
+          }
+
           foreach (Game.Level l in m_Levels)
           {
               l.Update(elapsedTime);
@@ -330,6 +352,13 @@ namespace ProjectionMappingGame.StateMachine
               {
                   FiniteStateMachine.GetInstance().SetState(StateType.MainMenu);
               }
+
+              //DEBUG
+              if (k == Keys.I)
+              {
+                  //m_Players[0].ChangeStatus(Game.Player.Bonus.INVINCIBLE, 5);
+
+              }
           }
       }
 
@@ -417,7 +446,7 @@ namespace ProjectionMappingGame.StateMachine
       }
 
 
-      public List<Color> Colors
+      public List<int> Colors
       {
           get
           {

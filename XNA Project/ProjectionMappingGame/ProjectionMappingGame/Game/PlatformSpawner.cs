@@ -63,8 +63,8 @@ namespace ProjectionMappingGame.Game
                     {
                         num = tilesToSpawn;
                     }
-
-                    plats.Add(new RegularPlatform(new Vector2((m_WindowTilesWide - tilesToSpawn) * GameConstants.TILE_DIM,-GameConstants.TILE_DIM), Vector2.UnitY * GameConstants.PLATFORM_VELOCITY, num, m_PlatTextures[tex]));
+                    RegularPlatform p = new RegularPlatform(new Vector2((m_WindowTilesWide - tilesToSpawn) * GameConstants.TILE_DIM, -GameConstants.TILE_DIM), Vector2.UnitY * GameConstants.PLATFORM_VELOCITY, num, m_PlatTextures[tex]);
+                    plats.Add(p);
                     tilesToSpawn -= num;
                 }
 
