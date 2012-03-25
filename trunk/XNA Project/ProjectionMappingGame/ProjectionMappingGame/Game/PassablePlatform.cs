@@ -15,9 +15,9 @@ namespace ProjectionMappingGame.Game
 
         }
 
-        public override void Collide(Player p, Tile t, CollisionDirections direction)
+        public override bool Collide(MoveableObject obj, CollisionDirections direction)
         {
-            
+            return false;
         }
     }
 }

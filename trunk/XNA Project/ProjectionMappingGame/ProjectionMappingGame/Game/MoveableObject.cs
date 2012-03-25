@@ -7,7 +7,15 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace ProjectionMappingGame.Game
 {
-    public class MoveableObject
+    public enum CollisionDirections
+    {
+        Top,
+        Bot,
+        Left,
+        Right
+    }
+
+    public abstract class MoveableObject
     {
         protected Vector2 m_Velocity;
         protected Vector2 m_Position;
@@ -68,7 +76,12 @@ namespace ProjectionMappingGame.Game
             }
         }
 
-        public void Update(float deltaTime)
+        public virtual void Collide(MoveableObject obj)
+        {
+
+        }
+
+        public virtual void Update(float deltaTime)
         {
             m_Position += m_Velocity * deltaTime;
 
@@ -81,12 +94,13 @@ namespace ProjectionMappingGame.Game
             }
         }
 
-        public void Draw(SpriteBatch batch)
+        public virtual void Draw(SpriteBatch batch)
         {
             if (m_CurrentAnimation != null)
             {
                 m_CurrentAnimation.Draw(batch, m_Bounds, SpriteEffects.None);
             }
         }
+
     }
 }

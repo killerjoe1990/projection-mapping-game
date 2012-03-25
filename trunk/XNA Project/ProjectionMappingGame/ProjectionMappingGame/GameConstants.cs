@@ -89,9 +89,16 @@ namespace ProjectionMappingGame
       public const float START_SPACING = 10;
       public const float START_Y = 50;
 
+      public const int POWERUP_DIM = 24;
+      public const float POWERUP_TIME_MIN = 10;
+      public const float POWERUP_TIME_MAX = 30;
+
       public const int MAX_LAYERS = 10;
 
       public const float MAX_SHADOW = 20f;
+
+      public const float STUN_TIME = 2.0f;
+      public const int NUM_COLLECTABLES = 2;
 
        //HUD
       public const int HUD_WIDTH = 200;
@@ -120,6 +127,9 @@ namespace ProjectionMappingGame
 
       public const float PORTAL_FRAMERATE = 5;
       public const int PORTAL_FRAMES = 4;
+
+      public const float POWERUP_FRAMERATE = 5;
+      public const int POWERUP_FRAMES = 4;
 
        // random
       public static Random RANDOM = new Random();

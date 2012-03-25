@@ -15,12 +15,14 @@ namespace ProjectionMappingGame.Game
 
         }
 
-        public override void Collide(Player p, Tile t, CollisionDirections direction)
+        public override bool Collide(MoveableObject obj, CollisionDirections direction)
         {
             if (direction == CollisionDirections.Bot)
             {
-                p.CollideBot(t);
+                return true;
             }
+
+            return false;
         }
     }
 }

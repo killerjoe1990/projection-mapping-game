@@ -128,6 +128,7 @@
     <Compile Include="Editor\UVSpinBoxPair.cs" />
     <Compile Include="GameConstants.cs" />
     <Compile Include="Game\Animation.cs" />
+    <Compile Include="Game\Collectable.cs" />
     <Compile Include="Game\Level.cs" />
     <Compile Include="Game\MoveableObject.cs" />
     <Compile Include="Game\ImpassablePlatform.cs" />

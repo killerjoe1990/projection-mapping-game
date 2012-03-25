@@ -46,6 +46,10 @@ namespace ProjectionMappingGame.Game
         List<Game.Platform> m_Platforms;
         Game.PlatformSpawner m_PlatSpawn;
 
+        List<Collectable> m_MiscObjects;
+
+        
+
 
         public Level(StateMachine.GamePlayState state, int lvlNum, Game.PlatformSpawner spawner, Texture2D background, GUI.KeyboardInput keyboard, GUI.GamepadInput gamepad, int width, int height, Vector3 normal)
         {
@@ -62,6 +66,8 @@ namespace ProjectionMappingGame.Game
 
             m_PlatSpawn = spawner;
 
+            m_MiscObjects = new List<Collectable>();
+
             m_Background = background;
 
             m_Gamepad = gamepad;
@@ -76,11 +82,12 @@ namespace ProjectionMappingGame.Game
             m_PlatformShadowTarget = new RenderTarget2D(m_GameState.Graphics, m_WindowWidth, m_WindowHeight, true, m_GameState.Graphics.DisplayMode.Format, DepthFormat.Depth24);
             m_PlayerShadowTarget = new RenderTarget2D(m_GameState.Graphics, m_WindowWidth, m_WindowHeight, true, m_GameState.Graphics.DisplayMode.Format, DepthFormat.Depth24);
 
-            // DEBUG
-            m_ShadowOffset = new Vector2(-10, -10);
+            
 
-            m_NormalRotation = Matrix.Identity;
-            m_Normal = Vector3.Backward;
+            // DEBUG
+            //m_ShadowOffset = new Vector2(-10, -10);
+
+            //m_NormalRotation = Matrix.Identity;
         }
 
         public void Update(float elapsedTime)
@@ -110,6 +117,19 @@ namespace ProjectionMappingGame.Game
                 portal.Update(elapsedTime);
             }
 
+            // Update other objects 
+            for (int i = m_MiscObjects.Count - 1; i >= 0; --i)
+            {
+                m_MiscObjects[i].Update(elapsedTime);
+
+                if (!m_MiscObjects[i].Active)
+                {
+                    m_MiscObjects.RemoveAt(i);
+                }
+            }
+
+            CheckBounds(m_MiscObjects);
+
             // Check all player/platform collisions and player/portal collisions
             for (int i = m_Players.Count - 1; i >= 0; --i)
             {
@@ -118,6 +138,8 @@ namespace ProjectionMappingGame.Game
                 if (player != null && player.State == Player.States.PLAYING)
                 {
                     player.CheckCollisions(m_Platforms, elapsedTime);
+
+                    player.CheckCollisions(m_MiscObjects, elapsedTime);
 
                     int portalDest = player.CheckCollisions(m_Portals, elapsedTime);
 
@@ -200,6 +222,11 @@ namespace ProjectionMappingGame.Game
                 platform.Draw(spriteBatch);
             }
 
+            foreach (MoveableObject obj in m_MiscObjects)
+            {
+                obj.Draw(spriteBatch);
+            }
+
             spriteBatch.End();
 
             device.SetRenderTarget(m_PlayerShadowTarget);
@@ -244,7 +271,10 @@ namespace ProjectionMappingGame.Game
                 platform.Draw(spriteBatch);
             }
 
-            
+            foreach (MoveableObject obj in m_MiscObjects)
+            {
+                obj.Draw(spriteBatch);
+            }
 
 
             // HUD goes BEHIND every player.
@@ -301,6 +331,45 @@ namespace ProjectionMappingGame.Game
             player.Position = pos;
         }
 
+        private void CheckBounds(List<Collectable> collectables)
+        {
+            foreach (Collectable c in collectables)
+            {
+                if (c.Active)
+                {
+                    Vector2 pos = c.Position;
+                    Vector2 vel = c.Velocity;
+
+                    if (pos.Y < 0)
+                    {
+                        pos.Y = 0;
+                        vel.Y *= -1;
+                    }
+
+                    if (pos.X < 0)
+                    {
+                        pos.X = 0;
+                        vel.X *= -1;
+                    }
+
+                    if (pos.X + c.Bounds.Width > m_WindowWidth)
+                    {
+                        pos.X = m_WindowWidth - c.Bounds.Width;
+                        vel.X *= -1;
+                    }
+
+                    if (pos.Y + c.Bounds.Height > m_WindowHeight)
+                    {
+                        pos.Y = m_WindowHeight - c.Bounds.Height;
+                        vel.Y *= -1;
+                    }
+
+                    c.Position = pos;
+                    c.Velocity = vel;
+                }
+            }
+        }
+
         public void AddPortal(int dest, Texture2D image, Color c)
         {
             float rangeX = GameConstants.MAX_PORTAL_X - GameConstants.MIN_PORTAL_X;
@@ -322,6 +391,11 @@ namespace ProjectionMappingGame.Game
 
             Portal p = new Portal(portalRect, dest, image, c);
             m_Portals.Add(p);
+        }
+
+        public void AddObject(Collectable obj)
+        {
+            m_MiscObjects.Add(obj);
         }
 
         public void AddPlayer(Player player, int from)

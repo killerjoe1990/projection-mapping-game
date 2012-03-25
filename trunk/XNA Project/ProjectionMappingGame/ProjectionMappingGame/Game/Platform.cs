@@ -21,13 +21,7 @@ namespace ProjectionMappingGame.Game
         Dead
     }
 
-    public enum CollisionDirections
-    {
-        Top,
-        Bot,
-        Left,
-        Right
-    }
+    
 
     public class Tile : MoveableObject
     {
@@ -40,8 +34,9 @@ namespace ProjectionMappingGame.Game
 
     public abstract class Platform
     {
-        Tile[] m_Tiles;
-        PlatformStatus m_Status;
+        protected Tile[] m_Tiles;
+        protected PlatformStatus m_Status;
+
         public Platform(Vector2 position, Vector2 velocity, int tilesWide, Texture2D[] images)
         {
             m_Status = PlatformStatus.Asleep;
@@ -121,6 +116,8 @@ namespace ProjectionMappingGame.Game
             }
         }
 
+        public abstract bool Collide(MoveableObject obj, CollisionDirections dir);
+
         public virtual void Update(float deltaTime)
         {
             foreach (Tile t in m_Tiles)
@@ -136,7 +133,5 @@ namespace ProjectionMappingGame.Game
                 t.Draw(batch);
             }
         }
-
-        public abstract void Collide(Player p, Tile t, CollisionDirections direction);
     }
 }
