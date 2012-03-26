@@ -39,7 +39,7 @@ namespace ProjectionMappingGame
       public const StateType DEFAULT_STATE = StateType.MainMenu;
 
        // Physics
-      public const float GRAVITY = 1300.0f;
+      public const float GRAVITY = 1500.0f;
       public const float MAX_FALL_SPEED = 2000.0f;
 
       // Editor constants
@@ -60,10 +60,14 @@ namespace ProjectionMappingGame
       public const int DEFAULT_TILES_HIGH = 32;
       public const int MAX_TILES_WIDE = 100;
       public const int MAX_TILES_HIGH = 100;
-      public const float PLATFORM_VELOCITY = 70;
+      public const float PLATFORM_VELOCITY = 130;
       public const int PLAT_MAX_WIDTH = 6;
-      public const int PLAT_MIN_WIDTH = 2;
+      public const int PLAT_MIN_WIDTH = 3;
       public const int MAX_PATHS = 3;
+      public const int PLAT_MAX_Y_SPAWN_DELTA = 64;
+      public const int PLAT_MIN_Y_SPAWN_DELTA = 0;
+      public const int BLINKPLAT_CHANCE_TO_BLINK_ON_JUMP = 15;  // Out of 100
+      public const int CHANCE_TO_SPAWN_BLINKPLAT = 35;          //Out of 100
 
        //Portals
       public const int PORTAL_DIM = 75;
@@ -78,8 +82,8 @@ namespace ProjectionMappingGame
       public const int MAX_PLAYERS = 4;
       public const int PLAYER_DIM_X = 48;
       public const int PLAYER_DIM_Y = 48;
-      public const float JUMP_IMPULSE = -37000;
-      public const float MOVE_SPEED = 7300;
+      public const float JUMP_IMPULSE = -43000;
+      public const float MOVE_SPEED = 12300;
       public const float BOUNCE_IMPULSE_UP = -25000;
       public const float BOUNCE_IMPULSE_DOWN = 0;
       public const int POINTS_FOR_KILL = 20;

@@ -106,9 +106,14 @@ namespace ProjectionMappingGame.Game
             }
 
             // Update all platforms FIRST
-            foreach (Platform platform in m_Platforms)
+            for (int i = m_Platforms.Count - 1; i >= 0; --i)
             {
-                platform.Update(elapsedTime);
+                m_Platforms[i].Update(elapsedTime);
+
+                if (m_Platforms[i].Status == PlatformStatus.Dead)
+                {
+                    m_Platforms.RemoveAt(i);
+                }
             }
 
             // Update portals
