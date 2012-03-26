@@ -49,6 +49,10 @@ namespace ProjectionMappingGame.Game
         {
             m_Color = c;
         }
+        public Color getColor()
+        {
+            return m_Color;
+        }
 
         public void Update(float deltaTime)
         {

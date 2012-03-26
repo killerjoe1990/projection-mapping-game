@@ -56,6 +56,8 @@ namespace ProjectionMappingGame.StateMachine
 
       Game.Collectable[] m_Collectables;
 
+      Game.ScoreBoard m_ScoreBoard;
+
       int m_PortalColorIndex;
       float m_PowerUpTimer;
 
@@ -77,6 +79,8 @@ namespace ProjectionMappingGame.StateMachine
           m_Collectables = new Game.Collectable[GameConstants.NUM_COLLECTABLES];
 
           m_AvailableColors = new List<int>();
+
+          m_ScoreBoard = new Game.ScoreBoard(game, 0, 0, GameConstants.WindowWidth, GameConstants.WindowHeight);
       }
 
 
@@ -368,6 +372,7 @@ namespace ProjectionMappingGame.StateMachine
           {
               l.Draw(spriteBatch, m_Game.GraphicsDevice);
           }
+          m_ScoreBoard.Draw(spriteBatch,m_Players);
       }
 
       #region Public Access TV
