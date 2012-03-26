@@ -76,6 +76,11 @@ namespace ProjectionMappingGame.Game
             }
         }
 
+        public void SetColor(Color color)
+        {
+            m_CurrentAnimation.SetColor(color);
+        }
+
         public virtual void Collide(MoveableObject obj)
         {
 
