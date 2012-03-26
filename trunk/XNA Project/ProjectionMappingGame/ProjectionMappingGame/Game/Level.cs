@@ -283,13 +283,13 @@ namespace ProjectionMappingGame.Game
 
 
             // HUD goes BEHIND every player.
-            foreach (Player player in m_Players)
+           /* foreach (Player player in m_Players)
             {
                 if (player != null)
                 {
                     player.DrawHUD(spriteBatch);
                 }
-            }
+            }*/
 
             // Players should ALWAYS be on top.
             foreach (Player player in m_Players)

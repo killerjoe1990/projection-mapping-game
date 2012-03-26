@@ -42,7 +42,7 @@ namespace ProjectionMappingGame.Game
             m_CurrentAnimation = null;
         }
 
-        public Animation getAnimation()
+        public Animation GetAnimation()
         {
             return this.m_CurrentAnimation;
         }
