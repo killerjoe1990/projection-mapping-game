@@ -27,8 +27,8 @@ namespace ProjectionMappingGame.Game
     {
 
         public Tile(Vector2 position, Vector2 velocity, Texture2D image)
-            : base(new Rectangle((int)position.X,(int)position.Y, GameConstants.TILE_DIM,GameConstants.TILE_DIM), velocity, image)
-        {   
+            : base(new Rectangle((int)position.X, (int)position.Y, GameConstants.TILE_DIM, GameConstants.TILE_DIM), velocity, image)
+        {
         }
     }
 
