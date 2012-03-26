@@ -54,9 +54,10 @@ namespace ProjectionMappingGame.Game
                 base.Draw(batch);
                 if (isBlinking == true && this.colorForAlpha.A > 0 && isLoweringNumber == true)
                 {
-                    colorForAlpha.A--;
-                    if (colorForAlpha.A == 0)
+                    colorForAlpha.A-= 5;
+                    if (colorForAlpha.A <= 0)
                     {
+                        colorForAlpha.A = 0;
                         isLoweringNumber = false;
                     }
                     foreach (MoveableObject o in Tiles)
@@ -66,9 +67,10 @@ namespace ProjectionMappingGame.Game
                 }
                 else if (isBlinking == true && this.colorForAlpha.A < 255 && isLoweringNumber == false)
                 {
-                    colorForAlpha.A++;
-                    if (colorForAlpha.A == 255)
+                    colorForAlpha.A+= 5;
+                    if (colorForAlpha.A >= 255)
                     {
+                        colorForAlpha.A = 255;
                         isLoweringNumber = true;
                     }
                     foreach (MoveableObject o in Tiles)
