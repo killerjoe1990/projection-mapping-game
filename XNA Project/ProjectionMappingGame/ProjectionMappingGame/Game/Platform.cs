@@ -37,6 +37,7 @@ namespace ProjectionMappingGame.Game
         protected Tile[] m_Tiles;
         protected PlatformStatus m_Status;
 
+        
         public Platform(Vector2 position, Vector2 velocity, int tilesWide, Texture2D[] images)
         {
             m_Status = PlatformStatus.Asleep;

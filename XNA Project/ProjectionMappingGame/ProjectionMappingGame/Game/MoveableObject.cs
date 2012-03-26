@@ -42,6 +42,11 @@ namespace ProjectionMappingGame.Game
             m_CurrentAnimation = null;
         }
 
+        public Animation getAnimation()
+        {
+            return this.m_CurrentAnimation;
+        }
+
         public Vector2 Position
         {
             get
