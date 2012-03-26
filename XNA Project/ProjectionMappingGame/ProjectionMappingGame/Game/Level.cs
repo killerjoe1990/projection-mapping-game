@@ -110,7 +110,7 @@ namespace ProjectionMappingGame.Game
             {
                 m_Platforms[i].Update(elapsedTime);
 
-                if (m_Platforms[i].Status == PlatformStatus.Dead)
+                if (m_Platforms[i].Status == PlatformStatus.Dead || m_Platforms[i].Position.Y >= GameConstants.WindowHeight + GameConstants.TILE_DIM*2)
                 {
                     m_Platforms.RemoveAt(i);
                 }
