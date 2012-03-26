@@ -139,6 +139,7 @@
     <Compile Include="Game\RegularPlatform.cs" />
     <Compile Include="Game\Player.cs" />
     <Compile Include="Game\Portal.cs" />
+    <Compile Include="Game\ScoreBoard.cs" />
     <Compile Include="GUI\Button.cs" />
     <Compile Include="GUI\Checkbox.cs" />
     <Compile Include="GUI\InputController.cs" />
