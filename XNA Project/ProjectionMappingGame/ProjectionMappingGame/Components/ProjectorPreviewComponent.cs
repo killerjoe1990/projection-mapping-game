@@ -423,8 +423,8 @@ namespace ProjectionMappingGame.Components
                m_Projectors[i].Entity.Draw(m_SolidColorShader, m_Game.GraphicsDevice);
 
                // Render projector frustum
-               //if (m_Gizmo.SelectedID == m_Projectors[i].Entity.ID)
-               //   DrawProjectorFrustum(m_FrustumEffect, m_Projectors[i]);
+               if (m_Gizmo.SelectedID == m_Projectors[i].Entity.ID)
+                  DrawProjectorFrustum(m_FrustumEffect, m_Projectors[i]);
             }
 
             // Draw gizmo component

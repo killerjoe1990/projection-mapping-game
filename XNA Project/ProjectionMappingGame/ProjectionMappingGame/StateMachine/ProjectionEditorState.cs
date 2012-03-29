@@ -133,6 +133,7 @@ namespace ProjectionMappingGame.StateMachine
       Label m_SelectedFaceGameplayLayerLabel;
       NumUpDown m_SelectedFaceGameplayLayerSpinBox;
       Checkbox m_SelectedFaceWallCheckbox;
+      Checkbox m_SelectedFaceScoreboardCheckbox;
 
       const int GUI_LEFT_MENU_COLUMN_1_X = GUI_LEFT_TOOLBAR_X + 5;
       const int GUI_LEFT_MENU_COLUMN_1_X_TABBED = GUI_LEFT_TOOLBAR_X + 15;
@@ -478,7 +479,7 @@ namespace ProjectionMappingGame.StateMachine
          m_SelectedFaceUVSpinBox[3] = new UVSpinBoxPair(new Vector2(GUI_LEFT_TOOLBAR_X + 50, GUI_SELECTED_QUAD_Y + GUI_MENU_ITEM_HEIGHT * 5), m_WhiteTexture, m_SpinBoxFillTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, m_MouseInput);
 
          // Buttons
-         m_ToLocalCoordButton = new Button(new Rectangle(GUI_LEFT_MENU_COLUMN_1_X + 5, GUI_SELECTED_QUAD_Y + GUI_MENU_ITEM_HEIGHT * 8 + 12, GUI_LOCAL_COORD_BUTTON_WIDTH, GUI_QUIT_BUTTON_HEIGHT), m_ButtonTexture, m_MouseInput, m_ArialFont10, "Reset To Local", Color.Black);
+         m_ToLocalCoordButton = new Button(new Rectangle(GUI_LEFT_MENU_COLUMN_1_X + 5, GUI_SELECTED_QUAD_Y + GUI_MENU_ITEM_HEIGHT * 9 + 12, GUI_LOCAL_COORD_BUTTON_WIDTH, GUI_QUIT_BUTTON_HEIGHT), m_ButtonTexture, m_MouseInput, m_ArialFont10, "Reset To Local", Color.Black);
          m_ToLocalCoordButton.SetImage(Button.ImageType.OVER, m_ButtonTextureOnHover);
          m_ToLocalCoordButton.SetImage(Button.ImageType.CLICK, m_ButtonTextureOnPress);
          m_ToLocalCoordButton.RegisterOnClick(ToLocalCoordButton_OnClick);
@@ -499,6 +500,22 @@ namespace ProjectionMappingGame.StateMachine
             Color.Black
          );
          m_SelectedFaceWallCheckbox.RegisterOnClick(SelectedFaceWallCheckbox_OnClick);
+         m_SelectedFaceScoreboardCheckbox = new Checkbox(
+            new Rectangle(GUI_LEFT_MENU_COLUMN_1_X + 10, GUI_SELECTED_QUAD_Y + GUI_MENU_ITEM_HEIGHT * 8 + 4, 129, GUI_SPINBOX_HEIGHT),
+            false,
+            m_CheckboxCheckedTexture,
+            m_CheckboxCheckedTextureOnHover,
+            m_CheckboxCheckedTextureOnPress,
+            m_CheckboxUnCheckedTexture,
+            m_CheckboxUnCheckedTextureOnHover,
+            m_CheckboxUnCheckedTextureOnPress,
+            m_MouseInput,
+            m_ArialFont10,
+            "Scoreboard",
+            Color.Black
+         );
+         m_SelectedFaceScoreboardCheckbox.RegisterOnClick(SelectedFaceScoreboardCheckbox_OnClick);
+
 
          #endregion
 
@@ -747,6 +764,7 @@ namespace ProjectionMappingGame.StateMachine
             }
             m_SelectedFaceGameplayLayerSpinBox.IsActive = m_UVDualEdgeGraphEditor.IsQuadSelected;
             m_SelectedFaceWallCheckbox.IsActive = m_UVDualEdgeGraphEditor.IsQuadSelected;
+            m_SelectedFaceScoreboardCheckbox.IsActive = m_UVDualEdgeGraphEditor.IsQuadSelected;
             m_ToLocalCoordButton.IsActive = m_UVDualEdgeGraphEditor.IsQuadSelected;
             if (m_UVDualEdgeGraphEditor.EdgeGraph != null)
             {
@@ -1061,6 +1079,7 @@ namespace ProjectionMappingGame.StateMachine
          m_SelectedFaceUVSpinBox[3].TexCoord = m_UVDualEdgeGraphEditor.SelectedQuadTexCoords[3];
          m_SelectedFaceGameplayLayerSpinBox.Value = (m_UVDualEdgeGraphEditor.SelectedInputLayer + 1);
          m_SelectedFaceWallCheckbox.IsChecked = m_UVDualEdgeGraphEditor.SelectedQuadIsWall;
+         m_SelectedFaceScoreboardCheckbox.IsChecked = m_UVDualEdgeGraphEditor.SelectedQuadIsScoreboard;
 
          for (int i = 0; i < 4; ++i)
          {
@@ -1144,6 +1163,14 @@ namespace ProjectionMappingGame.StateMachine
          if (m_UVDualEdgeGraphEditor.IsQuadSelected)
          {
             m_UVDualEdgeGraphEditor.SelectedQuadIsWall = m_SelectedFaceWallCheckbox.IsChecked;
+         }
+      }
+
+      void SelectedFaceScoreboardCheckbox_OnClick(object sender, EventArgs e)
+      {
+         if (m_UVDualEdgeGraphEditor.IsQuadSelected)
+         {
+            m_UVDualEdgeGraphEditor.SelectedQuadIsScoreboard = m_SelectedFaceScoreboardCheckbox.IsChecked;
          }
       }
 
@@ -1705,6 +1732,7 @@ namespace ProjectionMappingGame.StateMachine
          m_SelectedFaceGameplayLayerSpinBox.Draw(m_Game.GraphicsDevice, spriteBatch);
          m_SelectedFaceGameplayLayerLabel.Draw(m_Game.GraphicsDevice, spriteBatch);
          m_SelectedFaceWallCheckbox.Draw(m_Game.GraphicsDevice, spriteBatch);
+         m_SelectedFaceScoreboardCheckbox.Draw(m_Game.GraphicsDevice, spriteBatch);
          m_ToLocalCoordButton.Draw(m_Game.GraphicsDevice, spriteBatch);
       }
 
