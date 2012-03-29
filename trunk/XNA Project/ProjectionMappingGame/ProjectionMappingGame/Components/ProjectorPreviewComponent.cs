@@ -149,9 +149,21 @@ namespace ProjectionMappingGame.Components
 
       public void Reset()
       {
+         m_Projectors.Clear();
+         m_Buildings.Clear();
+         AddBuilding();
+
+         m_Gizmo.DeselectAll();
+
          // Set defaults
          m_RenderProjectorFrustum = true;
          m_EditorMode = true;
+         m_RenderNormals = false;
+         m_SelectedNormal = Vector3.Zero;
+         m_SelectedProjector = -1;
+         m_SelectedBuilding = -1;
+         m_RenderTarget.Dispose();
+         m_RenderTarget = new RenderTarget2D(m_Game.GraphicsDevice, m_Viewport.Width, m_Viewport.Height, true, m_Game.GraphicsDevice.DisplayMode.Format, DepthFormat.Depth24);
       }
 
       public void LoadContent(ContentManager content)

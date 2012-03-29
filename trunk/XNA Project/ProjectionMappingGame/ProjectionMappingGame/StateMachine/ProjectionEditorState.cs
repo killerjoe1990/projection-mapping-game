@@ -289,9 +289,15 @@ namespace ProjectionMappingGame.StateMachine
 
       public override void Reset()
       {
+         m_FocusedPane = 0;
+         m_EditorMode = true;
+         m_DEM_GAMES = false;
+
          m_UVDualEdgeGraphEditor.Reset();
          m_UVGridEditor.Reset();
          m_ProjectorPreview.Reset();
+         m_ProjectorPreview.DeSelectProjector();
+         m_ProjectorPreview.DeSelectBuilding();
 
          // Create the default gameplay layer
          m_LayersScrollView.Clear();
