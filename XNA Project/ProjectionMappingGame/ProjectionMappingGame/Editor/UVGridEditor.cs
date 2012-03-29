@@ -106,14 +106,19 @@ namespace ProjectionMappingGame.Editor
 
       public void Reset()
       {
-         m_HasUpdates = false;
+         // Defaults
          m_PlacingPoint = false;
+         m_HasUpdates = false;
+
+         // Initialize input
+         m_PrevMouseState = Mouse.GetState();
+         m_PrevKeyboardState = Keyboard.GetState();
          m_SelectedVertex = -1;
          m_HoveredVertex = -1;
 
-         // Reset the grid
-         if (m_Grid != null) m_Grid.Reset(m_Viewport.Width, m_Viewport.Height);
-         
+         // Initialize grid 
+         m_Grid = null;
+
          m_ViewMatrix = Matrix.CreateLookAt(new Vector3(0.0f, 0.0f, 1.0f), Vector3.Zero, Vector3.Up);
          m_ProjectionMatrix = Matrix.CreateOrthographicOffCenter(0, m_Viewport.Width, m_Viewport.Height, 0, 1.0f, 1000.0f);
       }
