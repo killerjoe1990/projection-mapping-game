@@ -33,6 +33,7 @@ namespace ProjectionMappingGame.StateMachine
 
       // Fonts
       SpriteFont m_ArialFont;
+      SpriteFont m_ArialFontLarge;
 
       Texture2D m_PlayerIdleTex;
       Texture2D m_PlayerRunTex;
@@ -99,11 +100,11 @@ namespace ProjectionMappingGame.StateMachine
 
          m_Players[(int)PlayerIndex.One] = new Game.Player(this, m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, m_Keyboard, PlayerIndex.One);
 
-         m_Players[(int)PlayerIndex.Two] = new Game.Player(this, m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, PlayerIndex.Two);
+         m_Players[(int)PlayerIndex.Two] = new Game.Player(this, m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, m_Keyboard, PlayerIndex.Two);
 
-         m_Players[(int)PlayerIndex.Three] = new Game.Player(this, m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, PlayerIndex.Three);
+         m_Players[(int)PlayerIndex.Three] = new Game.Player(this, m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, m_Keyboard, PlayerIndex.Three);
 
-         m_Players[(int)PlayerIndex.Four] = new Game.Player(this, m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, PlayerIndex.Four);
+         m_Players[(int)PlayerIndex.Four] = new Game.Player(this, m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, m_Keyboard, PlayerIndex.Four);
 
          m_Players[(int)PlayerIndex.Four].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, GameConstants.PLAYER_RUN_FRAMES, GameConstants.PLAYER_RUN_FRAMERATE, true));
          m_Players[(int)PlayerIndex.Four].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, GameConstants.PLAYER_JUMP_FRAMES, GameConstants.PLAYER_JUMP_FRAMERATE, false));
@@ -118,10 +119,12 @@ namespace ProjectionMappingGame.StateMachine
          m_Players[(int)PlayerIndex.Two].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, GameConstants.PLAYER_JUMP_FRAMES, GameConstants.PLAYER_JUMP_FRAMERATE, false));
 
 
-         m_Players[(int)PlayerIndex.One].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex);
-         m_Players[(int)PlayerIndex.Two].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex);
-         m_Players[(int)PlayerIndex.Three].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex);
-         m_Players[(int)PlayerIndex.Four].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex);
+         m_Players[(int)PlayerIndex.One].LoadHudContent(m_ArialFontLarge, m_Game.GraphicsDevice, m_HUDTex);
+         m_Players[(int)PlayerIndex.Two].LoadHudContent(m_ArialFontLarge, m_Game.GraphicsDevice, m_HUDTex);
+         m_Players[(int)PlayerIndex.Three].LoadHudContent(m_ArialFontLarge, m_Game.GraphicsDevice, m_HUDTex);
+         m_Players[(int)PlayerIndex.Four].LoadHudContent(m_ArialFontLarge, m_Game.GraphicsDevice, m_HUDTex);
+
+         m_ScoreBoard.LoadContent(m_HUDTex,m_ArialFontLarge);
 
          m_PortalColorIndex = 0;
 
@@ -137,6 +140,7 @@ namespace ProjectionMappingGame.StateMachine
       {
          // Load fonts
          m_ArialFont = content.Load<SpriteFont>("Fonts/Arial");
+         m_ArialFontLarge = content.Load<SpriteFont>("Fonts/Arial48");
           // Load Sprites
          m_PlayerIdleTex = content.Load<Texture2D>("Sprites/Idle Complete");
          m_PlayerRunTex = content.Load<Texture2D>("Sprites/Move Complete");
@@ -195,11 +199,15 @@ namespace ProjectionMappingGame.StateMachine
           {
               l.Update(elapsedTime);
           }
+          m_ScoreBoard.Update(elapsedTime, m_Players);
       }
 
       public override void HandleInput(float elapsedTime)
       {
           m_Keyboard.HandleInput(PlayerIndex.One);
+          m_Keyboard.HandleInput(PlayerIndex.Two);
+          m_Keyboard.HandleInput(PlayerIndex.Three);
+          m_Keyboard.HandleInput(PlayerIndex.Four);
 
           foreach (Game.Level l in m_Levels)
           {
@@ -380,9 +388,9 @@ namespace ProjectionMappingGame.StateMachine
       public void StartNewGame()
       {
          m_Players[(int)PlayerIndex.One] = new Game.Player(this, m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, m_Keyboard, PlayerIndex.One);
-         m_Players[(int)PlayerIndex.Two] = new Game.Player(this, m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, PlayerIndex.Two);
-         m_Players[(int)PlayerIndex.Three] = new Game.Player(this, m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, PlayerIndex.Three);
-         m_Players[(int)PlayerIndex.Four] = new Game.Player(this, m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, PlayerIndex.Four);
+         m_Players[(int)PlayerIndex.Two] = new Game.Player(this, m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, m_Keyboard, PlayerIndex.Two);
+         m_Players[(int)PlayerIndex.Three] = new Game.Player(this, m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, m_Keyboard, PlayerIndex.Three);
+         m_Players[(int)PlayerIndex.Four] = new Game.Player(this, m_PlayerIdleTex, new Rectangle(0, 0, GameConstants.PLAYER_DIM_X, GameConstants.PLAYER_DIM_Y), m_Gamepad, m_Keyboard, PlayerIndex.Four);
          m_Players[(int)PlayerIndex.Four].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_RUN_FRAMERATE, true));
          m_Players[(int)PlayerIndex.Four].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_RUN_FRAMERATE, false));
          m_Players[(int)PlayerIndex.Three].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_RUN_FRAMERATE, true));
@@ -395,6 +403,7 @@ namespace ProjectionMappingGame.StateMachine
          m_Players[(int)PlayerIndex.Two].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex);
          m_Players[(int)PlayerIndex.Three].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex);
          m_Players[(int)PlayerIndex.Four].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex);
+         m_ScoreBoard.LoadContent(m_HUDTex,m_ArialFontLarge);
 
          foreach (Game.Player p in m_Players)
          {

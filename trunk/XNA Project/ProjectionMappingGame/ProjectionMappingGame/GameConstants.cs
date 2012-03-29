@@ -107,7 +107,7 @@ namespace ProjectionMappingGame
        //HUD
       public const int HUD_WIDTH = 200;
       public const int HUD_HEIGHT = 60;
-      public const int HUD_ICON_DIM = 32;
+      public const int HUD_ICON_DIM = 64;
       public static Color HUD_COLOR = Color.Black;
       public static Color[] GAME_COLORS = new Color[]
        {
@@ -120,7 +120,6 @@ namespace ProjectionMappingGame
            Color.Pink,
            Color.Gray,
            Color.Cyan,
-           Color.White
        };
 
        //animation
