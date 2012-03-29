@@ -93,4 +93,5 @@ Content\Textures\GUI\link_layer_button.xnb
 Content\Textures\GUI\link_layer_button_on_hover.xnb
 Content\Sprites\Powerups\invincible.xnb
 Content\Sprites\Powerups\speedy.xnb
+Content\Fonts\Arial48.xnb
 Content\Shaders\Includes.inc
