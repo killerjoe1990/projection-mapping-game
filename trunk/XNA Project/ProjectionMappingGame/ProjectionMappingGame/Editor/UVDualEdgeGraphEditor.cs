@@ -626,6 +626,12 @@ namespace ProjectionMappingGame.Editor
          set { m_DualEdgeGraph.Quads[m_SelectedQuad].IsWall = value; }
       }
 
+      public bool SelectedQuadIsScoreboard
+      {
+         get { return m_DualEdgeGraph.Quads[m_SelectedQuad].IsScoreboard; }
+         set { m_DualEdgeGraph.Quads[m_SelectedQuad].IsScoreboard = value; }
+      }
+
       public Vector2[] SelectedQuadTexCoords
       {
          get
