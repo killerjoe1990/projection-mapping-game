@@ -159,7 +159,7 @@ namespace ProjectionMappingGame.Game
         {
             m_WindowSize = lvl.WindowSize;
 
-            m_PlayerHud.WindowSize = lvl.WindowSize;
+            //m_PlayerHud.WindowSize = lvl.WindowSize;
         }
 
         public void SetColor(Color c)

@@ -318,7 +318,8 @@ namespace ProjectionMappingGame.StateMachine
                renderTargets[i] = gameplay.GetRenderTarget(i);
             }
             projectionEditor.GameplayRenderTargets = renderTargets;
-
+            projectionEditor.ScoreboardInput = gameplay.Scoreboard.RenderTargetTexture;
+             
             gameplay.SetLight(projectionEditor.Light.Direction);
          }
 

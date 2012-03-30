@@ -1,13 +1,20 @@
 Content\Fonts\Arial.xnb
 Content\Fonts\gizmoFont.xnb
+Content\Fonts\Arial10.xnb
+Content\Fonts\Arial48.xnb
 Content\Models\plane.xnb
 Content\Models\cube.xnb
 Content\Models\sphere.xnb
 Content\Models\gizmo_rotate.xnb
 Content\Models\gizmo_scale.xnb
 Content\Models\gizmo_translate.xnb
+Content\Models\building.xnb
+Content\Models\bldgV_4centered.xnb
 Content\Shaders\ProjectiveMapping.xnb
 Content\Shaders\SolidColor.xnb
+Content\Shaders\ColorPicker.xnb
+Content\Shaders\Phong.xnb
+Content\Shaders\Normals.xnb
 Content\Textures\flashlight.xnb
 Content\Textures\vegeta.xnb
 Content\Textures\white.xnb
@@ -17,8 +24,6 @@ Content\Tiles\Type2\BlockB1.xnb
 Content\Tiles\Type2\Platform.xnb
 Content\Sprites\Idle.xnb
 Content\Textures\Layer0_2.xnb
-Content\Fonts\Arial10.xnb
-Content\Models\building.xnb
 Content\Sprites\Jump.xnb
 Content\Sprites\Run.xnb
 Content\Textures\GUI\Border Image.xnb
@@ -41,8 +46,6 @@ Content\Textures\GUI\scale_on_hover.xnb
 Content\Textures\GUI\spinbox_down.xnb
 Content\Textures\GUI\spinbox_up.xnb
 Content\Textures\GUI\spinbox_fill.xnb
-Content\Models\bldgV_4centered.xnb
-Content\Shaders\ColorPicker.xnb
 Content\Textures\GUI\square_button.xnb
 Content\Textures\GUI\square_button_on_hover.xnb
 Content\Textures\GUI\color_picker_preview.xnb
@@ -60,7 +63,6 @@ Content\Textures\GUI\shift_layer_up_button_on_hover.xnb
 Content\Textures\GUI\trash_button.xnb
 Content\Textures\GUI\trash_button_on_hover.xnb
 Content\Textures\default_editor_input.xnb
-Content\Shaders\Phong.xnb
 Content\Textures\GUI\slider_bar.xnb
 Content\Textures\GUI\slider_pad.xnb
 Content\Textures\GUI\edit_layer_button.xnb
@@ -68,7 +70,6 @@ Content\Textures\GUI\edit_layer_button_on_hover.xnb
 Content\Textures\GUI\visible_layer_button.xnb
 Content\Textures\GUI\visible_layer_button_on_hover.xnb
 Content\Textures\red.xnb
-Content\Shaders\Normals.xnb
 Content\Textures\GUI\quad_fill.xnb
 Content\Textures\wall.xnb
 Content\Textures\GUI\checkbox_off.xnb
@@ -93,5 +94,4 @@ Content\Textures\GUI\link_layer_button.xnb
 Content\Textures\GUI\link_layer_button_on_hover.xnb
 Content\Sprites\Powerups\invincible.xnb
 Content\Sprites\Powerups\speedy.xnb
-Content\Fonts\Arial48.xnb
 Content\Shaders\Includes.inc
