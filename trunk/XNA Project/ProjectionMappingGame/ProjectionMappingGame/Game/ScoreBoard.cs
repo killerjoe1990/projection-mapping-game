@@ -88,7 +88,7 @@ namespace ProjectionMappingGame.Game
 
             m_Game.GraphicsDevice.SetRenderTarget(null);
             m_Game.GraphicsDevice.Clear(Color.Black);
-            m_Game.GraphicsDevice.Viewport = m_Viewport;
+            //m_Game.GraphicsDevice.Viewport = m_Viewport;
             m_RenderTargetTexture = (Texture2D)m_RenderTarget;
         }
 
@@ -103,7 +103,7 @@ namespace ProjectionMappingGame.Game
 
             for (int i = 0; i < players.Length; ++i)
             {
-                players[i].HUD.Draw(spriteBatch, players[i].GetAnimation().getColor(), (players[i].State != Player.States.PLAYING));
+                players[i].HUD.Draw(spriteBatch, players[i].GetAnimation().getColor(), (players[i].State == Player.States.SPAWNING));
 
             }
 

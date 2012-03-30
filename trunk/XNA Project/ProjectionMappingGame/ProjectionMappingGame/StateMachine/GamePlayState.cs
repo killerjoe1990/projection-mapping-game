@@ -186,13 +186,18 @@ namespace ProjectionMappingGame.StateMachine
       {
           m_PowerUpTimer -= elapsedTime;
 
-          if (m_PowerUpTimer < 0)
+          foreach(Game.Collectable collect in m_Collectables)
           {
-              int powerup = GameConstants.RANDOM.Next(m_Collectables.Length);
+              if (!collect.Active)
+              {
+                  collect.Update(elapsedTime);
+              }
 
-              m_PowerUpTimer = (float)GameConstants.RANDOM.NextDouble() * (GameConstants.POWERUP_TIME_MAX - GameConstants.POWERUP_TIME_MIN) + GameConstants.POWERUP_TIME_MIN;
-              int lvl = GameConstants.RANDOM.Next(m_Levels.Count);
-              m_Collectables[powerup].Activate(m_Levels[lvl]);
+              if (collect.SpawnReady)
+              {
+                  int lvl = GameConstants.RANDOM.Next(m_Levels.Count);
+                  collect.Activate(m_Levels[lvl]);
+              }
           }
 
           foreach (Game.Level l in m_Levels)

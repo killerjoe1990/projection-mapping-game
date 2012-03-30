@@ -12,13 +12,23 @@ namespace ProjectionMappingGame.Game
     {
         const float SPEED = 120;
 
+        float m_SpawnTimer;
+
         public Collectable(Rectangle bounds, Vector2 velocity, Texture2D image)
             : base(bounds, velocity, image)
         {
             Active = false;
+
+            m_SpawnTimer = (float)GameConstants.RANDOM.NextDouble() * (GameConstants.POWERUP_TIME_MAX - GameConstants.POWERUP_TIME_MIN) + GameConstants.POWERUP_TIME_MIN;
         }
 
         public bool Active
+        {
+            get;
+            protected set;
+        }
+
+        public bool SpawnReady
         {
             get;
             protected set;
@@ -42,6 +52,8 @@ namespace ProjectionMappingGame.Game
             m_Velocity = velocity * SPEED;
 
             Active = true;
+            SpawnReady = false;
+            m_SpawnTimer = (float)GameConstants.RANDOM.NextDouble() * (GameConstants.POWERUP_TIME_MAX - GameConstants.POWERUP_TIME_MIN) + GameConstants.POWERUP_TIME_MIN;
         }
 
         public override void Update(float deltaTime)
@@ -49,6 +61,15 @@ namespace ProjectionMappingGame.Game
             if (Active)
             {
                 base.Update(deltaTime);
+            }
+            else
+            {
+                m_SpawnTimer -= deltaTime;
+
+                if (m_SpawnTimer <= 0)
+                {
+                    SpawnReady = true;
+                }
             }
         }
 
