@@ -487,6 +487,7 @@ namespace ProjectionMappingGame.Game
                     break;
 
                 case States.SPAWNING:
+                    m_ColorIndex %= m_Parent.Colors.Count;
                     m_PlayerColor = m_Parent.Colors[m_ColorIndex];
                     m_Animations[(int)Animations.IDLE].SetColor(GameConstants.GAME_COLORS[m_PlayerColor]);
                     break;
