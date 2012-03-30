@@ -214,9 +214,9 @@ namespace ProjectionMappingGame.Game
                 case States.PLAYING:
                     if (keys.Contains(Keys.Space))// && m_OnGround)
                     {
-                        if (m_OnGround)
+                        if (m_OnGround && m_Status != Bonus.STUNNED)
                         {
-                            m_Impulse += Vector2.UnitY * GameConstants.JUMP_IMPULSE;
+                            m_Impulse += Vector2.UnitY * GameConstants.JUMP_IMPULSE * m_SpeedMult;
 
                             if (m_Animations[(int)Animations.JUMP] != null)
                             {
@@ -257,7 +257,7 @@ namespace ProjectionMappingGame.Game
 
                         if (m_ColorIndex < 0)
                         {
-                            m_ColorIndex = GameConstants.GAME_COLORS.Length - 1;
+                            m_ColorIndex = m_Parent.Colors.Count - 1;
                         }
 
                         m_Animations[(int)Animations.IDLE].SetColor(GameConstants.GAME_COLORS[m_Parent.Colors[m_ColorIndex]]);
@@ -305,7 +305,9 @@ namespace ProjectionMappingGame.Game
                 case States.PLAYING:
                     if (button.Equals(GUI.GamepadInput.Buttons.A) && m_OnGround)
                     {
-                        m_Impulse += Vector2.UnitY * GameConstants.JUMP_IMPULSE;
+                        float mult = (float)Math.Pow((double)m_SpeedMult, 0.25);
+
+                        m_Impulse += Vector2.UnitY * GameConstants.JUMP_IMPULSE * (mult);
 
                         if (m_Animations[(int)Animations.JUMP] != null)
                         {
@@ -560,15 +562,18 @@ namespace ProjectionMappingGame.Game
             switch (m_Status)
             {
                 case Bonus.NONE:
-                    if (CheckTop(nextPosition, otherPos, player.GetNextPosition(deltaTime), otherBound))
+                    if (player.Status != Bonus.INVINCIBLE)
                     {
-                        m_CollisionImpulse += Vector2.UnitY * GameConstants.BOUNCE_IMPULSE_DOWN;
-                        m_Velocity.Y = 0;
-                    }
-                    if (CheckBot(nextPosition, otherPos, player.GetNextPosition(deltaTime), otherBound))
-                    {
-                        m_CollisionImpulse += Vector2.UnitY * GameConstants.BOUNCE_IMPULSE_UP;
-                        m_Velocity.Y = 0;
+                        if (CheckTop(nextPosition, otherPos, player.GetNextPosition(deltaTime), otherBound))
+                        {
+                            m_CollisionImpulse += Vector2.UnitY * GameConstants.BOUNCE_IMPULSE_DOWN;
+                            m_Velocity.Y = 0;
+                        }
+                        if (CheckBot(nextPosition, otherPos, player.GetNextPosition(deltaTime), otherBound))
+                        {
+                            m_CollisionImpulse += Vector2.UnitY * GameConstants.BOUNCE_IMPULSE_UP;
+                            m_Velocity.Y = 0;
+                        }
                     }
                     break;
                 case Bonus.INVINCIBLE:

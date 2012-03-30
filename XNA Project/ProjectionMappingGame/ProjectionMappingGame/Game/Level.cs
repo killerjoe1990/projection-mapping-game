@@ -469,7 +469,7 @@ namespace ProjectionMappingGame.Game
             tan.Normalize();
 
             tan = Vector3.Transform(tan, m_NormalRotation);
-            Vector2 dir = new Vector2(tan.X, -tan.Y);
+            Vector2 dir = new Vector2(-tan.X, tan.Y);
             m_ShadowOffset = dir * offsetIntensity;
         }
 
