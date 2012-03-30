@@ -81,7 +81,7 @@ namespace ProjectionMappingGame.StateMachine
 
           m_AvailableColors = new List<int>();
 
-          m_ScoreBoard = new Game.ScoreBoard(game, 0, 0, GameConstants.WindowWidth, GameConstants.WindowHeight);
+          m_ScoreBoard = new Game.ScoreBoard(game, 0, 0, 768, 1024);
       }
 
 
@@ -376,14 +376,21 @@ namespace ProjectionMappingGame.StateMachine
 
       public override void Draw(SpriteBatch spriteBatch)
       {
+          m_ScoreBoard.DrawRenderTarget(spriteBatch, m_Players);
+          
           foreach (Game.Level l in m_Levels)
           {
               l.Draw(spriteBatch, m_Game.GraphicsDevice);
           }
-          m_ScoreBoard.Draw(spriteBatch,m_Players);
+          //m_ScoreBoard.Draw(spriteBatch, m_Players);
       }
 
       #region Public Access TV
+
+      public Game.ScoreBoard Scoreboard
+      {
+          get { return m_ScoreBoard; }
+      }
 
       public void StartNewGame()
       {

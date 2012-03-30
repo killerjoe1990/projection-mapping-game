@@ -575,6 +575,14 @@ namespace ProjectionMappingGame.Editor
       public void DumpEdgeGraph()
       {
          m_DualEdgeGraph = null;
+         
+      }
+
+      public void DeselectAll()
+      {
+          m_SelectedEdge = -1;
+          m_SelectedQuad = -1;
+          m_SelectedVertex = -1;
       }
 
       public void SyncRenderTargets(Texture2D[] renderTargets)

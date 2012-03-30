@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Content;
 
 namespace ProjectionMappingGame.Game
 {
-    class ScoreBoard
+    public class ScoreBoard
     {
         GameDriver m_Game;
         Texture2D m_RenderTargetTexture;
@@ -21,6 +21,7 @@ namespace ProjectionMappingGame.Game
         int[] indexOfBestPlayersTime;
         int bestPlayerTimeInSeconds;
         int bestPlayerTimeInMinutes;
+        int m_MaxScore;
 
         public ScoreBoard(GameDriver gameDriver,int x,int y,int w, int h)
         {
@@ -30,7 +31,10 @@ namespace ProjectionMappingGame.Game
             indexOfBestPlayersTime = new int[4];
             bestPlayerTimeInSeconds = 0;
             bestPlayerTimeInMinutes = 0;
-           
+            m_MaxScore = 0;
+
+            // Initialize render target
+            m_RenderTarget = new RenderTarget2D(m_Game.GraphicsDevice, w, h, true, m_Game.GraphicsDevice.DisplayMode.Format, DepthFormat.Depth24);
         }
         public void LoadContent(Texture2D texture,SpriteFont font)
         {
@@ -44,6 +48,10 @@ namespace ProjectionMappingGame.Game
             {
                 if (players[i].State == Player.States.PLAYING)
                 {
+                    if (players[i].HUD.PlayerScore > m_MaxScore)
+                    {
+                        m_MaxScore = players[i].HUD.PlayerScore;
+                    }
                     if (players[i].HUD.TimesMinutes * 60 + players[i].HUD.TimesSeconds >= bestPlayerTimeInSeconds + bestPlayerTimeInMinutes * 60)
                     {
                         indexOfBestPlayersTime[i] = 1;
@@ -58,133 +66,68 @@ namespace ProjectionMappingGame.Game
             }
         }
 
+        private Rectangle ScreenRect(float x, float y, float w, float h)
+        {
+            return new Rectangle((int)(m_Viewport.Width * x), (int)(m_Viewport.Height * y), (int)(m_Viewport.Width * w), (int)(m_Viewport.Height * h));
+        }
+        private Vector2 TransformVec(Vector2 v, Vector2 dim)
+        {
+            return new Vector2(v.X * dim.X, v.Y * dim.Y);
+        }
+
         public void DrawRenderTarget(SpriteBatch spriteBatch, Player[] players)
         {
-            Color clear = new Color(0.0f, 0.0f, 0.0f, 0.0f);
-            spriteBatch.Begin();
+            Color clear = new Color(1.0f, 0.0f, 0.0f, 1.0f);
+            //spriteBatch.Begin();
+
             // Render the quads into the render target
             m_Game.GraphicsDevice.SetRenderTarget(m_RenderTarget);
             m_Game.GraphicsDevice.Clear(clear);
 
-            for (int i = players.Length - 1; i >= 0; i--)
-            {
-                if (players[i].State == Player.States.PLAYING)
-                {
-                    players[i].HUD.DrawWithNoCharSelection(spriteBatch, players[i].GetAnimation().getColor());
-
-                }
-                else if (players[i].State == Player.States.SPAWNING)
-                {
-                    players[i].HUD.DrawWithCharSelection(spriteBatch, players[i].GetAnimation().getColor());
-                }
-                else if (players[i].State == Player.States.PORTING)
-                {
-                    players[i].HUD.DrawWithNoCharSelection(spriteBatch, players[i].GetAnimation().getColor());
-                }
-                else if (players[i].State == Player.States.DEAD)
-                {
-
-                }
-            }
-            Rectangle background = new Rectangle(0, 495, GameConstants.WindowWidth, GameConstants.WindowHeight - 490);
-            Color whiteColor = Color.White;
-            whiteColor.A = 1;
-
-            string strTimeSec = String.Format("{0:00}", bestPlayerTimeInSeconds);
-            string time = bestPlayerTimeInMinutes + ":" + strTimeSec;
-
-            spriteBatch.Draw(m_BestTimeBackground, background, whiteColor);
-            spriteBatch.DrawString(m_ArialFont, "Best Time", new Vector2(500, 500), GameConstants.HUD_COLOR);
-            spriteBatch.DrawString(m_ArialFont, time, new Vector2(580, 555), GameConstants.HUD_COLOR);
-
-            Vector2 player1pos = new Vector2(150, 610);
-            Vector2 player2pos = new Vector2(400, 610);
-            Vector2 player3pos = new Vector2(650, 610);
-            Vector2 player4pos = new Vector2(900, 610);
-
-            if (indexOfBestPlayersTime[0] == 1)
-            {
-                spriteBatch.DrawString(m_ArialFont, "Player 1", player1pos, players[0].GetAnimation().getColor());
-            }
-            if (indexOfBestPlayersTime[1] == 1)
-            {
-                spriteBatch.DrawString(m_ArialFont, "Player 2", player2pos, players[1].GetAnimation().getColor());
-            }
-            if (indexOfBestPlayersTime[2] == 1)
-            {
-                spriteBatch.DrawString(m_ArialFont, "Player 3", player3pos, players[2].GetAnimation().getColor());
-            }
-            if (indexOfBestPlayersTime[3] == 1)
-            {
-                spriteBatch.DrawString(m_ArialFont, "Player 4", player4pos, players[3].GetAnimation().getColor());
-            }
-
+            DrawGame(spriteBatch, players);
 
             m_Game.GraphicsDevice.SetRenderTarget(null);
             m_Game.GraphicsDevice.Clear(Color.Black);
             m_Game.GraphicsDevice.Viewport = m_Viewport;
             m_RenderTargetTexture = (Texture2D)m_RenderTarget;
-            spriteBatch.End();
         }
 
         public void Draw(SpriteBatch spriteBatch, Player[] players)
         {
+            DrawGame(spriteBatch, players);
+        }
+
+        private void DrawGame(SpriteBatch spriteBatch, Player[] players)
+        {
             spriteBatch.Begin();
 
-            for (int i = players.Length -1 ; i >= 0; i--)
+            for (int i = 0; i < players.Length; ++i)
             {
-                if (players[i].State == Player.States.PLAYING)
-                {
-                    players[i].HUD.DrawWithNoCharSelection(spriteBatch, players[i].GetAnimation().getColor());
+                players[i].HUD.Draw(spriteBatch, players[i].GetAnimation().getColor(), (players[i].State != Player.States.PLAYING));
 
-                }
-                else if (players[i].State == Player.States.SPAWNING)
-                {
-                    players[i].HUD.DrawWithCharSelection(spriteBatch, players[i].GetAnimation().getColor());
-                }
-                else if (players[i].State == Player.States.PORTING)
-                {
-                    players[i].HUD.DrawWithNoCharSelection(spriteBatch, players[i].GetAnimation().getColor());
-                }
-                else if (players[i].State == Player.States.DEAD)
-                {
-
-                }
             }
-            Rectangle background = new Rectangle(0,495,GameConstants.WindowWidth,GameConstants.WindowHeight-490);
-            Color whiteColor = Color.White;
-            whiteColor.A = 20;
 
-            string strTimeSec = String.Format("{0:00}", bestPlayerTimeInSeconds);
-            string time =bestPlayerTimeInMinutes + ":" + strTimeSec;
-
-            spriteBatch.Draw(m_BestTimeBackground, background, whiteColor);
-            spriteBatch.DrawString(m_ArialFont, "Best Time", new Vector2(500,500), GameConstants.HUD_COLOR);
-            spriteBatch.DrawString(m_ArialFont, time, new Vector2(580, 555), GameConstants.HUD_COLOR);
-
-            Vector2 player1pos = new Vector2(150,610);
-            Vector2 player2pos = new Vector2(400,610);
-            Vector2 player3pos = new Vector2(650,610);
-            Vector2 player4pos = new Vector2(900,610);
-
-            if (indexOfBestPlayersTime[0] == 1)
-            {
-                spriteBatch.DrawString(m_ArialFont, "Player 1", player1pos, players[0].GetAnimation().getColor());
-            }
-            if (indexOfBestPlayersTime[1] == 1)
-            {
-                spriteBatch.DrawString(m_ArialFont, "Player 2", player2pos, players[1].GetAnimation().getColor());
-            }
-            if (indexOfBestPlayersTime[2] == 1)
-            {
-                spriteBatch.DrawString(m_ArialFont, "Player 3", player3pos, players[2].GetAnimation().getColor());
-            }
-            if (indexOfBestPlayersTime[3] == 1)
-            {
-                spriteBatch.DrawString(m_ArialFont, "Player 4", player4pos, players[3].GetAnimation().getColor());
-            }
+            Rectangle background = ScreenRect(0.0f, 0.75f, 1.0f, 0.25f);
+            Vector2 dim = new Vector2(m_Viewport.Width, m_Viewport.Height);
+            //string strTimeSec = String.Format("{0:00}", bestPlayerTimeInSeconds);
+            //string time = bestPlayerTimeInMinutes + ":" + strTimeSec;
+            string scoreString = "Best Score " + m_MaxScore;
+            spriteBatch.Draw(m_BestTimeBackground, background, Color.White);
+            spriteBatch.DrawString(m_ArialFont, scoreString, TransformVec(BEST_TIME_POSITION, dim) + new Vector2(-m_ArialFont.MeasureString(scoreString).Length() / 2, 0.0f), GameConstants.HUD_COLOR);
 
             spriteBatch.End();
         }
+
+        Vector2 BEST_TIME_POSITION = new Vector2(0.5f, 0.8f);
+
+        #region Public Access TV
+
+        public Texture2D RenderTargetTexture
+        {
+            get { return m_RenderTargetTexture; }
+        }
+
+        #endregion
     }
+
 }

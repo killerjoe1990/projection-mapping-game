@@ -82,6 +82,7 @@ namespace ProjectionMappingGame.StateMachine
       Texture2D m_CheckboxUnCheckedTexture, m_CheckboxUnCheckedTextureOnHover, m_CheckboxUnCheckedTextureOnPress;
       Texture2D m_NonUniformScaleButtonTexture, m_NonUniformScaleButtonTextureOnHover, m_NonUniformScaleButtonTextureOnPress;
       Texture2D m_WallTexture;
+      Texture2D m_ScoreboardTexture;
 
       // Main viewports
       const int GUI_UV_GRID_EDITOR_X = GUI_LEFT_TOOLBAR_WIDTH;
@@ -268,6 +269,7 @@ namespace ProjectionMappingGame.StateMachine
          : base(game, StateType.ProjectionEditor)
       {
          m_GraphicsDevice = game.GraphicsDevice;
+         m_ScoreboardTexture = null;
 
          // Initialize input
          m_MouseInput = new MouseInput();
@@ -1559,6 +1561,7 @@ namespace ProjectionMappingGame.StateMachine
 
             m_UVGridEditor.RemoveGrid();
             m_UVDualEdgeGraphEditor.DumpEdgeGraph();
+            m_UVDualEdgeGraphEditor.DeselectAll();
             ToggleSceneMenuEnabled(false);
             ToggleAppMenuEnabled(false);
             ToggleSelectedFaceMenuEnabled(false);
@@ -1922,6 +1925,23 @@ namespace ProjectionMappingGame.StateMachine
       #endregion
 
       #region Public Access TV
+
+      public Texture2D ScoreboardInput
+      {
+          set
+          {
+              for (int p = 0; p < m_ProjectorPreview.Projectors.Count; ++p)
+              {
+                  for (int i = 0; i < m_ProjectorPreview.Projectors[p].EdgeGraph.Quads.Count; ++i)
+                  {
+                      if (m_ProjectorPreview.Projectors[p].EdgeGraph.Quads[i].IsScoreboard)
+                      {
+                          m_ProjectorPreview.Projectors[p].EdgeGraph.Quads[i].Texture = value;
+                      }
+                  }
+              }
+          }
+      }
 
       public Texture2D ProjectorInput
       {
