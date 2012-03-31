@@ -18,9 +18,6 @@ namespace ProjectionMappingGame.Game
         Texture2D m_BestTimeBackground;
         SpriteFont m_ArialFont;
 
-        int[] indexOfBestPlayersTime;
-        int bestPlayerTimeInSeconds;
-        int bestPlayerTimeInMinutes;
         int m_MaxScore;
 
         public ScoreBoard(GameDriver gameDriver,int x,int y,int w, int h)
@@ -28,9 +25,7 @@ namespace ProjectionMappingGame.Game
             this.m_Game = gameDriver;
             // Initialize viewport
             this.m_Viewport = new Viewport(x, y, w, h);
-            indexOfBestPlayersTime = new int[4];
-            bestPlayerTimeInSeconds = 0;
-            bestPlayerTimeInMinutes = 0;
+
             m_MaxScore = 0;
 
             // Initialize render target
@@ -51,16 +46,6 @@ namespace ProjectionMappingGame.Game
                     if (players[i].HUD.PlayerScore > m_MaxScore)
                     {
                         m_MaxScore = players[i].HUD.PlayerScore;
-                    }
-                    if (players[i].HUD.TimesMinutes * 60 + players[i].HUD.TimesSeconds >= bestPlayerTimeInSeconds + bestPlayerTimeInMinutes * 60)
-                    {
-                        indexOfBestPlayersTime[i] = 1;
-                        bestPlayerTimeInSeconds = players[i].HUD.TimesSeconds;
-                        bestPlayerTimeInMinutes = players[i].HUD.TimesMinutes;
-                    }
-                    else
-                    {
-                        indexOfBestPlayersTime[i] = 0;
                     }
                 }
             }
@@ -103,8 +88,7 @@ namespace ProjectionMappingGame.Game
 
             for (int i = 0; i < players.Length; ++i)
             {
-                players[i].HUD.Draw(spriteBatch, players[i].GetAnimation().getColor(), (players[i].State == Player.States.SPAWNING));
-
+                players[i].HUD.Draw(spriteBatch, players[i].GetAnimation().getColor(), players[i].State);
             }
 
             Rectangle background = ScreenRect(0.0f, 0.75f, 1.0f, 0.25f);

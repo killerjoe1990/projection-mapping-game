@@ -216,7 +216,8 @@ namespace ProjectionMappingGame.Game
                     {
                         if (m_OnGround && m_Status != Bonus.STUNNED)
                         {
-                            m_Impulse += Vector2.UnitY * GameConstants.JUMP_IMPULSE * m_SpeedMult;
+                            float mult = (float)Math.Pow(m_SpeedMult, 0.25);
+                            m_Impulse += Vector2.UnitY * GameConstants.JUMP_IMPULSE * mult;
 
                             if (m_Animations[(int)Animations.JUMP] != null)
                             {
@@ -235,6 +236,15 @@ namespace ProjectionMappingGame.Game
                         m_Bounds.X = (int)m_Position.X;
                         m_Bounds.Y = (int)m_Position.Y;
 
+                        for (int i = 0; i < m_Parent.Colors.Count; ++i)
+                        {
+                            if (m_Parent.Colors[i] == m_PlayerColor)
+                            {
+                                m_ColorIndex = i;
+                                break;
+                            }
+                        }
+
                         State = States.SPAWNING;
                     }
                     break;
@@ -245,7 +255,7 @@ namespace ProjectionMappingGame.Game
 
                         List<int> colors = m_Parent.Colors;
                         m_PlayerColor = colors[m_ColorIndex];
-                        colors.RemoveAt(m_ColorIndex);
+                        colors.Remove(m_PlayerColor);
                         m_Parent.Colors = colors;
 
                         SetColor(GameConstants.GAME_COLORS[m_PlayerColor]);
@@ -253,7 +263,8 @@ namespace ProjectionMappingGame.Game
                     }
                     if (keys.Contains(Keys.A))
                     {
-                        m_ColorIndex = (m_ColorIndex - 1) % m_Parent.Colors.Count;
+                        m_ColorIndex %= m_Parent.Colors.Count;
+                        m_ColorIndex--;
 
                         if (m_ColorIndex < 0)
                         {
@@ -303,16 +314,19 @@ namespace ProjectionMappingGame.Game
             switch (State)
             {
                 case States.PLAYING:
-                    if (button.Equals(GUI.GamepadInput.Buttons.A) && m_OnGround)
+                    if (button.Equals(GUI.GamepadInput.Buttons.A))
                     {
-                        float mult = (float)Math.Pow((double)m_SpeedMult, 0.25);
-
-                        m_Impulse += Vector2.UnitY * GameConstants.JUMP_IMPULSE * (mult);
-
-                        if (m_Animations[(int)Animations.JUMP] != null)
+                        if (m_OnGround && m_Status != Bonus.STUNNED)
                         {
-                            m_CurrentAnimation = m_Animations[(int)Animations.JUMP];
-                            m_CurrentAnimation.Reset();
+                            float mult = (float)Math.Pow(m_SpeedMult, 0.25);
+                            m_Impulse += Vector2.UnitY * GameConstants.JUMP_IMPULSE * mult;
+
+                            if (m_Animations[(int)Animations.JUMP] != null)
+                            {
+                                //m_CurrentAnimation.Reset();
+                                m_CurrentAnimation = m_Animations[(int)Animations.JUMP];
+                                m_CurrentAnimation.Reset();
+                            }
                         }
                     }
                     break;
@@ -356,20 +370,15 @@ namespace ProjectionMappingGame.Game
 
                         if (m_ColorIndex < 0)
                         {
-                            m_ColorIndex = colors.Count - 1;
+                            m_ColorIndex = m_Parent.Colors.Count - 1;
                         }
 
-                        m_PlayerColor = colors[m_ColorIndex];
-
-                        m_Animations[(int)Animations.IDLE].SetColor(GameConstants.GAME_COLORS[colors[m_ColorIndex]]);
+                        m_Animations[(int)Animations.IDLE].SetColor(GameConstants.GAME_COLORS[m_Parent.Colors[m_ColorIndex]]);
                     }
                     if (button.Equals(GUI.GamepadInput.Buttons.RB))
                     {
                         m_ColorIndex = (m_ColorIndex + 1) % m_Parent.Colors.Count;
-
-                        m_PlayerColor = colors[m_ColorIndex];
-
-                        m_Animations[(int)Animations.IDLE].SetColor(GameConstants.GAME_COLORS[colors[m_ColorIndex]]);
+                        m_Animations[(int)Animations.IDLE].SetColor(GameConstants.GAME_COLORS[m_Parent.Colors[m_ColorIndex]]);
                     }
                     break;
             }

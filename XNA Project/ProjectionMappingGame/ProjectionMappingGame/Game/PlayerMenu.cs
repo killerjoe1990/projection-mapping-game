@@ -114,35 +114,53 @@ namespace ProjectionMappingGame.Game
              }
          }
 
-         Vector2 PLAYER_NAME_POSITION = new Vector2(0.35f, 0.1f);
+         Vector2 PLAYER_NAME_POSITION = new Vector2(0.3f, 0.1f);
          Vector2 COLOR_POSITION = new Vector2(0.1f, 0.1f);
          Vector2 SCORE_POSITION = new Vector2(0.05f, 0.33f);
          Vector2 TIME_POSITION = new Vector2(0.1f, 0.66f);
 
-         public void Draw(SpriteBatch spriteBatch, Color playerColor, bool choosingColor)
+         public void Draw(SpriteBatch spriteBatch, Color playerColor, Player.States state)
          {
              Rectangle background = ScreenRect(((m_PlayerNum % 2) != 0) ? 0.5f : 0.0f, (m_PlayerNum > 1) ? 0.375f : 0.0f, 0.5f, 0.375f);
              Vector2 offset = new Vector2(background.X, background.Y);
              Vector2 dim = new Vector2(background.Width, background.Height);
 
-             spriteBatch.Draw(m_Background, background, Color.White);
+             
              string name = "Player " + (m_PlayerNum + 1);
              string score = "Score: " + m_TotalPlayerScore;
              string strLastTimeSec = String.Format("{0:00}", m_LastTimeSec);
              string time = "Last Time Alive: " + m_LastTimeMin + ":" + strLastTimeSec;
 
-             if (choosingColor)
+             switch(state)
              {
-                 spriteBatch.DrawString(m_Font, name, offset + TransformVec(PLAYER_NAME_POSITION, dim), GameConstants.HUD_COLOR);
-                 spriteBatch.Draw(m_CharColorTex, new Rectangle((int)offset.X + (int)(COLOR_POSITION.X * dim.X), (int)offset.Y + (int)(COLOR_POSITION.Y * dim.Y), GameConstants.HUD_ICON_DIM, GameConstants.HUD_ICON_DIM), playerColor);
-             }
-             else
-             {
-                 spriteBatch.DrawString(m_Font, name, offset + TransformVec(PLAYER_NAME_POSITION, dim), GameConstants.HUD_COLOR);
-                 spriteBatch.DrawString(m_Font, score, offset + TransformVec(SCORE_POSITION, dim), GameConstants.HUD_COLOR);
-                 //spriteBatch.DrawString(m_Font, time, offset + TransformVec(TIME_POSITION, dim), GameConstants.HUD_COLOR);
-                 spriteBatch.Draw(m_CharColorTex, new Rectangle((int)offset.X + (int)(COLOR_POSITION.X * dim.X), (int)offset.Y + (int)(COLOR_POSITION.Y * dim.Y), GameConstants.HUD_ICON_DIM, GameConstants.HUD_ICON_DIM), playerColor);
-             }
+                 case Player.States.SPAWNING:
+                     spriteBatch.Draw(m_Background, background, Color.White);
+                     spriteBatch.DrawString(m_Font, name, offset + TransformVec(PLAYER_NAME_POSITION, dim), GameConstants.HUD_COLOR);
+                     spriteBatch.Draw(m_CharColorTex, new Rectangle((int)offset.X + (int)(COLOR_POSITION.X * dim.X), (int)offset.Y + (int)(COLOR_POSITION.Y * dim.Y), GameConstants.HUD_ICON_DIM, GameConstants.HUD_ICON_DIM), playerColor);
+                     break;
+                 case Player.States.PLAYING:
+                     spriteBatch.Draw(m_Background, background, Color.White);
+                     spriteBatch.DrawString(m_Font, name, offset + TransformVec(PLAYER_NAME_POSITION, dim), GameConstants.HUD_COLOR);
+                     spriteBatch.DrawString(m_Font, score, offset + TransformVec(SCORE_POSITION, dim), GameConstants.HUD_COLOR);
+                     //spriteBatch.DrawString(m_Font, time, offset + TransformVec(TIME_POSITION, dim), GameConstants.HUD_COLOR);
+                     spriteBatch.Draw(m_CharColorTex, new Rectangle((int)offset.X + (int)(COLOR_POSITION.X * dim.X), (int)offset.Y + (int)(COLOR_POSITION.Y * dim.Y), GameConstants.HUD_ICON_DIM, GameConstants.HUD_ICON_DIM), playerColor);
+                     break;
+                 case Player.States.PORTING:
+                     spriteBatch.Draw(m_Background, background, Color.White);
+                     spriteBatch.DrawString(m_Font, name, offset + TransformVec(PLAYER_NAME_POSITION, dim), GameConstants.HUD_COLOR);
+                     spriteBatch.DrawString(m_Font, score, offset + TransformVec(SCORE_POSITION, dim), GameConstants.HUD_COLOR);
+                     //spriteBatch.DrawString(m_Font, time, offset + TransformVec(TIME_POSITION, dim), GameConstants.HUD_COLOR);
+                     spriteBatch.Draw(m_CharColorTex, new Rectangle((int)offset.X + (int)(COLOR_POSITION.X * dim.X), (int)offset.Y + (int)(COLOR_POSITION.Y * dim.Y), GameConstants.HUD_ICON_DIM, GameConstants.HUD_ICON_DIM), playerColor);
+                     break;
+                 case Player.States.DEAD:
+                     Color deadTint = Color.DarkRed;
+                     spriteBatch.Draw(m_Background, background, deadTint);
+                     spriteBatch.DrawString(m_Font, name, offset + TransformVec(PLAYER_NAME_POSITION, dim), GameConstants.HUD_COLOR);
+                     spriteBatch.DrawString(m_Font, score, offset + TransformVec(SCORE_POSITION, dim), GameConstants.HUD_COLOR);
+                     //spriteBatch.DrawString(m_Font, time, offset + TransformVec(TIME_POSITION, dim), GameConstants.HUD_COLOR);
+                     spriteBatch.Draw(m_CharColorTex, new Rectangle((int)offset.X + (int)(COLOR_POSITION.X * dim.X), (int)offset.Y + (int)(COLOR_POSITION.Y * dim.Y), GameConstants.HUD_ICON_DIM, GameConstants.HUD_ICON_DIM), playerColor);
+                     break; 
+            }
          }
 
          public void DrawWithCharSelection(SpriteBatch spriteBatch, Color playerColor)
