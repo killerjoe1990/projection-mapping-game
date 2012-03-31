@@ -166,7 +166,7 @@ namespace ProjectionMappingGame.StateMachine
               }*/
           };
 
-         m_HUDTex = content.Load<Texture2D>("Textures/white");
+         m_HUDTex = content.Load<Texture2D>("Textures/scoreBackground");
 
          m_Backgrounds = new Texture2D[]
          {

@@ -117,7 +117,7 @@ namespace ProjectionMappingGame
            Color.Yellow,
            Color.Purple,
            Color.Orange,
-           Color.Pink,
+           Color.HotPink,
            Color.Gray,
            Color.Cyan,
        };
