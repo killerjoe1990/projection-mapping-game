@@ -1016,12 +1016,6 @@ namespace ProjectionMappingGame.StateMachine
                AssembleGameplayLayer();
                m_SelectedFaceGameplayLayerSpinBox.Max += 1;
                break;
-            case LayerType.Texture:
-               //m_Layers.Add(new TextureLayer());
-               break;
-            case LayerType.Particle:
-               //m_Layers.Add(new ParticleLayer());
-               break;
          }
       }
 
