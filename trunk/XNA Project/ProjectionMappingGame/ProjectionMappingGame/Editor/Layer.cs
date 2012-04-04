@@ -14,9 +14,7 @@ namespace ProjectionMappingGame.Editor
 {
    public enum LayerType
    {
-      Gameplay,
-      Texture,
-      Particle
+      Gameplay
    };
 
    public abstract class Layer
@@ -324,37 +322,7 @@ namespace ProjectionMappingGame.Editor
       {
          TYPE_ID = TYPE_COUNTER++;
          m_IsEditable = false;
-         //m_LayerName = LayerType.Gameplay.ToString() + " " + (TYPE_ID + 1).ToString();
-         //m_NameLabel.Text = m_LayerName;
       }
    }
 
-   /*
-   public class TextureLayer : Layer
-   {
-      // Static Identification
-      public static int TYPE_COUNTER = 0;
-
-      public TextureLayer(Label nameLabel, Button visibleBtn, Button editBtn)
-         : base(LayerType.Texture, nameLabel, visibleBtn, editBtn)
-      {
-         TYPE_ID = TYPE_COUNTER++;
-         m_IsEditable = true;
-         m_LayerName = LayerType.Texture.ToString() + " " + TYPE_ID.ToString();
-      }
-   }
-
-   public class ParticleLayer : Layer
-   {
-      // Static Identification
-      public static int TYPE_COUNTER = 0;
-
-      public ParticleLayer(Label nameLabel, Button visibleBtn, Button editBtn)
-         : base(LayerType.Particle, nameLabel, visibleBtn, editBtn)
-      {
-         TYPE_ID = TYPE_COUNTER++;
-         m_IsEditable = true;
-         m_LayerName = LayerType.Particle.ToString() + " " + TYPE_ID.ToString();
-      }
-   }*/
 }
