@@ -23,19 +23,12 @@ using Microsoft.Xna.Framework;
 
 namespace ProjectionMappingGame.FileSystem
 {
-   struct EditorSaveData
+   [Serializable]
+   public struct EditorSaveData
    {
       public List<BuildingSaveData> BuildingData;
       public List<ProjectorSaveData> ProjectorData;
       public List<WindowSaveData> WindowData;
       public List<LayerSaveData> LayerData;
-
-      public EditorSaveData(List<BuildingSaveData> buildingData, List<ProjectorSaveData> projectorData, List<WindowSaveData> windowData, List<LayerSaveData> layerData)
-      {
-         BuildingData = buildingData;
-         ProjectorData = projectorData;
-         WindowData = windowData;
-         LayerData = layerData;
-      }
    }
 }

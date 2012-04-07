@@ -24,15 +24,10 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace ProjectionMappingGame.FileSystem
 {
-   struct UVVertexSaveData
+   [Serializable]
+   public struct UVVertexSaveData
    {
       public VertexPositionColorTexture Vertex;
       public List<int> ConnectedEdges;
-
-      public UVVertexSaveData(VertexPositionColorTexture vertex, List<int> connectedEdges)
-      {
-         Vertex = vertex;
-         ConnectedEdges = connectedEdges;
-      }
    }
 }

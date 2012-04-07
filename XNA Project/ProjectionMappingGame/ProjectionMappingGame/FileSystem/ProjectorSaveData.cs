@@ -24,7 +24,8 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace ProjectionMappingGame.FileSystem
 {
-   struct ProjectorSaveData
+   [Serializable]
+   public struct ProjectorSaveData
    {
       // View components
       public Vector3 Position;
@@ -44,26 +45,5 @@ namespace ProjectionMappingGame.FileSystem
       public float FarPlane;
       public bool IsOn;
       public float Alpha;
-
-      public ProjectorSaveData(Vector3 position, Vector3 lookAt, Vector3 up, float rotx, float roty, float rotz, 
-                               Viewport viewport, float fov, float aspectRatio, float nearPlane, float farPlane,
-                               bool isOn, float alpha, GridSaveData gridData, EdgeGraphSaveData edgeGraphData)
-      {
-         Position = position;
-         LookAt = lookAt;
-         Up = up;
-         RotX = rotx;
-         RotY = roty;
-         RotZ = rotz;
-         Viewport = viewport;
-         Fov = fov;
-         AspectRatio = aspectRatio;
-         NearPlane = nearPlane;
-         FarPlane = farPlane;
-         IsOn = isOn;
-         Alpha = alpha;
-         GridData = gridData;
-         EdgeGraphData = edgeGraphData;
-      }
    }
 }

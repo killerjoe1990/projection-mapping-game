@@ -26,7 +26,8 @@ using ProjectionMappingGame.Editor;
 
 namespace ProjectionMappingGame.FileSystem
 {
-   struct BuildingSaveData
+   [Serializable]
+   public struct BuildingSaveData
    {
       public string MeshFilename;
       public int ID;
@@ -34,17 +35,5 @@ namespace ProjectionMappingGame.FileSystem
       public float RotX, RotY, RotZ;
       public Vector3 Position;
       public Vector3 Scale;
-
-      public BuildingSaveData(string meshFilename, int id, EntityType type, float rotx, float roty, float rotz, Vector3 position, Vector3 scale)
-      {
-         MeshFilename = meshFilename;
-         ID = id;
-         Type = type;
-         RotX = rotx;
-         RotY = roty;
-         RotZ = rotz;
-         Position = position;
-         Scale = scale;
-      }
    }
 }

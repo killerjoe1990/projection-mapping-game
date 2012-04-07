@@ -14,17 +14,21 @@
 // System imports
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
+using System.Xml.Serialization;
 
 // XNA imports
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Storage;
 
 // Local imports
 using ProjectionMappingGame.Components;
 using ProjectionMappingGame.Editor;
+using ProjectionMappingGame.FileSystem;
 using ProjectionMappingGame.GUI;
 
 #endregion
@@ -52,9 +56,9 @@ namespace ProjectionMappingGame.StateMachine
       UVDualEdgeGraphEditor m_UVDualEdgeGraphEditor;
       int m_FocusedPane;
       bool m_EditorMode;
-      Panel m_GridEditorPanel;
-      Panel m_UVEditorPanel;
-      Panel m_ProjectionEditorPanel;
+      ProjectionMappingGame.GUI.Panel m_GridEditorPanel;
+      ProjectionMappingGame.GUI.Panel m_UVEditorPanel;
+      ProjectionMappingGame.GUI.Panel m_ProjectionEditorPanel;
       Viewport m_Viewport;
 
       // Fonts
@@ -116,6 +120,8 @@ namespace ProjectionMappingGame.StateMachine
       Button m_PlayButton;
       Button m_QuitButton;
       Button m_ResetButton;
+      Button m_SaveButton;
+      Button m_OpenButton;
 
       // Scene section GUI objects
       Label m_SceneHeaderLabel;
@@ -139,10 +145,10 @@ namespace ProjectionMappingGame.StateMachine
       const int GUI_LEFT_MENU_COLUMN_1_X = GUI_LEFT_TOOLBAR_X + 5;
       const int GUI_LEFT_MENU_COLUMN_1_X_TABBED = GUI_LEFT_TOOLBAR_X + 15;
       const int GUI_LEFT_MENU_COLUMN_1_WIDTH = 50;
-      const int GUI_APP_NUM_ROWS = 3;
+      const int GUI_APP_NUM_ROWS = 4;
       const int GUI_SCENE_NUM_ROWS = 2;
       const int GUI_APP_Y = 2;
-      const int GUI_SCENE_Y = GUI_APP_Y + (GUI_MENU_ITEM_HEIGHT * GUI_APP_NUM_ROWS) + 16;
+      const int GUI_SCENE_Y = GUI_APP_Y + (GUI_MENU_ITEM_HEIGHT * GUI_APP_NUM_ROWS) + 24;
       const int GUI_SELECTED_QUAD_Y = GUI_SCENE_Y + (GUI_MENU_ITEM_HEIGHT * GUI_SCENE_NUM_ROWS) + 16;
       const int GUI_LOCAL_COORD_BUTTON_WIDTH = 100;
       const int GUI_QUIT_BUTTON_WIDTH = 80;
@@ -432,14 +438,22 @@ namespace ProjectionMappingGame.StateMachine
          m_PlayButton.SetImage(Button.ImageType.OVER, m_ButtonTextureOnHover);
          m_PlayButton.SetImage(Button.ImageType.CLICK, m_ButtonTextureOnPress);
          m_PlayButton.RegisterOnClick(PlayButton_OnClick);
-         m_ResetButton = new Button(new Rectangle(GUI_LEFT_MENU_COLUMN_1_X_TABBED, GUI_APP_Y + 6 + GUI_MENU_ITEM_HEIGHT * 2, (int)(GUI_QUIT_BUTTON_WIDTH * 0.9f), GUI_QUIT_BUTTON_HEIGHT), m_ButtonTexture, m_MouseInput, m_ArialFont10, "Reset", Color.Black);
+         m_ResetButton = new Button(new Rectangle(GUI_LEFT_MENU_COLUMN_1_X_TABBED, GUI_APP_Y + 12 + GUI_MENU_ITEM_HEIGHT * 3, (int)(GUI_QUIT_BUTTON_WIDTH * 0.9f), GUI_QUIT_BUTTON_HEIGHT), m_ButtonTexture, m_MouseInput, m_ArialFont10, "Reset", Color.Black);
          m_ResetButton.SetImage(Button.ImageType.OVER, m_ButtonTextureOnHover);
          m_ResetButton.SetImage(Button.ImageType.CLICK, m_ButtonTextureOnPress);
          m_ResetButton.RegisterOnClick(ResetButton_OnClick);
-         m_QuitButton = new Button(new Rectangle(leftmenuColumn2X, GUI_APP_Y + 6 + GUI_MENU_ITEM_HEIGHT * 2, (int)(GUI_QUIT_BUTTON_WIDTH * 0.9f), GUI_QUIT_BUTTON_HEIGHT), m_ButtonTexture, m_MouseInput, m_ArialFont10, "Quit", Color.Black);
+         m_QuitButton = new Button(new Rectangle(leftmenuColumn2X, GUI_APP_Y + 12 + GUI_MENU_ITEM_HEIGHT * 3, (int)(GUI_QUIT_BUTTON_WIDTH * 0.9f), GUI_QUIT_BUTTON_HEIGHT), m_ButtonTexture, m_MouseInput, m_ArialFont10, "Quit", Color.Black);
          m_QuitButton.SetImage(Button.ImageType.OVER, m_ButtonTextureOnHover);
          m_QuitButton.SetImage(Button.ImageType.CLICK, m_ButtonTextureOnPress);
          m_QuitButton.RegisterOnClick(QuitButton_OnClick);
+         m_SaveButton = new Button(new Rectangle(GUI_LEFT_MENU_COLUMN_1_X_TABBED, GUI_APP_Y + 6 + GUI_MENU_ITEM_HEIGHT * 2, (int)(GUI_QUIT_BUTTON_WIDTH * 0.9f), GUI_QUIT_BUTTON_HEIGHT), m_ButtonTexture, m_MouseInput, m_ArialFont10, "Save", Color.Black);
+         m_SaveButton.SetImage(Button.ImageType.OVER, m_ButtonTextureOnHover);
+         m_SaveButton.SetImage(Button.ImageType.CLICK, m_ButtonTextureOnPress);
+         m_SaveButton.RegisterOnClick(SaveButton_OnClick);
+         m_OpenButton = new Button(new Rectangle(leftmenuColumn2X, GUI_APP_Y + 6 + GUI_MENU_ITEM_HEIGHT * 2, (int)(GUI_QUIT_BUTTON_WIDTH * 0.9f), GUI_QUIT_BUTTON_HEIGHT), m_ButtonTexture, m_MouseInput, m_ArialFont10, "Open", Color.Black);
+         m_OpenButton.SetImage(Button.ImageType.OVER, m_ButtonTextureOnHover);
+         m_OpenButton.SetImage(Button.ImageType.CLICK, m_ButtonTextureOnPress);
+         m_OpenButton.RegisterOnClick(OpenButton_OnClick);
          
          #endregion
 
@@ -869,6 +883,8 @@ namespace ProjectionMappingGame.StateMachine
          //m_PlayButton.IsActive = enabled;
          m_ModeButton.IsActive = enabled;
          m_QuitButton.IsActive = enabled;
+         m_SaveButton.IsActive = enabled;
+         m_OpenButton.IsActive = enabled;
       }
 
       private void ToggleSceneMenuEnabled(bool enabled)
@@ -1581,6 +1597,24 @@ namespace ProjectionMappingGame.StateMachine
          Reset();
       }
 
+      private void SaveButton_OnClick(object sender, EventArgs e)
+      {
+         System.Windows.Forms.SaveFileDialog save = new System.Windows.Forms.SaveFileDialog();
+         save.Filter = "Xml|*.xml";
+         save.Title = "Save editor configuration";
+         save.ShowDialog();
+
+         if (save.FileName != "")
+         {
+            SaveEditor(save.FileName);
+         }
+      }
+
+      private void OpenButton_OnClick(object sender, EventArgs e)
+      {
+
+      }
+
       private void QuitButton_OnClick(object sender, EventArgs e)
       {
 
@@ -1741,6 +1775,8 @@ namespace ProjectionMappingGame.StateMachine
          m_PlayButton.Draw(m_Game.GraphicsDevice, spriteBatch);
          m_ResetButton.Draw(m_Game.GraphicsDevice, spriteBatch);
          m_QuitButton.Draw(m_Game.GraphicsDevice, spriteBatch);
+         m_SaveButton.Draw(m_Game.GraphicsDevice, spriteBatch);
+         m_OpenButton.Draw(m_Game.GraphicsDevice, spriteBatch);
       }
 
       private void RenderGizmoMenu(SpriteBatch spriteBatch)
@@ -1842,6 +1878,150 @@ namespace ProjectionMappingGame.StateMachine
             Color intrpColor = Color.Lerp(end, start, t);
             spriteBatch.Draw(m_WhiteTexture, new Rectangle(x, bounds.Y, 1, bounds.Height), intrpColor);
          }
+      }
+
+      #endregion
+
+      #region Saving/Loading
+
+      void SaveEditor(string filename)
+      {
+         //
+         // Prepare data packet for saving
+         //
+
+         EditorSaveData data = new EditorSaveData();
+         data.BuildingData = new List<BuildingSaveData>();
+         data.LayerData = new List<LayerSaveData>();
+         data.WindowData = new List<WindowSaveData>();
+         data.ProjectorData = new List<ProjectorSaveData>();
+
+         // Save buildings
+         for (int i = 0; i < m_ProjectorPreview.Buildings.Count; ++i)
+         {
+            BuildingSaveData bData = new BuildingSaveData();
+            bData.ID = m_ProjectorPreview.Buildings[i].ID;
+            bData.MeshFilename = m_ProjectorPreview.Buildings[i].MeshFilename;
+            bData.Position = m_ProjectorPreview.Buildings[i].Position;
+            bData.RotX = m_ProjectorPreview.Buildings[i].RotX;
+            bData.RotY = m_ProjectorPreview.Buildings[i].RotY;
+            bData.RotZ = m_ProjectorPreview.Buildings[i].RotZ;
+            bData.Scale = m_ProjectorPreview.Buildings[i].Scale;
+            bData.Type = m_ProjectorPreview.Buildings[i].Type;
+            data.BuildingData.Add(bData);
+         }
+
+         // Save projectors
+         for (int i = 0; i < m_ProjectorPreview.Projectors.Count; ++i)
+         {
+            GridSaveData gData = new GridSaveData();
+            gData.Height = m_ProjectorPreview.Projectors[i].Grid.Height;
+            gData.Width = m_ProjectorPreview.Projectors[i].Grid.Width;
+            gData.Vertices = m_ProjectorPreview.Projectors[i].Grid.Vertices;
+            EdgeGraphSaveData egData = new EdgeGraphSaveData();
+            List<UVEdgeSaveData> edgeData = new List<UVEdgeSaveData>();
+            List<UVQuadSaveData> quadData = new List<UVQuadSaveData>();
+            List<UVVertexSaveData> vertData = new List<UVVertexSaveData>();
+            for (int j = 0; j < m_ProjectorPreview.Projectors[i].EdgeGraph.Edges.Count; ++j)
+            {
+               UVEdgeSaveData tempEData = new UVEdgeSaveData();
+               tempEData.P1 = m_ProjectorPreview.Projectors[i].EdgeGraph.Edges[j].P1;
+               tempEData.P2 = m_ProjectorPreview.Projectors[i].EdgeGraph.Edges[j].P2;
+               tempEData.NextEdge = m_ProjectorPreview.Projectors[i].EdgeGraph.Edges[j].NextEdge;
+               tempEData.PrevEdge = m_ProjectorPreview.Projectors[i].EdgeGraph.Edges[j].PrevEdge;
+               tempEData.TwinEdge = m_ProjectorPreview.Projectors[i].EdgeGraph.Edges[j].TwinEdge;
+               edgeData.Add(tempEData);
+            }
+            for (int j = 0; j < m_ProjectorPreview.Projectors[i].EdgeGraph.Quads.Count; ++j)
+            {
+               UVQuadSaveData tempQData = new UVQuadSaveData();
+               tempQData.P0 = m_ProjectorPreview.Projectors[i].EdgeGraph.Quads[j].P0;
+               tempQData.P1 = m_ProjectorPreview.Projectors[i].EdgeGraph.Quads[j].P1;
+               tempQData.P2 = m_ProjectorPreview.Projectors[i].EdgeGraph.Quads[j].P2;
+               tempQData.P3 = m_ProjectorPreview.Projectors[i].EdgeGraph.Quads[j].P3;
+               tempQData.IsWall = m_ProjectorPreview.Projectors[i].EdgeGraph.Quads[j].IsWall;
+               tempQData.IsScoreboard = m_ProjectorPreview.Projectors[i].EdgeGraph.Quads[j].IsScoreboard;
+               tempQData.InputLayer = m_ProjectorPreview.Projectors[i].EdgeGraph.Quads[j].InputLayer;
+               quadData.Add(tempQData);
+            }
+            for (int j = 0; j < m_ProjectorPreview.Projectors[i].EdgeGraph.Vertices.Count; ++j)
+            {
+               UVVertexSaveData tempVData = new UVVertexSaveData();
+               tempVData.ConnectedEdges = m_ProjectorPreview.Projectors[i].EdgeGraph.Vertices[j].ConnectedEdges;
+               tempVData.Vertex = m_ProjectorPreview.Projectors[i].EdgeGraph.Vertices[j].Vertex;
+               vertData.Add(tempVData);
+            }
+            egData.EdgeData = edgeData;
+            egData.QuadData = quadData;
+            egData.VertexData = vertData;
+            ProjectorSaveData pData = new ProjectorSaveData();
+            pData.Alpha = m_ProjectorPreview.Projectors[i].Alpha;
+            pData.AspectRatio = m_ProjectorPreview.Projectors[i].AspectRatio;
+            pData.FarPlane = m_ProjectorPreview.Projectors[i].FarPlane;
+            pData.NearPlane = m_ProjectorPreview.Projectors[i].NearPlane;
+            pData.Fov = m_ProjectorPreview.Projectors[i].Fov;
+            pData.IsOn = m_ProjectorPreview.Projectors[i].IsOn;
+            pData.LookAt = m_ProjectorPreview.Projectors[i].LookAt;
+            pData.Position = m_ProjectorPreview.Projectors[i].Position;
+            pData.RotX = m_ProjectorPreview.Projectors[i].RotX;
+            pData.RotY = m_ProjectorPreview.Projectors[i].RotY;
+            pData.RotZ = m_ProjectorPreview.Projectors[i].RotZ;
+            pData.Up = m_ProjectorPreview.Projectors[i].Up;
+            pData.Viewport = m_ProjectorPreview.Projectors[i].Viewport;
+            pData.GridData = gData;
+            pData.EdgeGraphData = egData;
+            data.ProjectorData.Add(pData);
+         }
+
+         // Save layers
+         for (int i = 0; i < m_LayersScrollView.Layers.Count; ++i)
+         {
+            LayerSaveData lData = new LayerSaveData();
+            lData.ID = m_LayersScrollView.Layers[i].ID;
+            lData.TYPE_ID = m_LayersScrollView.Layers[i].TYPE_ID;
+            lData.Width = m_LayersScrollView.Layers[i].Width;
+            lData.Height = m_LayersScrollView.Layers[i].Height;
+            lData.Type = m_LayersScrollView.Layers[i].Type;
+            lData.Normal = m_LayersScrollView.Layers[i].Normal;
+            lData.LinkedLayers = m_LayersScrollView.Layers[i].LinkedLayers;
+            lData.LayerName = m_LayersScrollView.Layers[i].Name;
+            data.LayerData.Add(lData);
+         }
+
+         // Save windows
+         System.Windows.Forms.Screen[] screens = System.Windows.Forms.Screen.AllScreens;
+         bool swapped = false;
+         do {
+            swapped = false;
+            for (int i = 1; i < screens.Length; ++i)
+            {
+               if (screens[i - 1].Bounds.X > screens[i].Bounds.X)
+               {
+                  System.Windows.Forms.Screen temp = screens[i - 1];
+                  screens[i - 1] = screens[i];
+                  screens[i] = temp;
+                  swapped = true;
+               }
+            }
+         } while (swapped);
+         for (int i = 0; i < screens.Length; ++i)
+         {
+            WindowSaveData wData = new WindowSaveData();
+            wData.Width = screens[i].Bounds.Width;
+            wData.Height = screens[i].Bounds.Height;
+            wData.WindowIndex = i;
+            wData.IsProjector = (i > 0);
+            data.WindowData.Add(wData);
+         }
+
+         //
+         // Actually write file out
+         //
+
+         XmlSerializer writer = new XmlSerializer(typeof(EditorSaveData));
+         StreamWriter file = new StreamWriter(@filename);
+         writer.Serialize(file, data);
+         file.Close();
       }
 
       #endregion

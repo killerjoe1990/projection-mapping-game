@@ -26,7 +26,8 @@ using ProjectionMappingGame.Editor;
 
 namespace ProjectionMappingGame.FileSystem
 {
-   struct LayerSaveData
+   [Serializable]
+   public struct LayerSaveData
    {
       public int ID;
       public int TYPE_ID;
@@ -35,18 +36,6 @@ namespace ProjectionMappingGame.FileSystem
       public int Width;
       public int Height;
       public Vector3 Normal;
-      public HashSet<int> LinkedLayers;
-
-      public LayerSaveData(int id, int typeId, string name, LayerType type, int width, int height, Vector3 normal, HashSet<int> linkedLayers)
-      {
-         ID = id;
-         TYPE_ID = typeId;
-         Width = width;
-         Height = height;
-         Normal = normal;
-         LinkedLayers = linkedLayers;
-         LayerName = name;
-         Type = type;
-      }
+      public List<int> LinkedLayers;
    }
 }

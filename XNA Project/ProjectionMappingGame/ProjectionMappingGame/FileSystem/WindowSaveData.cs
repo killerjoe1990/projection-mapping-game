@@ -23,19 +23,12 @@ using Microsoft.Xna.Framework;
 
 namespace ProjectionMappingGame.FileSystem
 {
-   struct WindowSaveData
+   [Serializable]
+   public struct WindowSaveData
    {
       public int WindowIndex;
       public bool IsProjector;
       public int Width;
       public int Height;
-
-      public WindowSaveData(int windowIndex, bool isProjector, int width, int height)
-      {
-         WindowIndex = windowIndex;
-         IsProjector = isProjector;
-         Width = width;
-         Height = height;
-      }
    }
 }

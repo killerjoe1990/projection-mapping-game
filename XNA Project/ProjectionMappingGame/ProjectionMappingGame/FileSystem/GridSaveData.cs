@@ -23,17 +23,11 @@ using Microsoft.Xna.Framework;
 
 namespace ProjectionMappingGame.FileSystem
 {
-   struct GridSaveData
+   [Serializable]
+   public struct GridSaveData
    {
       public float Width;
       public float Height;
       public List<Vector2> Vertices;
-
-      public GridSaveData(float width, float height, List<Vector2> vertices)
-      {
-         Width = width;
-         Height = height;
-         Vertices = vertices;
-      }
    }
 }
