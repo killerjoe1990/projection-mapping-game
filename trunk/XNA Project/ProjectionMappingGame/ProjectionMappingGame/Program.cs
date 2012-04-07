@@ -9,6 +9,8 @@ namespace ProjectionMappingGame
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
+       /// 
+         [STAThreadAttribute]
         static void Main(string[] args)
         {
             using (GameDriver game = new GameDriver())

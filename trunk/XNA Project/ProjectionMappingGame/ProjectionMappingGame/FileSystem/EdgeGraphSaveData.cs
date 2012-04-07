@@ -23,17 +23,11 @@ using Microsoft.Xna.Framework;
 
 namespace ProjectionMappingGame.FileSystem
 {
-   struct EdgeGraphSaveData
+   [Serializable]
+   public struct EdgeGraphSaveData
    {
       public List<UVVertexSaveData> VertexData;
       public List<UVEdgeSaveData> EdgeData;
       public List<UVQuadSaveData> QuadData;
-
-      public EdgeGraphSaveData(List<UVVertexSaveData> vertexData, List<UVEdgeSaveData> edgeData, List<UVQuadSaveData> quadData)
-      {
-         VertexData = vertexData;
-         EdgeData = edgeData;
-         QuadData = quadData;
-      }
    }
 }

@@ -374,6 +374,11 @@ namespace ProjectionMappingGame.Components
          set { m_AspectRatio = value; UpdateProjection(); }
       }
 
+      public Vector3 LookAt
+      {
+         get { return m_LookAt; }
+      }
+
       /// <summary>
       /// </summary>
       public Vector3 Position

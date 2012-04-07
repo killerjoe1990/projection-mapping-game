@@ -96,6 +96,12 @@ namespace ProjectionMappingGame.Editor
 
       #region Public Access TV
 
+
+      public string MeshFilename
+      {
+         get { return m_MeshFilename; }
+      }
+
       /// <summary>
       /// Accessor for building material components.
       /// </summary>
