@@ -42,8 +42,8 @@ namespace ProjectionMappingGame.Game
 
         StateMachine.GamePlayState m_Parent;
 
-        int m_ColorIndex;
-        int m_PlayerColor;
+        Color m_PlayerColor;
+        ColorPicker m_ColorPicker;
 
         Point m_WindowSize;
 
@@ -117,9 +117,9 @@ namespace ProjectionMappingGame.Game
             m_PortalTimer = GameConstants.PORTAL_DELAY;
             m_PortAgainTimer = GameConstants.PORT_AGAIN_DELAY;
 
-            m_ColorIndex = 0;
-            m_PlayerColor = 0;
-            SetColor(Color.White);
+            m_ColorPicker = parent.Colors;
+            m_PlayerColor = Color.Red;
+            SetColor(Color.Red);
 
             m_SpeedMult = 1;
             m_SpeedTimer = 0;
@@ -236,14 +236,7 @@ namespace ProjectionMappingGame.Game
                         m_Bounds.X = (int)m_Position.X;
                         m_Bounds.Y = (int)m_Position.Y;
 
-                        for (int i = 0; i < m_Parent.Colors.Count; ++i)
-                        {
-                            if (m_Parent.Colors[i] == m_PlayerColor)
-                            {
-                                m_ColorIndex = i;
-                                break;
-                            }
-                        }
+                        m_PlayerColor = m_ColorPicker.TryColor(m_PlayerColor);
 
                         State = States.SPAWNING;
                     }
@@ -251,32 +244,24 @@ namespace ProjectionMappingGame.Game
                 case States.SPAWNING:
                     if (keys.Contains(Keys.Space))
                     {
-                        m_ColorIndex %= m_Parent.Colors.Count;
-
-                        List<int> colors = m_Parent.Colors;
-                        m_PlayerColor = colors[m_ColorIndex];
-                        colors.Remove(m_PlayerColor);
-                        m_Parent.Colors = colors;
-
-                        SetColor(GameConstants.GAME_COLORS[m_PlayerColor]);
+                        SetColor(m_PlayerColor);
                         State = States.PLAYING;
                     }
                     if (keys.Contains(Keys.A))
                     {
-                        m_ColorIndex %= m_Parent.Colors.Count;
-                        m_ColorIndex--;
+                        Color lastColor = m_PlayerColor;
+                        m_PlayerColor = m_ColorPicker.GetLastColor(m_PlayerColor);
+                        m_ColorPicker.ReturnColor(lastColor);
 
-                        if (m_ColorIndex < 0)
-                        {
-                            m_ColorIndex = m_Parent.Colors.Count - 1;
-                        }
-
-                        m_Animations[(int)Animations.IDLE].SetColor(GameConstants.GAME_COLORS[m_Parent.Colors[m_ColorIndex]]);
+                        m_Animations[(int)Animations.IDLE].SetColor(m_PlayerColor);
                     }
                     if (keys.Contains(Keys.D))
                     {
-                        m_ColorIndex = (m_ColorIndex + 1) % m_Parent.Colors.Count;
-                        m_Animations[(int)Animations.IDLE].SetColor(GameConstants.GAME_COLORS[m_Parent.Colors[m_ColorIndex]]);
+                        Color lastColor = m_PlayerColor;
+                        m_PlayerColor = m_ColorPicker.GetNextColor(m_PlayerColor);
+                        m_ColorPicker.ReturnColor(lastColor);
+
+                        m_Animations[(int)Animations.IDLE].SetColor(m_PlayerColor);
                     }
                     break;
             }
@@ -338,47 +323,28 @@ namespace ProjectionMappingGame.Game
                         m_Bounds.X = (int)m_Position.X;
                         m_Bounds.Y = (int)m_Position.Y;
 
-                        for (int i = 0; i < m_Parent.Colors.Count; ++i)
-                        {
-                            if (m_Parent.Colors[i] == m_PlayerColor)
-                            {
-                                m_ColorIndex = i;
-                                break;
-                            }
-                        }
+                        m_PlayerColor = m_ColorPicker.TryColor(m_PlayerColor);
 
                         State = States.SPAWNING;
                     }
                     break;
                 case States.SPAWNING:
-                    List<int> colors = m_Parent.Colors;
-
                     if (button.Equals(GUI.GamepadInput.Buttons.A))
                     {
-                        m_ColorIndex %= m_Parent.Colors.Count;
-
-                        m_PlayerColor = colors[m_ColorIndex];
-                        colors.Remove(m_PlayerColor);
-                        m_Parent.Colors = colors;
-
-                        SetColor(GameConstants.GAME_COLORS[m_PlayerColor]);
+                        SetColor(m_PlayerColor);
                         State = States.PLAYING;
                     }
                     if (button.Equals(GUI.GamepadInput.Buttons.LB))
                     {
-                        m_ColorIndex = (m_ColorIndex - 1) % m_Parent.Colors.Count;
-
-                        if (m_ColorIndex < 0)
-                        {
-                            m_ColorIndex = m_Parent.Colors.Count - 1;
-                        }
-
-                        m_Animations[(int)Animations.IDLE].SetColor(GameConstants.GAME_COLORS[m_Parent.Colors[m_ColorIndex]]);
+                        Color lastColor = m_PlayerColor;
+                        m_PlayerColor = m_ColorPicker.GetLastColor(m_PlayerColor);
+                        m_ColorPicker.ReturnColor(lastColor);
                     }
                     if (button.Equals(GUI.GamepadInput.Buttons.RB))
                     {
-                        m_ColorIndex = (m_ColorIndex + 1) % m_Parent.Colors.Count;
-                        m_Animations[(int)Animations.IDLE].SetColor(GameConstants.GAME_COLORS[m_Parent.Colors[m_ColorIndex]]);
+                        Color lastColor = m_PlayerColor;
+                        m_PlayerColor = m_ColorPicker.GetNextColor(m_PlayerColor);
+                        m_ColorPicker.ReturnColor(lastColor);
                     }
                     break;
             }
@@ -490,7 +456,7 @@ namespace ProjectionMappingGame.Game
                     if (m_PortalTimer <= 0)
                     {
                         ChangeStatus(Bonus.RECOVERING, GameConstants.PORTAL_DELAY);
-                        //m_PortalTimer = GameConstants.PORTAL_DELAY;
+                        m_PortalTimer = GameConstants.PORTAL_DELAY;
                         m_PortAgainTimer = GameConstants.PORT_AGAIN_DELAY;
 
                         State = States.PLAYING;
@@ -498,9 +464,7 @@ namespace ProjectionMappingGame.Game
                     break;
 
                 case States.SPAWNING:
-                    m_ColorIndex %= m_Parent.Colors.Count;
-                    m_PlayerColor = m_Parent.Colors[m_ColorIndex];
-                    m_Animations[(int)Animations.IDLE].SetColor(GameConstants.GAME_COLORS[m_PlayerColor]);
+                    m_Animations[(int)Animations.IDLE].SetColor(m_PlayerColor);
                     break;
             }
         }
@@ -736,9 +700,7 @@ namespace ProjectionMappingGame.Game
 
         public void Kill()
         {
-            List<int> colors = m_Parent.Colors;
-            colors.Add(m_PlayerColor);
-            m_Parent.Colors = colors;
+            m_ColorPicker.ReturnColor(m_PlayerColor);
 
             m_PlayerHud.Reset();
             m_Position = Vector2.Zero;
@@ -770,7 +732,7 @@ namespace ProjectionMappingGame.Game
                             m_CurrentAnimation.SetColor(GameConstants.GAME_COLORS[randIndex]);
                             break;
                         case Bonus.RECOVERING:
-                            Color c = GameConstants.GAME_COLORS[m_PlayerColor];
+                            Color c = m_PlayerColor;
                             //float randIntensity = (float)GameConstants.RANDOM.NextDouble() * 0.8f + 0.2f;
                             float randIntensity = ((float)Math.Sin(10 * (double)m_StatusTimer) + 1.0f) / 2.0f;
                             c.A = (byte)(randIntensity * 255);
@@ -778,13 +740,13 @@ namespace ProjectionMappingGame.Game
                             break;
                         case Bonus.STUNNED:
                             float intensity = ((float)Math.Sin(10 * (double)m_StatusTimer) + 1.0f) / 2.0f;
-                            Color c1 = GameConstants.GAME_COLORS[m_PlayerColor];
+                            Color c1 = m_PlayerColor;
                             c1 = Color.Multiply(c1, intensity);
                             c1.A = 255;
                             m_CurrentAnimation.SetColor(c1);
                             break;
                         case Bonus.NONE:
-                            m_CurrentAnimation.SetColor(GameConstants.GAME_COLORS[m_PlayerColor]);
+                            m_CurrentAnimation.SetColor(m_PlayerColor);
                             break;
                     }
 
@@ -805,13 +767,13 @@ namespace ProjectionMappingGame.Game
             switch (State)
             {
                 case States.PLAYING:
-                    m_PlayerHud.DrawWithNoCharSelection(batch, GameConstants.GAME_COLORS[m_PlayerColor]);
+                    m_PlayerHud.DrawWithNoCharSelection(batch, m_PlayerColor);
                     break;
                 case States.SPAWNING:
-                    m_PlayerHud.DrawWithCharSelection(batch, GameConstants.GAME_COLORS[m_PlayerColor]);
+                    m_PlayerHud.DrawWithCharSelection(batch, m_PlayerColor);
                     break;
                 case States.PORTING:
-                    m_PlayerHud.DrawWithNoCharSelection(batch, GameConstants.GAME_COLORS[m_PlayerColor]);
+                    m_PlayerHud.DrawWithNoCharSelection(batch, m_PlayerColor);
                     break;
                 case States.DEAD:
                     break;

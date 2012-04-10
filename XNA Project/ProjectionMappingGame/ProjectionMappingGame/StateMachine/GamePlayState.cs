@@ -27,9 +27,49 @@ using Microsoft.Xna.Framework.Input;
 
 namespace ProjectionMappingGame.StateMachine
 {
+    public struct Theme
+    {
+        public Texture2D[] Background
+        {
+            get;
+            set;
+        }
+
+        public Texture2D[][] Platforms
+        {
+            get;
+            set;
+        }
+    }
+
    public class GamePlayState : GameState
    {
-       
+       static string[] THEME_NAMES = new string[]
+       {
+           "Space",
+           "Heart"
+           //"Fire",
+           //"Water",
+           //"Ice"
+       };
+
+       static int[,] THEME_PLATS = new int[,]
+       {
+           {1,3},
+           {3,1},
+           {0,0},
+           {0,0},
+           {0,0}
+       };
+
+       static int[] THEME_BACKS = new int[]
+       {
+           42,
+           14,
+           0,
+           0,
+           0
+       };
 
       // Fonts
       SpriteFont m_ArialFont;
@@ -39,11 +79,9 @@ namespace ProjectionMappingGame.StateMachine
       Texture2D m_PlayerRunTex;
       Texture2D m_PlayerJumpTex;
 
-      Texture2D[] m_Backgrounds;
+      Game.ColorPicker m_ColorPicker;
 
-      List<int> m_AvailableColors;
-
-      Texture2D[][] m_PlatformTex;
+      Theme[] m_Themes;
 
       Texture2D m_PortalTex;
       Texture2D m_HUDTex;
@@ -62,6 +100,8 @@ namespace ProjectionMappingGame.StateMachine
       int m_PortalColorIndex;
       float m_PowerUpTimer;
 
+      float m_ThemeTimer;
+
       public GamePlayState(GameDriver game)
          : base(game, StateType.GamePlay)
       {
@@ -79,7 +119,7 @@ namespace ProjectionMappingGame.StateMachine
           m_Players = new Game.Player[GameConstants.MAX_PLAYERS];
           m_Collectables = new Game.Collectable[GameConstants.NUM_COLLECTABLES];
 
-          m_AvailableColors = new List<int>();
+          m_ColorPicker = new Game.ColorPicker(GameConstants.GAME_COLORS);
 
           m_ScoreBoard = new Game.ScoreBoard(game, 0, 0, 768, 1024);
       }
@@ -90,11 +130,7 @@ namespace ProjectionMappingGame.StateMachine
       {
          m_Levels.Clear();
 
-         m_AvailableColors.Clear();
-         for (int i = 0; i < GameConstants.GAME_COLORS.Length; ++i)
-         {
-             m_AvailableColors.Add(i);
-         }
+         m_ColorPicker.Reset();
 
          //AddLevel(GameConstants.WindowWidth, GameConstants.WindowHeight);
 
@@ -128,6 +164,8 @@ namespace ProjectionMappingGame.StateMachine
 
          m_PortalColorIndex = 0;
 
+         m_ThemeTimer = (float)GameConstants.RANDOM.NextDouble() * (GameConstants.CHANGE_THEME_MAX - GameConstants.CHANGE_THEME_MIN) + GameConstants.CHANGE_THEME_MIN;
+
          m_PowerUpTimer = (float)GameConstants.RANDOM.NextDouble() * (GameConstants.POWERUP_TIME_MAX - GameConstants.POWERUP_TIME_MIN) + GameConstants.POWERUP_TIME_MIN;
       }
 
@@ -148,43 +186,69 @@ namespace ProjectionMappingGame.StateMachine
 
          m_PortalTex = content.Load<Texture2D>("Sprites/Portal");
 
-         m_PlatformTex = new Texture2D[][] 
-          {
-              new Texture2D[] 
-              { 
-                  content.Load<Texture2D>("Tiles/Type1/left"),
-                  content.Load<Texture2D>("Tiles/Type1/Center"),
-                  content.Load<Texture2D>("Tiles/Type1/Center2"),
-                  content.Load<Texture2D>("Tiles/Type1/Center3"),
-                  content.Load<Texture2D>("Tiles/Type1/right")
-              }, 
-              /*new Texture2D[] 
-              { 
-                  content.Load<Texture2D>("Tiles/Type2/BlockB0"),
-                  content.Load<Texture2D>("Tiles/Type2/BlockB1"),
-                  content.Load<Texture2D>("Tiles/Type2/Platform")
-              }*/
-          };
-
          m_HUDTex = content.Load<Texture2D>("Textures/scoreBackground");
-
-         m_Backgrounds = new Texture2D[]
-         {
-             content.Load<Texture2D>("Textures/Sky-512")
-         };
 
          m_Collectables[0] = new Game.InvinciblePowerup(new Rectangle(0, 0, GameConstants.POWERUP_DIM, GameConstants.POWERUP_DIM), Vector2.Zero, null);
          m_Collectables[0].SetAnimation(content.Load<Texture2D>("Sprites/Powerups/invincible"), GameConstants.POWERUP_FRAMERATE, GameConstants.POWERUP_FRAMES);
 
          m_Collectables[1] = new Game.SpeedBoost(new Rectangle(0, 0, GameConstants.POWERUP_DIM, GameConstants.POWERUP_DIM), Vector2.Zero, null);
          m_Collectables[1].SetAnimation(content.Load<Texture2D>("Sprites/Powerups/speedy"), GameConstants.POWERUP_FRAMERATE, GameConstants.POWERUP_FRAMES);
+
+         m_Themes = new Theme[THEME_NAMES.Length];
+
+         for (int i = 0; i < THEME_NAMES.Length; ++i)
+         {
+             Theme t = new Theme();
+
+             int numPlats = THEME_PLATS[i,0];
+             int platFrames = THEME_PLATS[i,1];
+             int numBacks = THEME_BACKS[i];
+
+             Texture2D[][] plats = new Texture2D[numPlats][];
+
+             for (int n = 0; n < numPlats; ++n)
+             {
+                 plats[n] = new Texture2D[platFrames];
+             }
+
+             Texture2D[] backs = new Texture2D[numBacks];
+
+             string basePath = "Themes/" + THEME_NAMES[i];
+
+             for (int j = 0; j < numPlats; ++j)
+             {
+                 for (int k = 0; k < platFrames; ++k)
+                 {
+                     string path =  basePath + "/" + "Platforms/" + THEME_NAMES[i] + "Platform" + j + "-" + k;
+                     plats[j][k] = content.Load<Texture2D>(path);
+                 }
+             }
+
+             for (int j = 0; j < numBacks; ++j)
+             {
+                 string path = basePath + "/Background/" + THEME_NAMES[i] + "Background" + j;
+                 backs[j] = content.Load<Texture2D>(path);
+             }
+
+             t.Background = backs;
+             t.Platforms = plats;
+
+             m_Themes[i] = t;
+         }
       }
 
-       
+
 
       public override void Update(float elapsedTime)
       {
           m_PowerUpTimer -= elapsedTime;
+          m_ThemeTimer -= elapsedTime;
+
+          if (m_ThemeTimer <= 0)
+          {
+              ChangeThemes();
+              m_ThemeTimer = (float)GameConstants.RANDOM.NextDouble() * (GameConstants.CHANGE_THEME_MAX - GameConstants.CHANGE_THEME_MIN) + GameConstants.CHANGE_THEME_MIN;
+          }
 
           foreach(Game.Collectable collect in m_Collectables)
           {
@@ -245,9 +309,10 @@ namespace ProjectionMappingGame.StateMachine
 
       public int AddLevel(int w, int h, Vector3 n)
       {
-          Game.PlatformSpawner ps = new Game.PlatformSpawner(m_PlatformTex, w);
-          int backIndex = GameConstants.RANDOM.Next(m_Backgrounds.Length);
-          Game.Level lvl = new Game.Level(this, m_Levels.Count, ps, m_Backgrounds[backIndex], m_Keyboard, m_Gamepad, w, h, n);
+          int randIndex = GameConstants.RANDOM.Next(m_Themes.Length);
+          Theme startTheme = m_Themes[randIndex];
+          Game.PlatformSpawner ps = new Game.PlatformSpawner(startTheme.Platforms, w);
+          Game.Level lvl = new Game.Level(this, m_Levels.Count, ps, startTheme, m_Keyboard, m_Gamepad, w, h, n);
 
           m_Levels.Add(lvl);
 
@@ -271,6 +336,16 @@ namespace ProjectionMappingGame.StateMachine
           }*/
 
           return m_Levels.Count;
+      }
+
+      private void ChangeThemes()
+      {
+          foreach (Game.Level lvl in m_Levels)
+          {
+              int randIndex = GameConstants.RANDOM.Next(m_Themes.Length);
+              Theme newTheme = m_Themes[randIndex];
+              lvl.ChangeTheme(newTheme);
+          }
       }
 
       public Game.Player GetPlayer(PlayerIndex player)
@@ -472,15 +547,11 @@ namespace ProjectionMappingGame.StateMachine
       }
 
 
-      public List<int> Colors
+      public Game.ColorPicker Colors
       {
           get
           {
-              return m_AvailableColors;
-          }
-          set
-          {
-              m_AvailableColors = value;
+              return m_ColorPicker;
           }
       }
 

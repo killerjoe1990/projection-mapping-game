@@ -140,6 +140,7 @@
     <Compile Include="Game\Animation.cs" />
     <Compile Include="Game\BlinkingPlatform.cs" />
     <Compile Include="Game\Collectable.cs" />
+    <Compile Include="Game\ColorPicker.cs" />
     <Compile Include="Game\Level.cs" />
     <Compile Include="Game\MoveableObject.cs" />
     <Compile Include="Game\ImpassablePlatform.cs" />

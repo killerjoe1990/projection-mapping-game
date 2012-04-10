@@ -38,6 +38,11 @@ namespace ProjectionMappingGame.Game
             m_SpawnFlag = false;
         }
 
+        public void ChangeTheme(Texture2D[][] platforms)
+        {
+            m_PlatTextures = platforms;
+        }
+
         public List<Platform> SpawnPlatforms(float deltaTime)
         {
             int tex = 0;

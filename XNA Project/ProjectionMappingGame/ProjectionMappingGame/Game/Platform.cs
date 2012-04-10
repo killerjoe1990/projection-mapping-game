@@ -49,7 +49,12 @@ namespace ProjectionMappingGame.Game
 
                 for (int i = 1; i < tilesWide - 1; ++i)
                 {
-                    int image = GameConstants.RANDOM.Next(images.Length - 2) + 1;
+                    int image = 0;
+
+                    if (images.Length > 1)
+                    {
+                        image = GameConstants.RANDOM.Next(images.Length - 2) + 1;
+                    }
 
                     m_Tiles[i] = new Tile(new Vector2(position.X + (i * GameConstants.TILE_DIM), position.Y), velocity, images[image]);
                 }
@@ -127,10 +132,11 @@ namespace ProjectionMappingGame.Game
             }
         }
 
-        public virtual void Draw(SpriteBatch batch)
+        public virtual void Draw(SpriteBatch batch, Color color)
         {
             foreach (Tile t in m_Tiles)
             {
+                t.SetColor(color);
                 t.Draw(batch);
             }
         }
