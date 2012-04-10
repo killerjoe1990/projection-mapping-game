@@ -94,4 +94,59 @@ namespace ProjectionMappingGame.Game
         }
 
     }
+
+    public class AnimatedBackground
+    {
+        Texture2D[] m_Frames;
+
+        float m_Rate;
+        int m_NumFrames;
+
+        int m_CurrentFrame;
+        float m_Counter;
+
+        Point m_Size;
+
+        Color m_Color;
+
+        public AnimatedBackground(Texture2D[] frames, float rate, int width, int height)
+        {
+            m_Rate = 1.0f / rate;
+
+            m_Frames = frames;
+            m_NumFrames = frames.Length;
+
+            m_CurrentFrame = 0;
+            m_Counter = 0;
+            m_Color = Color.White;
+
+            m_Size = new Point(width, height);
+        }
+
+        public void SetColor(Color c)
+        {
+            m_Color = c;
+        }
+
+        public void Update(float deltaTime)
+        {
+            m_Counter += deltaTime;
+
+            int moveFrames = (int)(m_Counter / m_Rate);
+
+            m_CurrentFrame += moveFrames;
+
+            m_CurrentFrame %= m_NumFrames;
+
+            if (moveFrames > 0)
+            {
+                m_Counter %= m_Rate;
+            }
+        }
+
+        public void Draw(SpriteBatch batch, SpriteEffects effect)
+        {
+            batch.Draw(m_Frames[m_CurrentFrame], new Rectangle(0, 0, m_Size.X, m_Size.Y), null, m_Color, 0, Vector2.Zero, effect, 1);
+        }
+    }
 }

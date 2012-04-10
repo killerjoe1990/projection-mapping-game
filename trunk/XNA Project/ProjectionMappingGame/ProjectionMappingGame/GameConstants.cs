@@ -128,11 +128,18 @@ namespace ProjectionMappingGame
       public const float PLAYER_RUN_FRAMERATE = 10;
       public const float PLAYER_JUMP_FRAMERATE = 20;
 
+      public const float BACKGROUND_FRAMERATE = 15;
+
       public const float PORTAL_FRAMERATE = 5;
       public const int PORTAL_FRAMES = 4;
 
       public const float POWERUP_FRAMERATE = 5;
       public const int POWERUP_FRAMES = 4;
+
+      public const float BACKGROUND_FADE = 2.0f;
+
+      public const float CHANGE_THEME_MIN = 60;
+      public const float CHANGE_THEME_MAX = 120;
 
        // random
       public static Random RANDOM = new Random();

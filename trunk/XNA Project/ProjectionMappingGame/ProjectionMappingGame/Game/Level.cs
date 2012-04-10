@@ -13,6 +13,8 @@ namespace ProjectionMappingGame.Game
 {
     public class Level
     {
+
+
         RenderTarget2D m_PlatformShadowTarget;
         RenderTarget2D m_PlayerShadowTarget;
         Vector2 m_ShadowOffset;
@@ -20,6 +22,11 @@ namespace ProjectionMappingGame.Game
 
         Matrix m_NormalRotation;
         Vector3 m_Normal;
+
+        StateMachine.Theme m_NextTheme;
+        bool m_ChangeTheme;
+        float m_ThemeTimerLast;
+        float m_ThemeTimer;
 
         //Parent
         StateMachine.GamePlayState m_GameState;
@@ -38,7 +45,7 @@ namespace ProjectionMappingGame.Game
         GUI.KeyboardInput m_Keyboard;
         GUI.GamepadInput m_Gamepad;
 
-        Texture2D m_Background;
+        AnimatedBackground m_Background;
 
         List<Game.Player> m_Players;
         List<Game.Portal> m_Portals;
@@ -48,10 +55,9 @@ namespace ProjectionMappingGame.Game
 
         List<Collectable> m_MiscObjects;
 
-        
 
 
-        public Level(StateMachine.GamePlayState state, int lvlNum, Game.PlatformSpawner spawner, Texture2D background, GUI.KeyboardInput keyboard, GUI.GamepadInput gamepad, int width, int height, Vector3 normal)
+        public Level(StateMachine.GamePlayState state, int lvlNum, Game.PlatformSpawner spawner, StateMachine.Theme theme, GUI.KeyboardInput keyboard, GUI.GamepadInput gamepad, int width, int height, Vector3 normal)
         {
             SetNormal(normal);
             m_WindowHeight = height;
@@ -68,8 +74,6 @@ namespace ProjectionMappingGame.Game
 
             m_MiscObjects = new List<Collectable>();
 
-            m_Background = background;
-
             m_Gamepad = gamepad;
             m_Keyboard = keyboard;
 
@@ -82,7 +86,9 @@ namespace ProjectionMappingGame.Game
             m_PlatformShadowTarget = new RenderTarget2D(m_GameState.Graphics, m_WindowWidth, m_WindowHeight, true, m_GameState.Graphics.DisplayMode.Format, DepthFormat.Depth24);
             m_PlayerShadowTarget = new RenderTarget2D(m_GameState.Graphics, m_WindowWidth, m_WindowHeight, true, m_GameState.Graphics.DisplayMode.Format, DepthFormat.Depth24);
 
-            
+            m_NextTheme = theme;
+            SwapTheme();
+            m_ThemeTimer = m_ThemeTimerLast = 0;
 
             // DEBUG
             //m_ShadowOffset = new Vector2(-10, -10);
@@ -95,6 +101,14 @@ namespace ProjectionMappingGame.Game
             // DEBUG moving shadows
             //m_ShadowOffset.X += elapsedTime;
             //m_ShadowOffset.Y += elapsedTime;
+
+            m_Background.Update(elapsedTime);
+
+            if (m_ChangeTheme)
+            {
+                m_ThemeTimerLast = m_ThemeTimer;
+                m_ThemeTimer += elapsedTime;
+            }
 
             // Update any logic here
             List<Platform> newPlats = m_PlatSpawn.SpawnPlatforms(elapsedTime);
@@ -224,7 +238,7 @@ namespace ProjectionMappingGame.Game
 
             foreach (Platform platform in m_Platforms)
             {
-                platform.Draw(spriteBatch);
+                platform.Draw(spriteBatch, Color.White);
             }
 
             foreach (MoveableObject obj in m_MiscObjects)
@@ -254,11 +268,34 @@ namespace ProjectionMappingGame.Game
 
         private void RenderGame(SpriteBatch spriteBatch)
         {
+            Color themeFadeColor = Color.White;
+
+            if (m_ChangeTheme)
+            {
+                float intensity = ((m_ThemeTimer * m_ThemeTimer) / (GameConstants.BACKGROUND_FADE * GameConstants.BACKGROUND_FADE));
+
+                themeFadeColor.R = (byte)(255 * intensity);
+                themeFadeColor.G = (byte)(255 * intensity);
+                themeFadeColor.B = (byte)(255 * intensity);
+
+                if (m_ThemeTimerLast <= 0 && m_ThemeTimer > 0)
+                {
+                    SwapTheme();
+                }
+                else
+                {
+                    if (m_ThemeTimer >= GameConstants.BACKGROUND_FADE)
+                    {
+                        m_ChangeTheme = false;
+                    }
+                }
+            }
 
             spriteBatch.Begin();
 
             // Background always goes in the back.
-            spriteBatch.Draw(m_Background, new Rectangle(0, 0, m_WindowWidth, m_WindowHeight), Color.White);
+            m_Background.SetColor(themeFadeColor);
+            m_Background.Draw(spriteBatch, SpriteEffects.None);
 
             // draw Shadows
             spriteBatch.Draw(m_PlatformShadowTarget, new Rectangle((int)m_ShadowOffset.X, (int)m_ShadowOffset.Y, m_WindowWidth, m_WindowHeight), SHADOW_COLOR);
@@ -273,7 +310,7 @@ namespace ProjectionMappingGame.Game
             // Platforms next.
             foreach (Platform platform in m_Platforms)
             {
-                platform.Draw(spriteBatch);
+                platform.Draw(spriteBatch, themeFadeColor);
             }
 
             foreach (MoveableObject obj in m_MiscObjects)
@@ -490,6 +527,20 @@ namespace ProjectionMappingGame.Game
             m_NormalRotation = Matrix.Invert(m_NormalRotation);
 
             m_Normal = normal;
+        }
+
+        public void ChangeTheme(StateMachine.Theme theme)
+        {
+            m_NextTheme = theme;
+            m_ChangeTheme = true;
+            m_ThemeTimer = m_ThemeTimerLast = -GameConstants.BACKGROUND_FADE;
+        }
+
+        private void SwapTheme()
+        {
+            m_Background = new AnimatedBackground(m_NextTheme.Background, GameConstants.BACKGROUND_FRAMERATE, m_WindowWidth, m_WindowHeight);
+            m_PlatSpawn.ChangeTheme(m_NextTheme.Platforms);
+
         }
 
         private void VectorComponents(Vector3 vector, Vector3 normal, out Vector3 tangentVec, out Vector3 normalVec)

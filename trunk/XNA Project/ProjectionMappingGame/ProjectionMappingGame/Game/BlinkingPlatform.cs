@@ -46,12 +46,10 @@ namespace ProjectionMappingGame.Game
             base.Update(deltaTime);
            
         }
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, Color color)
         {
             if (this.m_Status != PlatformStatus.Dead)
             {
-
-                base.Draw(batch);
                 if (isBlinking == true && this.colorForAlpha.A > 0 && isLoweringNumber == true)
                 {
                     colorForAlpha.A-= 5;
@@ -73,12 +71,22 @@ namespace ProjectionMappingGame.Game
                         colorForAlpha.A = 255;
                         isLoweringNumber = true;
                     }
-                    foreach (MoveableObject o in Tiles)
-                    {
-                        o.SetColor(colorForAlpha);
-                    }
+                    //foreach (MoveableObject o in Tiles)
+                    //{
+                    //    o.SetColor(colorForAlpha);
+                    //}
+                }
+                if (!color.Equals(Color.White))
+                {
+                    base.Draw(batch, color);
+                }
+                else
+                {
+                    base.Draw(batch, colorForAlpha);
                 }
             }
+
+            
         }
         private void SetToDestroyEvent(object source, ElapsedEventArgs e)
         {
