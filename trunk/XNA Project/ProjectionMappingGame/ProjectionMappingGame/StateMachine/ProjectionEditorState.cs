@@ -1606,13 +1606,20 @@ namespace ProjectionMappingGame.StateMachine
 
          if (save.FileName != "")
          {
-            SaveEditor(save.FileName);
+            SaveEditorConfig(save.FileName);
          }
       }
 
       private void OpenButton_OnClick(object sender, EventArgs e)
       {
-
+         System.Windows.Forms.OpenFileDialog open = new System.Windows.Forms.OpenFileDialog();
+         open.Filter = "Xml|*.xml";
+         open.Title = "Open editor configuration";
+         
+         if (open.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+         {
+            LoadEditorConfig(open.FileName);
+         }
       }
 
       private void QuitButton_OnClick(object sender, EventArgs e)
@@ -1884,7 +1891,12 @@ namespace ProjectionMappingGame.StateMachine
 
       #region Saving/Loading
 
-      void SaveEditor(string filename)
+      void LoadEditorConfig(string filename)
+      {
+
+      }
+
+      void SaveEditorConfig(string filename)
       {
          //
          // Prepare data packet for saving

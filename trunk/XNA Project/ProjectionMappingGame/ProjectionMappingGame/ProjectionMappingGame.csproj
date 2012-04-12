@@ -126,12 +126,14 @@
     <Compile Include="Editor\UVGridEditor.cs" />
     <Compile Include="Editor\UVQuad.cs" />
     <Compile Include="Editor\UVSpinBoxPair.cs" />
+    <Compile Include="FileSystem\AppConfig.cs" />
     <Compile Include="FileSystem\BuildingSaveData.cs" />
     <Compile Include="FileSystem\EdgeGraphSaveData.cs" />
     <Compile Include="FileSystem\EditorSaveData.cs" />
     <Compile Include="FileSystem\GridSaveData.cs" />
     <Compile Include="FileSystem\LayerSaveData.cs" />
     <Compile Include="FileSystem\ProjectorSaveData.cs" />
+    <Compile Include="FileSystem\ThemeConfig.cs" />
     <Compile Include="FileSystem\UVEdgeSaveData.cs" />
     <Compile Include="FileSystem\UVQuadSaveData.cs" />
     <Compile Include="FileSystem\UVVertexSaveData.cs" />
@@ -140,7 +142,6 @@
     <Compile Include="Game\Animation.cs" />
     <Compile Include="Game\BlinkingPlatform.cs" />
     <Compile Include="Game\Collectable.cs" />
-    <Compile Include="Game\ColorPicker.cs" />
     <Compile Include="Game\Level.cs" />
     <Compile Include="Game\MoveableObject.cs" />
     <Compile Include="Game\ImpassablePlatform.cs" />
