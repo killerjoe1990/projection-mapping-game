@@ -43,7 +43,7 @@ namespace ProjectionMappingGame.Game
         StateMachine.GamePlayState m_Parent;
 
         Color m_PlayerColor;
-        //ColorPicker m_ColorPicker;
+        ColorPicker m_ColorPicker;
 
         Point m_WindowSize;
 
@@ -117,7 +117,7 @@ namespace ProjectionMappingGame.Game
             m_PortalTimer = GameConstants.PORTAL_DELAY;
             m_PortAgainTimer = GameConstants.PORT_AGAIN_DELAY;
 
-            //m_ColorPicker = parent.Colors;
+            m_ColorPicker = parent.Colors;
             m_PlayerColor = Color.Red;
             SetColor(Color.Red);
 
@@ -236,7 +236,7 @@ namespace ProjectionMappingGame.Game
                         m_Bounds.X = (int)m_Position.X;
                         m_Bounds.Y = (int)m_Position.Y;
 
-                        //m_PlayerColor = m_ColorPicker.TryColor(m_PlayerColor);
+                        m_PlayerColor = m_ColorPicker.TryColor(m_PlayerColor);
 
                         State = States.SPAWNING;
                     }
@@ -250,16 +250,16 @@ namespace ProjectionMappingGame.Game
                     if (keys.Contains(Keys.A))
                     {
                         Color lastColor = m_PlayerColor;
-                        //m_PlayerColor = m_ColorPicker.GetLastColor(m_PlayerColor);
-                        //m_ColorPicker.ReturnColor(lastColor);
+                        m_PlayerColor = m_ColorPicker.GetLastColor(m_PlayerColor);
+                        m_ColorPicker.ReturnColor(lastColor);
 
                         m_Animations[(int)Animations.IDLE].SetColor(m_PlayerColor);
                     }
                     if (keys.Contains(Keys.D))
                     {
                         Color lastColor = m_PlayerColor;
-                        //m_PlayerColor = m_ColorPicker.GetNextColor(m_PlayerColor);
-                        //m_ColorPicker.ReturnColor(lastColor);
+                        m_PlayerColor = m_ColorPicker.GetNextColor(m_PlayerColor);
+                        m_ColorPicker.ReturnColor(lastColor);
 
                         m_Animations[(int)Animations.IDLE].SetColor(m_PlayerColor);
                     }
@@ -323,7 +323,7 @@ namespace ProjectionMappingGame.Game
                         m_Bounds.X = (int)m_Position.X;
                         m_Bounds.Y = (int)m_Position.Y;
 
-                        //m_PlayerColor = m_ColorPicker.TryColor(m_PlayerColor);
+                        m_PlayerColor = m_ColorPicker.TryColor(m_PlayerColor);
 
                         State = States.SPAWNING;
                     }
@@ -337,14 +337,14 @@ namespace ProjectionMappingGame.Game
                     if (button.Equals(GUI.GamepadInput.Buttons.LB))
                     {
                         Color lastColor = m_PlayerColor;
-                        //m_PlayerColor = m_ColorPicker.GetLastColor(m_PlayerColor);
-                        //m_ColorPicker.ReturnColor(lastColor);
+                        m_PlayerColor = m_ColorPicker.GetLastColor(m_PlayerColor);
+                        m_ColorPicker.ReturnColor(lastColor);
                     }
                     if (button.Equals(GUI.GamepadInput.Buttons.RB))
                     {
                         Color lastColor = m_PlayerColor;
-                        //m_PlayerColor = m_ColorPicker.GetNextColor(m_PlayerColor);
-                        //m_ColorPicker.ReturnColor(lastColor);
+                        m_PlayerColor = m_ColorPicker.GetNextColor(m_PlayerColor);
+                        m_ColorPicker.ReturnColor(lastColor);
                     }
                     break;
             }
@@ -700,7 +700,7 @@ namespace ProjectionMappingGame.Game
 
         public void Kill()
         {
-            //m_ColorPicker.ReturnColor(m_PlayerColor);
+            m_ColorPicker.ReturnColor(m_PlayerColor);
 
             m_PlayerHud.Reset();
             m_Position = Vector2.Zero;
