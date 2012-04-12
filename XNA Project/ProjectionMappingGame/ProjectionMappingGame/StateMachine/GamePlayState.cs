@@ -94,7 +94,7 @@ namespace ProjectionMappingGame.StateMachine
       Texture2D m_PlayerRunTex;
       Texture2D m_PlayerJumpTex;
 
-      //Game.ColorPicker m_ColorPicker;
+      Game.ColorPicker m_ColorPicker;
 
       //
       // You can either keep this one and move my code into this class, or
@@ -139,7 +139,7 @@ namespace ProjectionMappingGame.StateMachine
           m_Players = new Game.Player[GameConstants.MAX_PLAYERS];
           m_Collectables = new Game.Collectable[GameConstants.NUM_COLLECTABLES];
 
-          //m_ColorPicker = new Game.ColorPicker(GameConstants.GAME_COLORS);
+          m_ColorPicker = new Game.ColorPicker(GameConstants.GAME_COLORS);
 
           m_ScoreBoard = new Game.ScoreBoard(game, 0, 0, 768, 1024);
       }
@@ -150,7 +150,7 @@ namespace ProjectionMappingGame.StateMachine
       {
          m_Levels.Clear();
 
-         //m_ColorPicker.Reset();
+         m_ColorPicker.Reset();
 
          //AddLevel(GameConstants.WindowWidth, GameConstants.WindowHeight);
 
@@ -567,13 +567,13 @@ namespace ProjectionMappingGame.StateMachine
       }
 
 
-      /*public Game.ColorPicker Colors
+      public Game.ColorPicker Colors
       {
           get
           {
               return m_ColorPicker;
           }
-      }*/
+      }
 
       public void SetLight(Vector3 light)
       {
