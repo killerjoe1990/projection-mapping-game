@@ -27,12 +27,18 @@ using Microsoft.Xna.Framework.Input;
 
 namespace ProjectionMappingGame.StateMachine
 {
-    public struct Theme
+    public class Theme
     {
         public Texture2D[] Background
         {
             get;
             set;
+        }
+
+        public Texture2D[] SpriteSheets
+        {
+           get;
+           set;
         }
 
         public Texture2D[][] Platforms
@@ -44,6 +50,9 @@ namespace ProjectionMappingGame.StateMachine
 
    public class GamePlayState : GameState
    {
+      //
+      // Don't think you will need this stuff anymore
+      //
        static string[] THEME_NAMES = new string[]
        {
            "Space",
@@ -53,6 +62,9 @@ namespace ProjectionMappingGame.StateMachine
            //"Ice"
        };
 
+       //
+       // Don't think you will need this stuff anymore
+       //
        static int[,] THEME_PLATS = new int[,]
        {
            {1,3},
@@ -62,6 +74,9 @@ namespace ProjectionMappingGame.StateMachine
            {0,0}
        };
 
+       //
+       // Don't think you will need this stuff anymore
+       //
        static int[] THEME_BACKS = new int[]
        {
            42,
@@ -79,8 +94,13 @@ namespace ProjectionMappingGame.StateMachine
       Texture2D m_PlayerRunTex;
       Texture2D m_PlayerJumpTex;
 
-      Game.ColorPicker m_ColorPicker;
+      //Game.ColorPicker m_ColorPicker;
 
+      //
+      // You can either keep this one and move my code into this class, or
+      // keep them in GameDriver.cs and reference themes by way of m_Game.Themes.
+      // Either one. -AJ
+      //
       Theme[] m_Themes;
 
       Texture2D m_PortalTex;
@@ -119,7 +139,7 @@ namespace ProjectionMappingGame.StateMachine
           m_Players = new Game.Player[GameConstants.MAX_PLAYERS];
           m_Collectables = new Game.Collectable[GameConstants.NUM_COLLECTABLES];
 
-          m_ColorPicker = new Game.ColorPicker(GameConstants.GAME_COLORS);
+          //m_ColorPicker = new Game.ColorPicker(GameConstants.GAME_COLORS);
 
           m_ScoreBoard = new Game.ScoreBoard(game, 0, 0, 768, 1024);
       }
@@ -130,7 +150,7 @@ namespace ProjectionMappingGame.StateMachine
       {
          m_Levels.Clear();
 
-         m_ColorPicker.Reset();
+         //m_ColorPicker.Reset();
 
          //AddLevel(GameConstants.WindowWidth, GameConstants.WindowHeight);
 
@@ -547,13 +567,13 @@ namespace ProjectionMappingGame.StateMachine
       }
 
 
-      public Game.ColorPicker Colors
+      /*public Game.ColorPicker Colors
       {
           get
           {
               return m_ColorPicker;
           }
-      }
+      }*/
 
       public void SetLight(Vector3 light)
       {

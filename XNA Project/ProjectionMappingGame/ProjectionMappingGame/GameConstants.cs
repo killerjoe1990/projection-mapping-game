@@ -35,6 +35,9 @@ namespace ProjectionMappingGame
       public const int DEFAULT_WINDOW_WIDTH = 1280;
       public const int DEFAULT_WINDOW_HEIGHT = 720;
 
+      // Config
+      public const string DEFAULT_THEME_ROOT_PATH = "../../../../Themes";
+
       // FSM
       public const StateType DEFAULT_STATE = StateType.MainMenu;
 
