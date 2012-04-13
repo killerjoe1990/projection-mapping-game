@@ -27,8 +27,14 @@ using Microsoft.Xna.Framework.Input;
 
 namespace ProjectionMappingGame.StateMachine
 {
-    public class Theme
+    public class ThemeTextures
     {
+        public string Name
+        {
+            get;
+            set;
+        }
+
         public Texture2D[] Background
         {
             get;
@@ -101,7 +107,7 @@ namespace ProjectionMappingGame.StateMachine
       // keep them in GameDriver.cs and reference themes by way of m_Game.Themes.
       // Either one. -AJ
       //
-      Theme[] m_Themes;
+      ThemeTextures[] m_Themes;
 
       Texture2D m_PortalTex;
       Texture2D m_HUDTex;
@@ -214,50 +220,53 @@ namespace ProjectionMappingGame.StateMachine
          m_Collectables[1] = new Game.SpeedBoost(new Rectangle(0, 0, GameConstants.POWERUP_DIM, GameConstants.POWERUP_DIM), Vector2.Zero, null);
          m_Collectables[1].SetAnimation(content.Load<Texture2D>("Sprites/Powerups/speedy"), GameConstants.POWERUP_FRAMERATE, GameConstants.POWERUP_FRAMES);
 
-         m_Themes = new Theme[THEME_NAMES.Length];
-
-         for (int i = 0; i < THEME_NAMES.Length; ++i)
-         {
-             Theme t = new Theme();
-
-             int numPlats = THEME_PLATS[i,0];
-             int platFrames = THEME_PLATS[i,1];
-             int numBacks = THEME_BACKS[i];
-
-             Texture2D[][] plats = new Texture2D[numPlats][];
-
-             for (int n = 0; n < numPlats; ++n)
-             {
-                 plats[n] = new Texture2D[platFrames];
-             }
-
-             Texture2D[] backs = new Texture2D[numBacks];
-
-             string basePath = "Themes/" + THEME_NAMES[i];
-
-             for (int j = 0; j < numPlats; ++j)
-             {
-                 for (int k = 0; k < platFrames; ++k)
-                 {
-                     string path =  basePath + "/" + "Platforms/" + THEME_NAMES[i] + "Platform" + j + "-" + k;
-                     plats[j][k] = content.Load<Texture2D>(path);
-                 }
-             }
-
-             for (int j = 0; j < numBacks; ++j)
-             {
-                 string path = basePath + "/Background/" + THEME_NAMES[i] + "Background" + j;
-                 backs[j] = content.Load<Texture2D>(path);
-             }
-
-             t.Background = backs;
-             t.Platforms = plats;
-
-             m_Themes[i] = t;
-         }
+         
       }
 
+      private void LoadThemes(ContentManager content)
+      {
+          m_Themes = new ThemeTextures[THEME_NAMES.Length];
 
+          for (int i = 0; i < THEME_NAMES.Length; ++i)
+          {
+              ThemeTextures t = new ThemeTextures();
+
+              int numPlats = THEME_PLATS[i, 0];
+              int platFrames = THEME_PLATS[i, 1];
+              int numBacks = THEME_BACKS[i];
+
+              Texture2D[][] plats = new Texture2D[numPlats][];
+
+              for (int n = 0; n < numPlats; ++n)
+              {
+                  plats[n] = new Texture2D[platFrames];
+              }
+
+              Texture2D[] backs = new Texture2D[numBacks];
+
+              string basePath = "Themes/" + THEME_NAMES[i];
+
+              for (int j = 0; j < numPlats; ++j)
+              {
+                  for (int k = 0; k < platFrames; ++k)
+                  {
+                      string path = basePath + "/" + "Platforms/" + THEME_NAMES[i] + "Platform" + j + "-" + k;
+                      plats[j][k] = content.Load<Texture2D>(path);
+                  }
+              }
+
+              for (int j = 0; j < numBacks; ++j)
+              {
+                  string path = basePath + "/Background/" + THEME_NAMES[i] + "Background" + j;
+                  backs[j] = content.Load<Texture2D>(path);
+              }
+
+              t.Background = backs;
+              t.Platforms = plats;
+
+              m_Themes[i] = t;
+          }
+      }
 
       public override void Update(float elapsedTime)
       {
@@ -330,7 +339,7 @@ namespace ProjectionMappingGame.StateMachine
       public int AddLevel(int w, int h, Vector3 n)
       {
           int randIndex = GameConstants.RANDOM.Next(m_Themes.Length);
-          Theme startTheme = m_Themes[randIndex];
+          ThemeTextures startTheme = m_Themes[randIndex];
           Game.PlatformSpawner ps = new Game.PlatformSpawner(startTheme.Platforms, w);
           Game.Level lvl = new Game.Level(this, m_Levels.Count, ps, startTheme, m_Keyboard, m_Gamepad, w, h, n);
 
@@ -363,7 +372,7 @@ namespace ProjectionMappingGame.StateMachine
           foreach (Game.Level lvl in m_Levels)
           {
               int randIndex = GameConstants.RANDOM.Next(m_Themes.Length);
-              Theme newTheme = m_Themes[randIndex];
+              ThemeTextures newTheme = m_Themes[randIndex];
               lvl.ChangeTheme(newTheme);
           }
       }

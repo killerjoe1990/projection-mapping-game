@@ -53,7 +53,7 @@ namespace ProjectionMappingGame
 
       // Configuration
       AppConfig m_AppConfig;
-      List<Theme> m_Themes;
+      List<ThemeTextures> m_Themes;
       public AppConfig Config
       {
          get { return m_AppConfig; }
@@ -345,7 +345,7 @@ namespace ProjectionMappingGame
 
             // Now that we know the theme configuration, we can actually load the textures we need.
             int numThemes = themeConfigs.Count;
-            m_Themes = new List<Theme>();
+            m_Themes = new List<ThemeTextures>();
             for (int i = 0; i < numThemes; ++i)
             {
                m_Themes.Add(LoadTheme(themeConfigs[i]));
@@ -358,9 +358,10 @@ namespace ProjectionMappingGame
          }
       }
 
-      Theme LoadTheme(ThemeConfig themeConfig)
+      ThemeTextures LoadTheme(ThemeConfig themeConfig)
       {
-         Theme t = new Theme();
+         ThemeTextures t = new ThemeTextures();
+         t.Name = themeConfig.Name;
          t.Background = new Texture2D[themeConfig.Backgrounds.Count];
          t.Platforms = new Texture2D[themeConfig.Platforms.Count][];
          //t.SpriteSheets = new Texture2D[themeConfig.SpriteSheets.Count];

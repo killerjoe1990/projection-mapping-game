@@ -153,6 +153,8 @@
     <Compile Include="Game\Player.cs" />
     <Compile Include="Game\Portal.cs" />
     <Compile Include="Game\ScoreBoard.cs" />
+    <Compile Include="Game\Themes\SpaceTheme.cs" />
+    <Compile Include="Game\Themes\Theme.cs" />
     <Compile Include="GUI\Button.cs" />
     <Compile Include="GUI\Checkbox.cs" />
     <Compile Include="GUI\InputController.cs" />

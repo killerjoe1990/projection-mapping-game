@@ -12,10 +12,11 @@ namespace ProjectionMappingGame.Game
         Top,
         Bot,
         Left,
-        Right
+        Right,
+        None
     }
 
-    public abstract class MoveableObject
+    public class MoveableObject
     {
         protected Vector2 m_Velocity;
         protected Vector2 m_Position;
@@ -42,9 +43,16 @@ namespace ProjectionMappingGame.Game
             m_CurrentAnimation = null;
         }
 
-        public Animation GetAnimation()
+        public Animation Animation
         {
-            return this.m_CurrentAnimation;
+            get
+            {
+                return m_CurrentAnimation;
+            }
+            set
+            {
+                m_CurrentAnimation = value;
+            }
         }
 
         public Vector2 Position
@@ -86,6 +94,53 @@ namespace ProjectionMappingGame.Game
             m_CurrentAnimation.SetColor(color);
         }
 
+        public CollisionDirections CheckBounds(int width, int height)
+        {
+            CollisionDirections dir = CollisionDirections.None;
+
+            if (m_Position.X < 0)
+            {
+                dir = CollisionDirections.Left;
+            }
+            if (m_Position.X + m_Bounds.Width > width)
+            {
+                dir = CollisionDirections.Right;
+            }
+            if (m_Position.Y < 0)
+            {
+                dir = CollisionDirections.Top;
+            }
+            if (m_Position.Y + m_Bounds.Height > height)
+            {
+                dir = CollisionDirections.Bot;
+            }
+
+            return dir;
+        }
+
+        public void ScreenBounce(CollisionDirections direction, Point windowSize)
+        {
+            switch (direction)
+            {
+                case CollisionDirections.Left:
+                    m_Velocity.X *= -1;
+                    m_Position.X = 0;
+                    break;
+                case CollisionDirections.Right:
+                    m_Velocity.X *= -1;
+                    m_Position.X = windowSize.X - m_Bounds.Width;
+                    break;
+                case CollisionDirections.Top:
+                    m_Velocity.Y *= -1;
+                    m_Position.Y = 0;
+                    break;
+                case CollisionDirections.Bot:
+                    m_Velocity.Y *= -1;
+                    m_Position.Y = windowSize.Y - m_Bounds.Height;
+                    break;
+            }
+        }
+
         public virtual void Collide(MoveableObject obj)
         {
 
@@ -108,6 +163,16 @@ namespace ProjectionMappingGame.Game
         {
             if (m_CurrentAnimation != null)
             {
+                m_CurrentAnimation.SetColor(Color.White);
+                m_CurrentAnimation.Draw(batch, m_Bounds, SpriteEffects.None);
+            }
+        }
+
+        public virtual void Draw(SpriteBatch batch, Color color)
+        {
+            if (m_CurrentAnimation != null)
+            {
+                m_CurrentAnimation.SetColor(color);
                 m_CurrentAnimation.Draw(batch, m_Bounds, SpriteEffects.None);
             }
         }
