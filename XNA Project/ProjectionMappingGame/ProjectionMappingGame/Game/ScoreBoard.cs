@@ -88,7 +88,7 @@ namespace ProjectionMappingGame.Game
 
             for (int i = 0; i < players.Length; ++i)
             {
-                players[i].HUD.Draw(spriteBatch, players[i].GetAnimation().getColor(), players[i].State);
+                players[i].HUD.Draw(spriteBatch, players[i].Animation.getColor(), players[i].State);
             }
 
             Rectangle background = ScreenRect(0.0f, 0.75f, 1.0f, 0.25f);

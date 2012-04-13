@@ -23,7 +23,7 @@ namespace ProjectionMappingGame.Game
         Matrix m_NormalRotation;
         Vector3 m_Normal;
 
-        StateMachine.Theme m_NextTheme;
+        StateMachine.ThemeTextures m_NextTheme;
         bool m_ChangeTheme;
         float m_ThemeTimerLast;
         float m_ThemeTimer;
@@ -57,7 +57,7 @@ namespace ProjectionMappingGame.Game
 
 
 
-        public Level(StateMachine.GamePlayState state, int lvlNum, Game.PlatformSpawner spawner, StateMachine.Theme theme, GUI.KeyboardInput keyboard, GUI.GamepadInput gamepad, int width, int height, Vector3 normal)
+        public Level(StateMachine.GamePlayState state, int lvlNum, Game.PlatformSpawner spawner, StateMachine.ThemeTextures theme, GUI.KeyboardInput keyboard, GUI.GamepadInput gamepad, int width, int height, Vector3 normal)
         {
             SetNormal(normal);
             m_WindowHeight = height;
@@ -529,7 +529,7 @@ namespace ProjectionMappingGame.Game
             m_Normal = normal;
         }
 
-        public void ChangeTheme(StateMachine.Theme theme)
+        public void ChangeTheme(StateMachine.ThemeTextures theme)
         {
             m_NextTheme = theme;
             m_ChangeTheme = true;
