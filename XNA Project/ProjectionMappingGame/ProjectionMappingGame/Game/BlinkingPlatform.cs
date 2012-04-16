@@ -10,20 +10,23 @@ namespace ProjectionMappingGame.Game
 {
     class BlinkingPlatform : Platform
     {
-        public bool isBlinking;
+        public bool m_IsBlinking;
 
-        private bool isLoweringNumber;
-        private Color colorForAlpha = Color.White;
-        private Timer timerToDestroyItself;
+        private bool m_IsLoweringNumber;
+        private float m_TimerToDestroyItself;
+
+        private Texture2D m_White;
 
         public BlinkingPlatform(Vector2 position, Vector2 velocity, int tilesWide, Texture2D[] images)
             : base(position, velocity, tilesWide, images)
         {
-            isBlinking = false;
-            isLoweringNumber = true;
-            timerToDestroyItself = new Timer(2000);
-            timerToDestroyItself.Elapsed += new ElapsedEventHandler(SetToDestroyEvent);
-            
+            m_IsBlinking = false;
+            m_IsLoweringNumber = true;
+            m_TimerToDestroyItself = 2.0f;
+
+            Blink = true;
+
+            m_White = GameConstants.WHITE_TEXTURE;
         }
 
         public override bool Collide(MoveableObject obj, CollisionDirections direction)
@@ -32,65 +35,61 @@ namespace ProjectionMappingGame.Game
             {
 
                 int chanceToBlink = GameConstants.RANDOM.Next(0, 100);
-                if (chanceToBlink < GameConstants.BLINKPLAT_CHANCE_TO_BLINK_ON_JUMP)
+                if (!m_IsBlinking && chanceToBlink < GameConstants.BLINKPLAT_CHANCE_TO_BLINK_ON_JUMP)
                 {
-                    isBlinking = true;
-                    timerToDestroyItself.Enabled = true;
+                    m_IsBlinking = true;
+                    m_TimerToDestroyItself = 2.0f;
                 }
                 return true;
             }
             return false;
         }
+
         public override void Update(float deltaTime)
         {
-            base.Update(deltaTime);
-           
+            if (m_IsBlinking)
+            {
+                m_TimerToDestroyItself -= deltaTime;
+
+                if (m_TimerToDestroyItself <= 0)
+                {
+                    SetToDestroyEvent(this, null);
+                    m_IsBlinking = false;
+                }
+            }
+            base.Update(deltaTime);  
         }
         public override void Draw(SpriteBatch batch, Color color)
         {
             if (this.m_Status != PlatformStatus.Dead)
             {
-                if (isBlinking == true && this.colorForAlpha.A > 0 && isLoweringNumber == true)
+                float intensity = ((float)Math.Cos(15 * m_TimerToDestroyItself) + 1) / 2.0f;
+
+                Color blinkingColor = Color.White;
+                
+                float fade = color.R / 255.0f;
+
+                blinkingColor *= fade;
+
+                if (m_IsBlinking)
                 {
-                    colorForAlpha.A-= 5;
-                    if (colorForAlpha.A <= 0)
-                    {
-                        colorForAlpha.A = 0;
-                        isLoweringNumber = false;
-                    }
-                    foreach (MoveableObject o in Tiles)
-                    {
-                        o.SetColor(colorForAlpha);
-                    }
-                }
-                else if (isBlinking == true && this.colorForAlpha.A < 255 && isLoweringNumber == false)
-                {
-                    colorForAlpha.A+= 5;
-                    if (colorForAlpha.A >= 255)
-                    {
-                        colorForAlpha.A = 255;
-                        isLoweringNumber = true;
-                    }
-                    //foreach (MoveableObject o in Tiles)
-                    //{
-                    //    o.SetColor(colorForAlpha);
-                    //}
-                }
-                if (!color.Equals(Color.White))
-                {
-                    base.Draw(batch, color);
+                    blinkingColor.A = (byte)(255 * intensity);
                 }
                 else
                 {
-                    base.Draw(batch, colorForAlpha);
+                    blinkingColor.A = 255;
                 }
+
+                
+
+                base.Draw(batch, blinkingColor);
             }
 
             
         }
         private void SetToDestroyEvent(object source, ElapsedEventArgs e)
         {
-            this.m_Status = PlatformStatus.Dead;
+            m_Status = PlatformStatus.Dead;
         }
     }
 }

@@ -153,6 +153,9 @@
     <Compile Include="Game\Player.cs" />
     <Compile Include="Game\Portal.cs" />
     <Compile Include="Game\ScoreBoard.cs" />
+    <Compile Include="Game\Themes\CornersTheme.cs" />
+    <Compile Include="Game\Themes\HeartTheme.cs" />
+    <Compile Include="Game\Themes\RedBlueTheme.cs" />
     <Compile Include="Game\Themes\SpaceTheme.cs" />
     <Compile Include="Game\Themes\Theme.cs" />
     <Compile Include="GUI\Button.cs" />

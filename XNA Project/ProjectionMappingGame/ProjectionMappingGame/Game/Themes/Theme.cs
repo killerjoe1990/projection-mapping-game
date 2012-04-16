@@ -27,5 +27,13 @@ namespace ProjectionMappingGame.Game.Themes
         public abstract void Update(float deltaTime);
 
         public abstract void Draw(SpriteBatch batch, Color color);
+
+        public ThemeTextures Textures
+        {
+            get
+            {
+                return m_Textures;
+            }
+        }
     }
 }

@@ -31,7 +31,8 @@ namespace ProjectionMappingGame.Game
         {
             IDLE,
             RUN,
-            JUMP
+            JUMP,
+            STUNNED
         }
 
         Animation[] m_Animations;
@@ -271,7 +272,7 @@ namespace ProjectionMappingGame.Game
         {
             if (State == States.PLAYING)
             {
-                if (keys.Contains(Keys.A))
+                if (keys.Contains(Keys.A) && m_Status != Bonus.STUNNED)
                 {
                     m_Move = -1;
 
@@ -281,7 +282,7 @@ namespace ProjectionMappingGame.Game
                         m_CurrentAnimation = m_Animations[(int)Animations.RUN];
                     }
                 }
-                if (keys.Contains(Keys.D))
+                if (keys.Contains(Keys.D) && m_Status != Bonus.STUNNED)
                 {
                     m_Move = 1;
 
@@ -430,7 +431,7 @@ namespace ProjectionMappingGame.Game
                         m_Velocity.Y += GameConstants.GRAVITY * deltaTime;
                     }
 
-                    if (m_Velocity.X < 0.00001f && m_Velocity.X > -0.00001f && m_OnGround)
+                    if (m_Velocity.X < 0.00001f && m_Velocity.X > -0.00001f && m_OnGround && m_Status != Bonus.STUNNED)
                     {
                         //m_CurrentAnimation.Reset();
                         m_CurrentAnimation = m_Animations[(int)Animations.IDLE];
@@ -622,6 +623,17 @@ namespace ProjectionMappingGame.Game
             {
                 m_Status = status;
                 m_StatusTimer = timer;
+
+                if (status == Bonus.STUNNED)
+                {
+                    m_CurrentAnimation = m_Animations[(int)Animations.STUNNED];
+                    m_CurrentAnimation.Reset();
+                }
+                else
+                {
+                    m_CurrentAnimation = m_Animations[(int)Animations.IDLE];
+                }
+
                 return true;
             }
             else

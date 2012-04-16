@@ -558,223 +558,109 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground1.png">
-      <Name>SpaceBackground1</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground10.png">
-      <Name>SpaceBackground10</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground11.png">
-      <Name>SpaceBackground11</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground12.png">
-      <Name>SpaceBackground12</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground13.png">
-      <Name>SpaceBackground13</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground14.png">
-      <Name>SpaceBackground14</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground15.png">
-      <Name>SpaceBackground15</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground16.png">
-      <Name>SpaceBackground16</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground17.png">
-      <Name>SpaceBackground17</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground18.png">
-      <Name>SpaceBackground18</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground19.png">
-      <Name>SpaceBackground19</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground2.png">
-      <Name>SpaceBackground2</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground20.png">
-      <Name>SpaceBackground20</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground21.png">
-      <Name>SpaceBackground21</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground22.png">
-      <Name>SpaceBackground22</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground23.png">
-      <Name>SpaceBackground23</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground24.png">
-      <Name>SpaceBackground24</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground25.png">
-      <Name>SpaceBackground25</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground26.png">
-      <Name>SpaceBackground26</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground27.png">
-      <Name>SpaceBackground27</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground28.png">
-      <Name>SpaceBackground28</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground29.png">
-      <Name>SpaceBackground29</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground3.png">
-      <Name>SpaceBackground3</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground30.png">
-      <Name>SpaceBackground30</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground31.png">
-      <Name>SpaceBackground31</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground32.png">
-      <Name>SpaceBackground32</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground33.png">
-      <Name>SpaceBackground33</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground34.png">
-      <Name>SpaceBackground34</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground35.png">
-      <Name>SpaceBackground35</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground36.png">
-      <Name>SpaceBackground36</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground37.png">
-      <Name>SpaceBackground37</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground38.png">
-      <Name>SpaceBackground38</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground39.png">
-      <Name>SpaceBackground39</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground4.png">
-      <Name>SpaceBackground4</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground40.png">
-      <Name>SpaceBackground40</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground41.png">
-      <Name>SpaceBackground41</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground5.png">
-      <Name>SpaceBackground5</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground6.png">
-      <Name>SpaceBackground6</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground7.png">
-      <Name>SpaceBackground7</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground8.png">
-      <Name>SpaceBackground8</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground9.png">
-      <Name>SpaceBackground9</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
     <Compile Include="Themes\Space\Platforms\SpacePlatform0-0.png">
       <Name>SpacePlatform0-0</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
     </Compile>
     <Compile Include="Themes\Space\Platforms\SpacePlatform0-1.png">
       <Name>SpacePlatform0-1</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
     </Compile>
     <Compile Include="Themes\Space\Platforms\SpacePlatform0-2.png">
       <Name>SpacePlatform0-2</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
+    </Compile>
+    <Compile Include="Themes\Space\Sprites\SpaceSprite0.png">
+      <Name>SpaceSprite0</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Themes\RedBlue\Background\RedBlueBackground0.png">
+      <Name>RedBlueBackground0</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Themes\RedBlue\Background\RedBlueBackground1.png">
+      <Name>RedBlueBackground1</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Themes\Corners\Platforms\CornersPlatform0-0.png">
+      <Name>CornersPlatform0-0</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Themes\Corners\Platforms\CornersPlatform1-0.png">
+      <Name>CornersPlatform1-0</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Themes\Corners\Platforms\CornersPlatform2-0.png">
+      <Name>CornersPlatform2-0</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Themes\Corners\Platforms\CornersPlatform3-0.png">
+      <Name>CornersPlatform3-0</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Themes\Corners\Background\CornersBackground0.png">
+      <Name>CornersBackground0</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Themes\Corners\Background\CornersBackground1.png">
+      <Name>CornersBackground1</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Themes\Corners\Background\CornersBackground2.png">
+      <Name>CornersBackground2</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Themes\Corners\Background\CornersBackground3.png">
+      <Name>CornersBackground3</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Themes\RedBlue\Platforms\RedBluePlatform0-0.png">
+      <Name>RedBluePlatform0-0</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Themes\RedBlue\Platforms\RedBluePlatform1-0.png">
+      <Name>RedBluePlatform1-0</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Themes\Space\Platforms\SpacePlatform1-0.png">
+      <Name>SpacePlatform1-0</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
+    </Compile>
+    <Compile Include="Themes\Space\Platforms\SpacePlatform1-1.png">
+      <Name>SpacePlatform1-1</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
+    </Compile>
+    <Compile Include="Themes\Space\Platforms\SpacePlatform1-2.png">
+      <Name>SpacePlatform1-2</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
+    </Compile>
+    <Compile Include="Sprites\Stunned.png">
+      <Name>Stunned</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
@@ -876,6 +762,11 @@
       <Importer>FontDescriptionImporter</Importer>
       <Processor>FontDescriptionProcessor</Processor>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Themes\Corners\Sprites\" />
+    <Folder Include="Themes\Heart\Sprites\" />
+    <Folder Include="Themes\RedBlue\Sprites\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />
   <!--  To modify your build process, add your task inside one of the targets below and uncomment it. 

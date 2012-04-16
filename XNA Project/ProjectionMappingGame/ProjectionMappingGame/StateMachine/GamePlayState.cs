@@ -62,9 +62,9 @@ namespace ProjectionMappingGame.StateMachine
        static string[] THEME_NAMES = new string[]
        {
            "Space",
-           "Heart"
-           //"Fire",
-           //"Water",
+           "Heart",
+           "Corners",
+           "RedBlue"
            //"Ice"
        };
 
@@ -73,10 +73,10 @@ namespace ProjectionMappingGame.StateMachine
        //
        static int[,] THEME_PLATS = new int[,]
        {
-           {1,3},
+           {2,3},
            {3,1},
-           {0,0},
-           {0,0},
+           {4,1},
+           {2,1},
            {0,0}
        };
 
@@ -85,8 +85,17 @@ namespace ProjectionMappingGame.StateMachine
        //
        static int[] THEME_BACKS = new int[]
        {
-           42,
+           1,
            14,
+           4,
+           2,
+           0
+       };
+
+       static int[] THEME_SPRITES = new int[]
+       {
+           1,
+           0,
            0,
            0,
            0
@@ -99,6 +108,7 @@ namespace ProjectionMappingGame.StateMachine
       Texture2D m_PlayerIdleTex;
       Texture2D m_PlayerRunTex;
       Texture2D m_PlayerJumpTex;
+      Texture2D m_PlayerStunTex;
 
       Game.ColorPicker m_ColorPicker;
 
@@ -170,16 +180,19 @@ namespace ProjectionMappingGame.StateMachine
 
          m_Players[(int)PlayerIndex.Four].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, GameConstants.PLAYER_RUN_FRAMES, GameConstants.PLAYER_RUN_FRAMERATE, true));
          m_Players[(int)PlayerIndex.Four].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, GameConstants.PLAYER_JUMP_FRAMES, GameConstants.PLAYER_JUMP_FRAMERATE, false));
+         m_Players[(int)PlayerIndex.Four].AddAnimation(Game.Player.Animations.STUNNED, new Game.Animation(m_PlayerStunTex, 3, 5, true));
 
          m_Players[(int)PlayerIndex.Three].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, GameConstants.PLAYER_RUN_FRAMES, GameConstants.PLAYER_RUN_FRAMERATE, true));
          m_Players[(int)PlayerIndex.Three].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, GameConstants.PLAYER_JUMP_FRAMES, GameConstants.PLAYER_JUMP_FRAMERATE, false));
+         m_Players[(int)PlayerIndex.Three].AddAnimation(Game.Player.Animations.STUNNED, new Game.Animation(m_PlayerStunTex, 3, 5, true));
 
          m_Players[(int)PlayerIndex.One].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, GameConstants.PLAYER_RUN_FRAMES, GameConstants.PLAYER_RUN_FRAMERATE, true));
          m_Players[(int)PlayerIndex.One].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, GameConstants.PLAYER_JUMP_FRAMES, GameConstants.PLAYER_JUMP_FRAMERATE, false));
+         m_Players[(int)PlayerIndex.One].AddAnimation(Game.Player.Animations.STUNNED, new Game.Animation(m_PlayerStunTex, 3, 5, true));
 
          m_Players[(int)PlayerIndex.Two].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, GameConstants.PLAYER_RUN_FRAMES, GameConstants.PLAYER_RUN_FRAMERATE, true));
          m_Players[(int)PlayerIndex.Two].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, GameConstants.PLAYER_JUMP_FRAMES, GameConstants.PLAYER_JUMP_FRAMERATE, false));
-
+         m_Players[(int)PlayerIndex.Two].AddAnimation(Game.Player.Animations.STUNNED, new Game.Animation(m_PlayerStunTex, 3, 5, true));
 
          m_Players[(int)PlayerIndex.One].LoadHudContent(m_ArialFontLarge, m_Game.GraphicsDevice, m_HUDTex);
          m_Players[(int)PlayerIndex.Two].LoadHudContent(m_ArialFontLarge, m_Game.GraphicsDevice, m_HUDTex);
@@ -209,10 +222,12 @@ namespace ProjectionMappingGame.StateMachine
          m_PlayerIdleTex = content.Load<Texture2D>("Sprites/Idle Complete");
          m_PlayerRunTex = content.Load<Texture2D>("Sprites/Move Complete");
          m_PlayerJumpTex = content.Load<Texture2D>("Sprites/Jump Complete");
-
+         m_PlayerStunTex = content.Load<Texture2D>("Sprites/Stunned");
          m_PortalTex = content.Load<Texture2D>("Sprites/Portal");
 
          m_HUDTex = content.Load<Texture2D>("Textures/scoreBackground");
+
+         GameConstants.WHITE_TEXTURE = content.Load<Texture2D>("Textures/white");
 
          m_Collectables[0] = new Game.InvinciblePowerup(new Rectangle(0, 0, GameConstants.POWERUP_DIM, GameConstants.POWERUP_DIM), Vector2.Zero, null);
          m_Collectables[0].SetAnimation(content.Load<Texture2D>("Sprites/Powerups/invincible"), GameConstants.POWERUP_FRAMERATE, GameConstants.POWERUP_FRAMES);
@@ -220,7 +235,7 @@ namespace ProjectionMappingGame.StateMachine
          m_Collectables[1] = new Game.SpeedBoost(new Rectangle(0, 0, GameConstants.POWERUP_DIM, GameConstants.POWERUP_DIM), Vector2.Zero, null);
          m_Collectables[1].SetAnimation(content.Load<Texture2D>("Sprites/Powerups/speedy"), GameConstants.POWERUP_FRAMERATE, GameConstants.POWERUP_FRAMES);
 
-         
+         LoadThemes(content);
       }
 
       private void LoadThemes(ContentManager content)
@@ -234,6 +249,7 @@ namespace ProjectionMappingGame.StateMachine
               int numPlats = THEME_PLATS[i, 0];
               int platFrames = THEME_PLATS[i, 1];
               int numBacks = THEME_BACKS[i];
+              int numSprites = THEME_SPRITES[i];
 
               Texture2D[][] plats = new Texture2D[numPlats][];
 
@@ -243,6 +259,7 @@ namespace ProjectionMappingGame.StateMachine
               }
 
               Texture2D[] backs = new Texture2D[numBacks];
+              Texture2D[] sprites = new Texture2D[numSprites];
 
               string basePath = "Themes/" + THEME_NAMES[i];
 
@@ -261,8 +278,16 @@ namespace ProjectionMappingGame.StateMachine
                   backs[j] = content.Load<Texture2D>(path);
               }
 
+              for (int j = 0; j < numSprites; ++j)
+              {
+                  string path = basePath + "/Sprites/" + THEME_NAMES[i] + "Sprite" + j;
+                  sprites[j] = content.Load<Texture2D>(path);
+              }
+
               t.Background = backs;
               t.Platforms = plats;
+              t.SpriteSheets = sprites;
+              t.Name = THEME_NAMES[i];
 
               m_Themes[i] = t;
           }
@@ -591,6 +616,7 @@ namespace ProjectionMappingGame.StateMachine
               lvl.SetLight(light);
           }
       }
+
       #endregion
 
    }

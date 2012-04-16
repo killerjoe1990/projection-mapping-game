@@ -73,7 +73,7 @@ namespace ProjectionMappingGame.Game
                     {
                         //spawn platform
                         num = GameConstants.RANDOM.Next(GameConstants.PLAT_MAX_WIDTH - GameConstants.PLAT_MIN_WIDTH) + GameConstants.PLAT_MIN_WIDTH;
-                        tex = GameConstants.RANDOM.Next(m_PlatTextures.Length);
+                        tex = GameConstants.RANDOM.Next(m_PlatTextures.Length - 1) + 1;
 
                         if (num > tilesToSpawn)
                         {
@@ -83,7 +83,7 @@ namespace ProjectionMappingGame.Game
                         int chanceForBlinkPlat = GameConstants.RANDOM.Next(0,100);
                         if (chanceForBlinkPlat < GameConstants.CHANCE_TO_SPAWN_BLINKPLAT)
                         {
-                            BlinkingPlatform b = new BlinkingPlatform(new Vector2((m_WindowTilesWide - tilesToSpawn) * GameConstants.TILE_DIM, -GameConstants.TILE_DIM - GameConstants.RANDOM.Next(GameConstants.PLAT_MIN_Y_SPAWN_DELTA, GameConstants.PLAT_MAX_Y_SPAWN_DELTA)), Vector2.UnitY * GameConstants.PLATFORM_VELOCITY, num, m_PlatTextures[tex]);
+                            BlinkingPlatform b = new BlinkingPlatform(new Vector2((m_WindowTilesWide - tilesToSpawn) * GameConstants.TILE_DIM, -GameConstants.TILE_DIM - GameConstants.RANDOM.Next(GameConstants.PLAT_MIN_Y_SPAWN_DELTA, GameConstants.PLAT_MAX_Y_SPAWN_DELTA)), Vector2.UnitY * GameConstants.PLATFORM_VELOCITY, num, m_PlatTextures[0]);
                             plats.Add(b);
                         }
                         else

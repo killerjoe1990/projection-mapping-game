@@ -155,8 +155,8 @@ namespace ProjectionMappingGame.Game
                  case Player.States.DEAD:
                      Color deadTint = Color.DarkRed;
                      spriteBatch.Draw(m_Background, background, deadTint);
-                     spriteBatch.DrawString(m_Font, name, offset + TransformVec(PLAYER_NAME_POSITION, dim), GameConstants.HUD_COLOR);
-                     spriteBatch.DrawString(m_Font, score, offset + TransformVec(SCORE_POSITION, dim), GameConstants.HUD_COLOR);
+                     spriteBatch.DrawString(m_Font, name, offset + TransformVec(PLAYER_NAME_POSITION, dim), Color.White);
+                     spriteBatch.DrawString(m_Font, score, offset + TransformVec(SCORE_POSITION, dim), Color.White);
                      //spriteBatch.DrawString(m_Font, time, offset + TransformVec(TIME_POSITION, dim), GameConstants.HUD_COLOR);
                      spriteBatch.Draw(m_CharColorTex, new Rectangle((int)offset.X + (int)(COLOR_POSITION.X * dim.X), (int)offset.Y + (int)(COLOR_POSITION.Y * dim.Y), GameConstants.HUD_ICON_DIM, GameConstants.HUD_ICON_DIM), playerColor);
                      break; 

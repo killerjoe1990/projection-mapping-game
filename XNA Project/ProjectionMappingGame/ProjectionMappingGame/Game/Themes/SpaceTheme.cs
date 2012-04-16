@@ -13,14 +13,14 @@ namespace ProjectionMappingGame.Game.Themes
 {
     class SpaceTheme : Theme
     {
-        const int NUM_ASTEROIDS = 5;
+        const int NUM_ASTEROIDS = 8;
         const int ASTEROID_SIZE_MAX = 64;
         const int ASTEROID_SIZE_MIN = 32;
 
-        const float ASTEROID_SPEED_MAX = 5;
-        const float ASTEROID_SPEED_MIN = 2;
+        const float ASTEROID_SPEED_MAX = 45;
+        const float ASTEROID_SPEED_MIN = 22;
 
-        const int ASTEROID_FRAMES = 5;
+        const int ASTEROID_FRAMES = 1;
         const int ASTEROID_RATE = 5;
 
         const int BACKGROUND_RATE = 10;
@@ -48,6 +48,8 @@ namespace ProjectionMappingGame.Game.Themes
                 int texIndex = GameConstants.RANDOM.Next(textures.SpriteSheets.Length);
 
                 obj.Animation = new Animation(textures.SpriteSheets[texIndex], ASTEROID_FRAMES, ASTEROID_RATE, true);
+
+                m_Asteroids.Add(obj);
             }
         }
         public override void Update(float deltaTime)

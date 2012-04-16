@@ -25,10 +25,18 @@ namespace ProjectionMappingGame.Game
 
     public class Tile : MoveableObject
     {
+        
 
         public Tile(Vector2 position, Vector2 velocity, Texture2D image)
             : base(new Rectangle((int)position.X, (int)position.Y, GameConstants.TILE_DIM, GameConstants.TILE_DIM), velocity, image)
         {
+        }
+
+        
+
+        public void ChangeTexture(Texture2D texture)
+        {
+            m_CurrentAnimation = new Animation(texture);
         }
     }
 
@@ -37,6 +45,11 @@ namespace ProjectionMappingGame.Game
         protected Tile[] m_Tiles;
         protected PlatformStatus m_Status;
 
+        public bool Blink
+        {
+            get;
+            protected set;
+        }
         
         public Platform(Vector2 position, Vector2 velocity, int tilesWide, Texture2D[] images)
         {
@@ -61,6 +74,8 @@ namespace ProjectionMappingGame.Game
 
                 m_Tiles[tilesWide - 1] = new Tile(new Vector2(position.X + ((tilesWide - 1) * GameConstants.TILE_DIM), position.Y), velocity, images[images.Length - 1]);
             }
+
+            Blink = false;
         }
 
         public Tile[] Tiles
@@ -122,6 +137,25 @@ namespace ProjectionMappingGame.Game
             }
         }
 
+        public void ChangeTheme(Texture2D[] textures)
+        {
+            m_Tiles[0].ChangeTexture(textures[0]);
+
+            for (int i = 1; i < m_Tiles.Length - 1; ++i)
+            {
+                int image = 0;
+
+                if (textures.Length > 1)
+                {
+                    image = GameConstants.RANDOM.Next(textures.Length - 2) + 1;
+                }
+
+                m_Tiles[i].ChangeTexture(textures[image]);
+            }
+
+            m_Tiles[m_Tiles.Length - 1].ChangeTexture(textures[textures.Length - 1]);
+        }
+
         public abstract bool Collide(MoveableObject obj, CollisionDirections dir);
 
         public virtual void Update(float deltaTime)
@@ -136,8 +170,7 @@ namespace ProjectionMappingGame.Game
         {
             foreach (Tile t in m_Tiles)
             {
-                t.SetColor(color);
-                t.Draw(batch);
+                t.Draw(batch, color);
             }
         }
     }
