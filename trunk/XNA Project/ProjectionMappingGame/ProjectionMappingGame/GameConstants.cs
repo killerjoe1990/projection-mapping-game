@@ -16,6 +16,7 @@
 using System;
 using System.Text;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 // Local includes
 using ProjectionMappingGame.StateMachine;
@@ -69,8 +70,8 @@ namespace ProjectionMappingGame
       public const int MAX_PATHS = 3;
       public const int PLAT_MAX_Y_SPAWN_DELTA = 64;
       public const int PLAT_MIN_Y_SPAWN_DELTA = 0;
-      public const int BLINKPLAT_CHANCE_TO_BLINK_ON_JUMP = 15;  // Out of 100
-      public const int CHANCE_TO_SPAWN_BLINKPLAT = 35;          //Out of 100
+      public const int BLINKPLAT_CHANCE_TO_BLINK_ON_JUMP = 100;  // Out of 100
+      public const int CHANCE_TO_SPAWN_BLINKPLAT = 25;          //Out of 100
 
        //Portals
       public const int PORTAL_DIM = 75;
@@ -125,6 +126,8 @@ namespace ProjectionMappingGame
            Color.Cyan,
        };
 
+      public static Texture2D WHITE_TEXTURE;
+
        //animation
       public const int PLAYER_JUMP_FRAMES = 4;
       public const int PLAYER_RUN_FRAMES = 4;
@@ -141,8 +144,8 @@ namespace ProjectionMappingGame
 
       public const float BACKGROUND_FADE = 2.0f;
 
-      public const float CHANGE_THEME_MIN = 60;
-      public const float CHANGE_THEME_MAX = 120;
+      public const float CHANGE_THEME_MIN = 10;
+      public const float CHANGE_THEME_MAX = 20;
 
        // random
       public static Random RANDOM = new Random();

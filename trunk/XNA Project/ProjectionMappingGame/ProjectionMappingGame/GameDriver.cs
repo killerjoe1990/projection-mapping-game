@@ -160,10 +160,10 @@ namespace ProjectionMappingGame
                   m_Themes[i].Platforms[j][n].Dispose();
                }
             }
-            for (int j = 0; j < m_Themes[i].SpriteSheets.Length; ++j)
-            {
-               m_Themes[i].SpriteSheets[i].Dispose();
-            }
+            //for (int j = 0; j < m_Themes[i].SpriteSheets.Length; ++j)
+            //{
+            //   m_Themes[i].SpriteSheets[i].Dispose();
+            //}
          }
       }
 

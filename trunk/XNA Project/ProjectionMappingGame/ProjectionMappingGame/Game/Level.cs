@@ -14,7 +14,6 @@ namespace ProjectionMappingGame.Game
     public class Level
     {
 
-
         RenderTarget2D m_PlatformShadowTarget;
         RenderTarget2D m_PlayerShadowTarget;
         Vector2 m_ShadowOffset;
@@ -23,7 +22,9 @@ namespace ProjectionMappingGame.Game
         Matrix m_NormalRotation;
         Vector3 m_Normal;
 
-        StateMachine.ThemeTextures m_NextTheme;
+        Themes.Theme m_NextTheme;
+        Themes.Theme m_CurrentTheme;
+
         bool m_ChangeTheme;
         float m_ThemeTimerLast;
         float m_ThemeTimer;
@@ -45,8 +46,6 @@ namespace ProjectionMappingGame.Game
         GUI.KeyboardInput m_Keyboard;
         GUI.GamepadInput m_Gamepad;
 
-        AnimatedBackground m_Background;
-
         List<Game.Player> m_Players;
         List<Game.Portal> m_Portals;
 
@@ -54,8 +53,6 @@ namespace ProjectionMappingGame.Game
         Game.PlatformSpawner m_PlatSpawn;
 
         List<Collectable> m_MiscObjects;
-
-
 
         public Level(StateMachine.GamePlayState state, int lvlNum, Game.PlatformSpawner spawner, StateMachine.ThemeTextures theme, GUI.KeyboardInput keyboard, GUI.GamepadInput gamepad, int width, int height, Vector3 normal)
         {
@@ -86,7 +83,7 @@ namespace ProjectionMappingGame.Game
             m_PlatformShadowTarget = new RenderTarget2D(m_GameState.Graphics, m_WindowWidth, m_WindowHeight, true, m_GameState.Graphics.DisplayMode.Format, DepthFormat.Depth24);
             m_PlayerShadowTarget = new RenderTarget2D(m_GameState.Graphics, m_WindowWidth, m_WindowHeight, true, m_GameState.Graphics.DisplayMode.Format, DepthFormat.Depth24);
 
-            m_NextTheme = theme;
+            m_NextTheme = CreateTheme(theme);
             SwapTheme();
             m_ThemeTimer = m_ThemeTimerLast = 0;
 
@@ -102,7 +99,7 @@ namespace ProjectionMappingGame.Game
             //m_ShadowOffset.X += elapsedTime;
             //m_ShadowOffset.Y += elapsedTime;
 
-            m_Background.Update(elapsedTime);
+            m_CurrentTheme.Update(elapsedTime);
 
             if (m_ChangeTheme)
             {
@@ -196,6 +193,8 @@ namespace ProjectionMappingGame.Game
                 }
             }
         }
+
+        
 
         public void HandleInput()
         {
@@ -291,11 +290,10 @@ namespace ProjectionMappingGame.Game
                 }
             }
 
-            spriteBatch.Begin();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
 
             // Background always goes in the back.
-            m_Background.SetColor(themeFadeColor);
-            m_Background.Draw(spriteBatch, SpriteEffects.None);
+            m_CurrentTheme.Draw(spriteBatch, themeFadeColor);
 
             // draw Shadows
             spriteBatch.Draw(m_PlatformShadowTarget, new Rectangle((int)m_ShadowOffset.X, (int)m_ShadowOffset.Y, m_WindowWidth, m_WindowHeight), SHADOW_COLOR);
@@ -338,6 +336,27 @@ namespace ProjectionMappingGame.Game
             }
 
             spriteBatch.End();
+        }
+
+        private Themes.Theme CreateTheme(StateMachine.ThemeTextures tex)
+        {
+            switch (tex.Name)
+            {
+                case "Space":
+                    return new Themes.SpaceTheme(tex, new Point(m_WindowWidth, m_WindowHeight));
+                    
+                case "Heart":
+                    return new Themes.HeartTheme(tex, new Point(m_WindowWidth, m_WindowHeight));
+
+                case "Corners":
+                    return new Themes.CornersTheme(tex, new Point(m_WindowWidth, m_WindowHeight));
+
+                case "RedBlue":
+                    return new Themes.RedBlueTheme(tex, new Point(m_WindowWidth, m_WindowHeight));
+                    
+            }
+
+            return null; 
         }
 
         private void CheckBounds(Player player)
@@ -531,15 +550,34 @@ namespace ProjectionMappingGame.Game
 
         public void ChangeTheme(StateMachine.ThemeTextures theme)
         {
-            m_NextTheme = theme;
+            m_NextTheme = CreateTheme(theme);
             m_ChangeTheme = true;
             m_ThemeTimer = m_ThemeTimerLast = -GameConstants.BACKGROUND_FADE;
         }
 
         private void SwapTheme()
         {
-            m_Background = new AnimatedBackground(m_NextTheme.Background, GameConstants.BACKGROUND_FRAMERATE, m_WindowWidth, m_WindowHeight);
-            m_PlatSpawn.ChangeTheme(m_NextTheme.Platforms);
+            if (m_NextTheme != null)
+            {
+                m_CurrentTheme = m_NextTheme;
+            }
+
+            Texture2D[][] plats = m_CurrentTheme.Textures.Platforms;
+            m_PlatSpawn.ChangeTheme(plats);
+
+            foreach (Platform p in m_Platforms)
+            {
+                int platIndex = GameConstants.RANDOM.Next(plats.Length - 1) + 1;
+
+                if (p.Blink)
+                {
+                    p.ChangeTheme(plats[0]);
+                }
+                else
+                {
+                    p.ChangeTheme(plats[platIndex]);
+                }
+            }
 
         }
 
