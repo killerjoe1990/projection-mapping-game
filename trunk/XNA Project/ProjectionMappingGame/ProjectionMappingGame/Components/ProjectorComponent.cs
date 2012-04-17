@@ -278,6 +278,7 @@ namespace ProjectionMappingGame.Components
       public Vector3 Up
       {
          get { return m_Up; }
+         set { m_Up = value; }
       }
 
       public Vector3 Right

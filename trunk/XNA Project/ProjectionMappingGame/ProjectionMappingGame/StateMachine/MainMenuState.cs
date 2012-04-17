@@ -62,8 +62,8 @@ namespace ProjectionMappingGame.StateMachine
       const int GUI_BUTTON_WIDTH = 80;
       const int GUI_BUTTON_HEIGHT = 24;
       const int GUI_BUTTON_PADDING_X = 5;
-      const int GUI_BUTTON_Y = 50;
-      const int GUI_NUM_PROJECTORS_Y = 25;
+      const int GUI_BUTTON_Y = 100;
+      const int GUI_NUM_PROJECTORS_Y = 72;
       const int GUI_SPINBOX_WIDTH = 50;
       const int GUI_SPINBOX_HEIGHT = 20;
       const float WINDOW_SIZER_SCALE = 0.15f;
@@ -207,8 +207,12 @@ namespace ProjectionMappingGame.StateMachine
          MouseInput windowMouse = new MouseInput(new Vector2(-sizerBounds.X, -sizerBounds.Y));
          NumUpDown widthSpinBox = new NumUpDown(new Microsoft.Xna.Framework.Rectangle(WindowSizerControl.WIDTH_SPINBOX_X, WindowSizerControl.WIDTH_LABEL_Y, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_WhiteTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_Arial10Font, Microsoft.Xna.Framework.Color.Black, 1024, 1920, 10, "{0:0}", windowMouse);
          NumUpDown heightSpinBox = new NumUpDown(new Microsoft.Xna.Framework.Rectangle(WindowSizerControl.HEIGHT_SPINBOX_X, WindowSizerControl.HEIGHT_LABEL_Y, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_WhiteTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_Arial10Font, Microsoft.Xna.Framework.Color.Black, 768, 1080, 10, "{0:0}", windowMouse);
+         NumUpDown xSpinBox = new NumUpDown(new Microsoft.Xna.Framework.Rectangle(WindowSizerControl.X_SPINBOX_X, WindowSizerControl.X_LABEL_Y, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_WhiteTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_Arial10Font, Microsoft.Xna.Framework.Color.Black, 1, 6, 1, "{0:0}", windowMouse);
+         NumUpDown ySpinBox = new NumUpDown(new Microsoft.Xna.Framework.Rectangle(WindowSizerControl.Y_SPINBOX_X, WindowSizerControl.Y_LABEL_Y, GUI_SPINBOX_WIDTH, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_WhiteTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_Arial10Font, Microsoft.Xna.Framework.Color.Black, 1, 6, 1, "{0:0}", windowMouse);
          GUI.Label widthLabel = new GUI.Label("Width", WindowSizerControl.WIDTH_LABEL_X, WindowSizerControl.WIDTH_LABEL_Y + 2, (int)m_Arial10Font.MeasureString("Width").Length(), 20, Microsoft.Xna.Framework.Color.Black, m_Arial10Font);
          GUI.Label heightLabel = new GUI.Label("Height", WindowSizerControl.HEIGHT_LABEL_X, WindowSizerControl.HEIGHT_LABEL_Y + 2, (int)m_Arial10Font.MeasureString("Height").Length(), 20, Microsoft.Xna.Framework.Color.Black, m_Arial10Font);
+         GUI.Label xLabel = new GUI.Label("Div X", WindowSizerControl.X_LABEL_X, WindowSizerControl.X_LABEL_Y + 2, (int)m_Arial10Font.MeasureString("Div X").Length(), 20, Microsoft.Xna.Framework.Color.Black, m_Arial10Font);
+         GUI.Label yLabel = new GUI.Label("Div Y", WindowSizerControl.Y_LABEL_X, WindowSizerControl.Y_LABEL_Y + 2, (int)m_Arial10Font.MeasureString("Div Y").Length(), 20, Microsoft.Xna.Framework.Color.Black, m_Arial10Font);
          m_WindowSizers.Add(
             new WindowSizerControl(
                name,
@@ -220,8 +224,12 @@ namespace ProjectionMappingGame.StateMachine
                m_WindowSizerBorderTexture,
                widthLabel,
                heightLabel,
+               xLabel,
+               yLabel,
                widthSpinBox,
                heightSpinBox,
+               xSpinBox,
+               ySpinBox,
                WINDOW_SIZER_SCALE
             ));
       }

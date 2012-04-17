@@ -55,8 +55,8 @@ namespace ProjectionMappingGame.Editor
       Texture2D m_WallTexture;
       Texture2D m_WhiteTexture, m_RedTexture;
       Texture2D m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_SpinBoxFillTexture;
-      Texture2D m_RenderTargetTexture;
-      RenderTarget2D m_RenderTarget;
+      Texture2D[] m_RenderTargetTextures;
+      RenderTarget2D[] m_RenderTargets;
 
       // Fonts
       SpriteFont m_Arial10;
@@ -139,7 +139,8 @@ namespace ProjectionMappingGame.Editor
          m_HoveredEdge = -1;
 
          // Initialize render target
-         m_RenderTarget = new RenderTarget2D(m_Game.GraphicsDevice, w, h, true, m_Game.GraphicsDevice.DisplayMode.Format, DepthFormat.Depth24);
+         //m_RenderTargets = new RenderTarget2D[numProjectors];
+         //m_RenderTarget = new RenderTarget2D(m_Game.GraphicsDevice, w, h, true, m_Game.GraphicsDevice.DisplayMode.Format, DepthFormat.Depth24);
       }
 
       public void Reset()
@@ -341,14 +342,14 @@ namespace ProjectionMappingGame.Editor
 
       #region Rendering
 
-      public void DrawRenderTarget(SpriteBatch spriteBatch, bool renderOverlay)
+      public void DrawRenderTarget(SpriteBatch spriteBatch, int projID, bool renderOverlay)
       {
          Color clear = new Color(0.0f, 0.0f, 0.0f, 0.0f);
 
          // Render the quads into the render target
          if (m_DualEdgeGraph != null)
          {
-            m_Game.GraphicsDevice.SetRenderTarget(m_RenderTarget);
+            m_Game.GraphicsDevice.SetRenderTarget(m_RenderTargets[projID]);
             m_Game.GraphicsDevice.Clear(clear);
          
             RenderQuads();
@@ -362,7 +363,7 @@ namespace ProjectionMappingGame.Editor
             m_Game.GraphicsDevice.SetRenderTarget(null);
             m_Game.GraphicsDevice.Clear(Color.Black);
             m_Game.GraphicsDevice.Viewport = m_Viewport;
-            m_RenderTargetTexture = (Texture2D)m_RenderTarget;
+            m_RenderTargetTextures[projID] = (Texture2D)m_RenderTargets[projID];
          }
       }
 
@@ -515,12 +516,18 @@ namespace ProjectionMappingGame.Editor
 
       #region Public Interaction
 
-      public void SetRenderTargetViewport(Viewport viewport)
+      public void SetNumProjectors(int numProjectors)
+      {
+         m_RenderTargets = new RenderTarget2D[numProjectors];
+         m_RenderTargetTextures = new Texture2D[numProjectors];
+      }
+
+      public void SetRenderTargetViewport(Viewport viewport, int projID)
       {
          m_RenderTargetViewport = viewport;
          float aspectRatio = (float)viewport.Height / (float)viewport.Width;
-         m_RenderTarget.Dispose();
-         m_RenderTarget = new RenderTarget2D(m_Game.GraphicsDevice, viewport.Width, viewport.Height, true, m_Game.GraphicsDevice.DisplayMode.Format, DepthFormat.Depth24);
+         if (m_RenderTargets[projID] != null) m_RenderTargets[projID].Dispose();
+         m_RenderTargets[projID] = new RenderTarget2D(m_Game.GraphicsDevice, viewport.Width, viewport.Height, true, m_Game.GraphicsDevice.DisplayMode.Format, DepthFormat.Depth24);
          m_Viewport.Height = (int)(m_Viewport.Width * aspectRatio);
 
          m_ProjectionMatrix = Matrix.CreateOrthographicOffCenter(0, m_Viewport.Width, m_Viewport.Height, 0, 1.0f, 1000.0f);
@@ -669,9 +676,9 @@ namespace ProjectionMappingGame.Editor
          set { m_PrevMouseState = value; }
       }
 
-      public Texture2D RenderTargetTexture
+      public Texture2D[] RenderTargetTextures
       {
-         get { return m_RenderTargetTexture; }
+         get { return m_RenderTargetTextures; }
       }
 
       public bool IsQuadSelected

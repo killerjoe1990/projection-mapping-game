@@ -30,6 +30,6 @@ namespace ProjectionMappingGame.FileSystem
       public int InputLayer;
       public bool IsWall;
       public bool IsScoreboard;
-      VertexPositionColorTexture[] OrthoQuadVertices;
+      public VertexPositionColorTexture[] OrthoQuadVertices;
    }
 }

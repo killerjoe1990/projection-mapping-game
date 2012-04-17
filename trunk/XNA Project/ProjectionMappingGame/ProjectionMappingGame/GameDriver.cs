@@ -98,7 +98,7 @@ namespace ProjectionMappingGame
 
          // Load themes - This is where I read texture filenames in the provided directory
          // and their textures into my Theme[] array.
-         LoadThemes();
+         //LoadThemes();
       }
 
       void Window_ClientSizeChanged(object sender, EventArgs e)
@@ -147,6 +147,7 @@ namespace ProjectionMappingGame
       /// </summary>
       protected override void UnloadContent()
       {
+         /*
          for (int i = 0; i < m_Themes.Count; ++i)
          {
             for (int j = 0; j < m_Themes[i].Background.Length; ++j)
@@ -165,6 +166,7 @@ namespace ProjectionMappingGame
             //   m_Themes[i].SpriteSheets[i].Dispose();
             //}
          }
+          */
       }
 
       #endregion

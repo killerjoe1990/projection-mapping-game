@@ -138,17 +138,58 @@ namespace ProjectionMappingGame.StateMachine
 
       #region State Changing
 
+      private Screen[] GetOrderedScreens()
+      {
+         Screen[] screens = System.Windows.Forms.Screen.AllScreens;
+         bool swapped = false;
+         do
+         {
+            swapped = false;
+            for (int i = 1; i < screens.Length; ++i)
+            {
+               if (screens[i - 1].Bounds.X > screens[i].Bounds.X)
+               {
+                  Screen temp = screens[i - 1];
+                  screens[i - 1] = screens[i];
+                  screens[i] = temp;
+                  swapped = true;
+               }
+            }
+         } while (swapped);
+         return screens;
+      }
+
       public void StartEditor()
       {
          ProjectionEditorState projectionEditor = (ProjectionEditorState)m_States[(int)StateType.ProjectionEditor];
          MainMenuState mainMenu = (MainMenuState)m_States[(int)StateType.MainMenu];
-         
-         int numProjectors = mainMenu.Windows.Count - 1;
-         for (int i = 0; i < numProjectors; ++i)
-         {
-            Rectangle bounds = new Rectangle(System.Windows.Forms.Screen.AllScreens[i + 1].Bounds.X, System.Windows.Forms.Screen.AllScreens[i + 1].Bounds.Y, System.Windows.Forms.Screen.AllScreens[i + 1].Bounds.Width, System.Windows.Forms.Screen.AllScreens[i + 1].Bounds.Height);
+         Screen[] screens = GetOrderedScreens();
 
-            projectionEditor.AddProjector(bounds);
+         int numWindowSizers = mainMenu.Windows.Count;
+         if (numWindowSizers == 2 && (mainMenu.Windows[1].DividesX > 1 || mainMenu.Windows[1].DividesY > 1))
+         {
+            int numProjectors = mainMenu.Windows[1].DividesX * mainMenu.Windows[1].DividesY;
+            int projWidth = mainMenu.Windows[1].Width / mainMenu.Windows[1].DividesX;
+            int projHeight = mainMenu.Windows[1].Height / mainMenu.Windows[1].DividesY;
+
+            for (int x = 0; x < mainMenu.Windows[1].DividesX; ++x)
+            {
+               for (int y = 0; y < mainMenu.Windows[1].DividesY; ++y)
+               {
+                  Rectangle bounds = new Rectangle(screens[1].Bounds.X + x * projWidth, screens[1].Bounds.Y + y * projHeight, projWidth, projHeight);
+                  projectionEditor.AddProjector(bounds);
+               }
+            }
+         }
+         else
+         {
+            int numProjectors = mainMenu.Windows.Count - 1;
+            for (int i = 0; i < numProjectors; ++i)
+            {
+               Rectangle bounds = new Rectangle(System.Windows.Forms.Screen.AllScreens[i + 1].Bounds.X, System.Windows.Forms.Screen.AllScreens[i + 1].Bounds.Y, System.Windows.Forms.Screen.AllScreens[i + 1].Bounds.Width, System.Windows.Forms.Screen.AllScreens[i + 1].Bounds.Height);
+
+               projectionEditor.AddProjector(bounds);
+            }
          }
       }
 

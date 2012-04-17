@@ -38,6 +38,12 @@ namespace ProjectionMappingGame.GUI
       public const int HEIGHT_LABEL_X = 108;
       public const int WIDTH_SPINBOX_X = 50;
       public const int HEIGHT_SPINBOX_X = 150;
+      public const int X_LABEL_Y = 200;
+      public const int Y_LABEL_Y = X_LABEL_Y;
+      public const int X_LABEL_X = 10;
+      public const int Y_LABEL_X = 108;
+      public const int X_SPINBOX_X = 50;
+      public const int Y_SPINBOX_X = 150;
 
       const int DISPLAY_BORDER = 10;
 
@@ -47,19 +53,27 @@ namespace ProjectionMappingGame.GUI
       SpriteFont m_Font;
       Label m_WidthLabel;
       Label m_HeightLabel;
+      Label m_XLabel;
+      Label m_YLabel;
       NumUpDown m_WidthSpinBox;
       NumUpDown m_HeightSpinBox;
+      NumUpDown m_XSpinBox;
+      NumUpDown m_YSpinBox;
       Viewport m_Viewport;
       MouseInput m_MouseInput;
 
       string m_Name;
       int m_Width;
       int m_Height;
+      int m_DividesX;
+      int m_DividesY;
       float m_Scale;
       float m_AspectRatio;
 
-      public WindowSizerControl(string name, SpriteFont font, MouseInput mouse, Viewport viewport, Rectangle bounds, Texture2D backgroundTexture, Texture2D borderTexture, Label widthLabel, Label heightLabel, NumUpDown widthSpinBox, NumUpDown heightSpinBox, float scale)
+      public WindowSizerControl(string name, SpriteFont font, MouseInput mouse, Viewport viewport, Rectangle bounds, Texture2D backgroundTexture, Texture2D borderTexture, Label widthLabel, Label heightLabel, Label xLabel, Label yLabel, NumUpDown widthSpinBox, NumUpDown heightSpinBox, NumUpDown xSpinBox, NumUpDown ySpinBox, float scale)
       {
+         m_DividesX = 1;
+         m_DividesY = 1;
          m_Name = name;
          m_BackgroundTexture = backgroundTexture;
          m_BorderTexture = borderTexture;
@@ -72,6 +86,14 @@ namespace ProjectionMappingGame.GUI
          m_HeightSpinBox.RegisterOnValueChanged(HeightSpinBox_OnValueChanged);
          m_WidthSpinBox.Value = bounds.Width;
          m_HeightSpinBox.Value = bounds.Height;
+         m_XLabel = xLabel;
+         m_YLabel = yLabel;
+         m_XSpinBox = xSpinBox;
+         m_YSpinBox = ySpinBox;
+         m_XSpinBox.RegisterOnValueChanged(XSpinBox_OnValueChanged);
+         m_YSpinBox.RegisterOnValueChanged(YSpinBox_OnValueChanged);
+         m_XSpinBox.Value = m_DividesX;
+         m_YSpinBox.Value = m_DividesY;
          m_Viewport = viewport;
          m_DisplayBounds = new Rectangle(DISPLAY_BORDER, DISPLAY_BORDER, (int)(bounds.Width * scale), (int)(bounds.Height * scale));
          m_Scale = scale;
@@ -104,7 +126,17 @@ namespace ProjectionMappingGame.GUI
       {
          m_Height = (int)m_HeightSpinBox.Value;
          m_DisplayBounds.Height = (int)(m_HeightSpinBox.Value * m_Scale);
-         m_AspectRatio = m_WidthSpinBox.Value / m_HeightSpinBox.Value;   
+         m_AspectRatio = m_WidthSpinBox.Value / m_HeightSpinBox.Value;
+      }
+
+      private void XSpinBox_OnValueChanged(object sender, EventArgs e)
+      {
+         m_DividesX = (int)m_XSpinBox.Value;
+      }
+
+      private void YSpinBox_OnValueChanged(object sender, EventArgs e)
+      {
+         m_DividesY = (int)m_YSpinBox.Value;
       }
 
       #endregion
@@ -128,6 +160,10 @@ namespace ProjectionMappingGame.GUI
          m_HeightLabel.Draw(graphics, spriteBatch);
          m_WidthSpinBox.Draw(graphics, spriteBatch);
          m_HeightSpinBox.Draw(graphics, spriteBatch);
+         m_XLabel.Draw(graphics, spriteBatch);
+         m_YLabel.Draw(graphics, spriteBatch);
+         m_XSpinBox.Draw(graphics, spriteBatch);
+         m_YSpinBox.Draw(graphics, spriteBatch);
          spriteBatch.End();
 
          graphics.Viewport = defaultViewport;
@@ -145,6 +181,16 @@ namespace ProjectionMappingGame.GUI
       public int Height
       {
          get { return m_Height; }
+      }
+
+      public int DividesX
+      {
+         get { return m_DividesX; }
+      }
+
+      public int DividesY
+      {
+         get { return m_DividesY; }
       }
 
       public int DisplayWidth
