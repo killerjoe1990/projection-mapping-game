@@ -622,6 +622,72 @@ namespace ProjectionMappingGame.Components
          m_Buildings.Add(building);
       }
 
+      public void AddBuilding(int id, EntityType type, string meshFilename, Vector3 position, Vector3 scale, float rotX, float rotY, float rotZ)
+      {
+         ModelEntity building = new ModelEntity(
+            type,
+            meshFilename,
+            new Material(
+               new Vector4(0.0f, 0.0f, 0.0f, 1.0f),
+               new Vector4(0.0f, 0.0f, 0.0f, 1.0f),
+               new Vector4(0.6f, 0.6f, 0.6f, 1.0f),
+               new Vector4(1.0f, 1.0f, 1.0f, 1.0f),
+               14.0f
+            ),
+            position,
+            true
+         );
+         building.ID = id;
+         building.Scale = scale;
+         building.RotX = rotX;
+         building.RotY = rotY;
+         building.RotZ = rotZ;
+         building.UpdateWorld();
+         building.LoadContent(m_Game.Content);
+         m_Buildings.Add(building);
+      }
+
+      public void AddProjector(float alpha, float aspectRatio, float fov, float near, float far, UVDualEdgeGraph edgeGraph, UVGrid grid, bool isOn, Viewport viewport, Vector3 position, Vector3 lookat, Vector3 up, float rotX, float rotY, float rotZ)
+      {
+         ProjectorComponent projector = new ProjectorComponent(
+            viewport.Bounds,
+            position,
+            lookat,
+            fov,
+            aspectRatio,
+            near,
+            far,
+            m_Game.Content
+         );
+         projector.Alpha = alpha;
+         projector.EdgeGraph = edgeGraph;
+         projector.Grid = grid;
+         projector.IsOn = isOn;
+         projector.Viewport = viewport;
+         projector.Up = up;
+         projector.RotX = rotX;
+         projector.RotY = rotY;
+         projector.RotZ = rotZ;
+         projector.UpdateView();
+         projector.Entity = new ModelEntity(
+            EntityType.Projector,
+            "Models/sphere",
+            new Material(
+               new Vector4(0.0f, 0.0f, 0.0f, 1.0f),
+               new Vector4(0.0f, 0.0f, 0.0f, 1.0f),
+               new Vector4(0.8f, 0.8f, 0.8f, 1.0f),
+               new Vector4(1.0f, 1.0f, 1.0f, 1.0f),
+               14.0f
+            ),
+            projector.Position,
+            true
+         );
+         projector.Entity.Scale = GameConstants.PROJECTOR_SCALE * Vector3.One;
+         projector.Entity.UpdateWorld();
+         projector.Entity.LoadContent(m_Game.Content);
+         m_Projectors.Add(projector);
+      }
+
       public void AddProjector(Rectangle bounds)
       {
          Vector3 pos = Vector3.Zero;

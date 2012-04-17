@@ -234,6 +234,13 @@ namespace ProjectionMappingGame.Editor
       public List<int> LinkedLayers
       {
          get { return m_LinkedLayers.ToList<int>(); }
+         set
+         {
+            for (int i = 0; i < value.Count; ++i)
+            {
+               m_LinkedLayers.Add(value[i]);
+            }
+         }
       }
 
       public Button EditButton

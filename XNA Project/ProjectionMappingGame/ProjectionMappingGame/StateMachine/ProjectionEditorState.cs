@@ -786,13 +786,13 @@ namespace ProjectionMappingGame.StateMachine
             {
                if (m_ProjectorPreview.IsProjectorSelected)
                {
-                  if (m_UVDualEdgeGraphEditor.RenderTargetTexture != null)
+                  if (m_UVDualEdgeGraphEditor.RenderTargetTextures[m_ProjectorPreview.SelectedProjector] != null)
                   {
                      //Texture2D texture = new Texture2D(m_Game.GraphicsDevice, m_UVDualEdgeGraphEditor.RenderTargetTexture.Width, m_UVDualEdgeGraphEditor.RenderTargetTexture.Height);
                      //Color[] data = new Color[texture.Width * texture.Height];
                      //m_UVDualEdgeGraphEditor.RenderTargetTexture.GetData<Color>(data);
                      //texture.SetData<Color>(data);
-                     m_ProjectorPreview.Projectors[m_ProjectorPreview.SelectedProjector].Texture = m_UVDualEdgeGraphEditor.RenderTargetTexture;
+                     m_ProjectorPreview.Projectors[m_ProjectorPreview.SelectedProjector].Texture = m_UVDualEdgeGraphEditor.RenderTargetTextures[m_ProjectorPreview.SelectedProjector];
                   }
                }
 
@@ -1130,7 +1130,7 @@ namespace ProjectionMappingGame.StateMachine
             m_UVGridEditor.SetGrid(m_ProjectorPreview.Projectors[m_ProjectorPreview.SelectedProjector].Grid);
             m_UVDualEdgeGraphEditor.SetEdgeGraph(m_ProjectorPreview.Projectors[m_ProjectorPreview.SelectedProjector].EdgeGraph);
             m_UVGridEditor.SetRenderTargetViewport(m_ProjectorPreview.Projectors[m_ProjectorPreview.SelectedProjector].Viewport);
-            m_UVDualEdgeGraphEditor.SetRenderTargetViewport(m_ProjectorPreview.Projectors[m_ProjectorPreview.SelectedProjector].Viewport);
+            m_UVDualEdgeGraphEditor.SetRenderTargetViewport(m_ProjectorPreview.Projectors[m_ProjectorPreview.SelectedProjector].Viewport, m_ProjectorPreview.SelectedProjector);
 
             if (m_ProjectorPreview.Projectors[m_ProjectorPreview.SelectedProjector].IsOn)
             {
@@ -1655,11 +1655,13 @@ namespace ProjectionMappingGame.StateMachine
          {
             m_UVDualEdgeGraphEditor.DumpEdgeGraph();
             m_UVDualEdgeGraphEditor.SetEdgeGraph(m_ProjectorPreview.Projectors[i].EdgeGraph);
-            m_UVDualEdgeGraphEditor.SetRenderTargetViewport(m_ProjectorPreview.Projectors[i].Viewport);
+            m_UVDualEdgeGraphEditor.SetRenderTargetViewport(m_ProjectorPreview.Projectors[i].Viewport, i);
             m_Game.GraphicsDevice.Viewport = m_ProjectorPreview.Projectors[i].Viewport;
 
-            m_UVDualEdgeGraphEditor.DrawRenderTarget(spriteBatch, false);
-            m_ProjectorPreview.Projectors[i].Texture = m_UVDualEdgeGraphEditor.RenderTargetTexture;
+            //m_UVDualEdgeGraphEditor.SetRenderTargetTexture(m_ProjectorPreview.Projectors[i].Texture);
+            m_UVDualEdgeGraphEditor.DrawRenderTarget(spriteBatch, i, false);
+            
+            m_ProjectorPreview.Projectors[i].Texture = m_UVDualEdgeGraphEditor.RenderTargetTextures[i];
          }
          m_UVDualEdgeGraphEditor.DumpEdgeGraph();
          m_UVDualEdgeGraphEditor.SetEdgeGraph(graph);
@@ -1891,9 +1893,185 @@ namespace ProjectionMappingGame.StateMachine
 
       #region Saving/Loading
 
-      void LoadEditorConfig(string filename)
+      bool LoadEditorConfig(string filename)
       {
+         try
+         {
+            // Open the file
+            FileStream stream = File.Open(filename, FileMode.Open, FileAccess.Read);
 
+            // Read the data from the file
+            XmlSerializer serializer = new XmlSerializer(typeof(EditorSaveData));
+            EditorSaveData data = (EditorSaveData)serializer.Deserialize(stream);
+
+            // Close the file
+            stream.Close();
+
+            //
+            // OK, first of all, I'm pretty drunk.  THis is the end of the semester and 
+            // the movie exec on Southpark just walked into the bathroom to find Jesus
+            // waiting to bully him.  "My child, have you ever heard of a place called Hell?
+            // It's eternal fire and it's gonna hurt real bad."  HA!!!
+            // So................................................
+            //
+            // We need to verify that the config we are loading has the same amount of projectors
+            // attached as it was saved from.  More than that, we need to make sure that they are
+            // the same resolution.  No dice otherwise...
+            //
+            System.Windows.Forms.Screen[] screens = GetOrderedScreens();
+            int numScreensInConfig = data.WindowData.Count;
+            if (screens.Length != numScreensInConfig) return false;
+            for (int i = 0; i < numScreensInConfig; ++i)
+            {
+               // Dude!  My mouse just died.  The battery I mean.  No worries.  And it's an MX revolution
+               // so you get this sweet integrated lithium ion battery that you just recharge.  Win right?
+               // But I have to wait now....another southpark?
+
+               // WAIT!!! WE DON'T NEED A MOUSE TO TYPE!!!! HAHAHA.  That only took me like...3 lines of 
+               // typing.  Lol
+               if (screens[i].Bounds.Width != data.WindowData[i].Width ||
+                   screens[i].Bounds.Height != data.WindowData[i].Height)
+               {
+                  return false;
+               }
+            }
+
+            // OK so we passed the verification test.  Now we just need to load what the file
+            // contained into the editor.
+            Reset();
+            m_ProjectorPreview.Projectors.Clear();
+            m_ProjectorPreview.Buildings.Clear();
+
+            // Load buildings
+            int numBuildingsInConfig = data.BuildingData.Count;
+            for (int i = 0; i < numBuildingsInConfig; ++i)
+            {
+               int id = data.BuildingData[i].ID;
+               EntityType type = data.BuildingData[i].Type;
+               string meshFilename = data.BuildingData[i].MeshFilename;
+               Vector3 position = data.BuildingData[i].Position;
+               Vector3 scale = data.BuildingData[i].Scale;
+               float rotX = data.BuildingData[i].RotX;
+               float rotY = data.BuildingData[i].RotY;
+               float rotZ = data.BuildingData[i].RotZ;
+               m_ProjectorPreview.AddBuilding(id, type, meshFilename, position, scale, rotX, rotY, rotZ);
+            }
+
+            // Load layers
+            int numLayersInConfig = data.LayerData.Count;
+            m_LayersScrollView.Layers = new List<Layer>();
+            for (int i = 0; i < numLayersInConfig; ++i)
+            {
+               Label nameLabel = new Label("Gameplay " + (m_LayersScrollView.NumLayers + 1), Layer.NAME_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT, Layer.LAYER_WIDTH, Layer.LABEL_HEIGHT, Color.Black, m_ArialFont10);
+               Label widthLabel = new Label("Width", Layer.WIDTH_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT + Layer.LABEL_HEIGHT, Layer.WIDTH_WIDTH, Layer.LABEL_HEIGHT, Color.Black, m_ArialFont10);
+               Label heightLabel = new Label("Height", Layer.HEIGHT_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT + Layer.LABEL_HEIGHT, Layer.HEIGHT_WIDTH, Layer.LABEL_HEIGHT, Color.Black, m_ArialFont10);
+               Label normalsLabel = new Label("Normal", Layer.NORMALS_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT, Layer.HEIGHT_WIDTH, Layer.LABEL_HEIGHT, Color.Black, m_ArialFont10);
+               Label linkLabel = new Label("Linked Layers:", Layer.LINKS_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT + Layer.LABEL_HEIGHT * 2, Layer.HEIGHT_WIDTH, Layer.LABEL_HEIGHT, Color.Black, m_ArialFont10);
+               Label linkListLabel = new Label("None", Layer.LINKS_LIST_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT + Layer.LABEL_HEIGHT * 2, Layer.HEIGHT_WIDTH, Layer.LABEL_HEIGHT, Color.Black, m_ArialFont10);
+               NumUpDown widthSpinBox = new NumUpDown(new Rectangle(Layer.WIDTH_SPINBOX_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT + Layer.LABEL_HEIGHT - 2, 40, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_WhiteTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, GameConstants.TILE_DIM, GameConstants.TILE_DIM * GameConstants.MAX_TILES_WIDE, GameConstants.TILE_DIM, "{0:0}", m_ScrollMouseInput);
+               NumUpDown heightSpinBox = new NumUpDown(new Rectangle(Layer.HEIGHT_SPINBOX_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT + Layer.LABEL_HEIGHT - 2, 40, GUI_SPINBOX_HEIGHT), m_SpinBoxFillTexture, m_WhiteTexture, m_SpinBoxUpTexture, m_SpinBoxDownTexture, m_ArialFont10, Color.Black, GameConstants.TILE_DIM, GameConstants.TILE_DIM * GameConstants.MAX_TILES_HIGH, GameConstants.TILE_DIM, "{0:0}", m_ScrollMouseInput);
+               widthSpinBox.Value = GameConstants.TILE_DIM * GameConstants.DEFAULT_TILES_WIDE;
+               heightSpinBox.Value = GameConstants.TILE_DIM * GameConstants.DEFAULT_TILES_HIGH;
+
+               Button linkBtn = new Button(new Rectangle(Layer.LINK_BUTTON_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT + Layer.LABEL_HEIGHT * 2 + 2, Layer.LINK_BUTTON_WIDTH, Layer.LINK_BUTTON_HEIGHT), m_LinkButtonTexture, m_ScrollMouseInput);
+               linkBtn.SetImage(Button.ImageType.OVER, m_LinkButtonTextureOnHover);
+               linkBtn.SetImage(Button.ImageType.CLICK, m_LinkButtonTextureOnPress);
+               Button editBtn = new Button(new Rectangle(Layer.EDIT_BUTTON_X, Layer.LAYER_PADDING_Y + (Layer.LAYER_PADDING_Y * m_LayersScrollView.NumLayers) + m_LayersScrollView.NumLayers * Layer.LAYER_HEIGHT, Layer.EDIT_BUTTON_WIDTH, Layer.EDIT_BUTTON_HEIGHT), m_EditLayerButtonTexture, m_ScrollMouseInput);
+               editBtn.SetImage(Button.ImageType.OVER, m_EditLayerButtonTextureOnHover);
+               editBtn.SetImage(Button.ImageType.CLICK, m_EditLayerButtonTextureOnPress);
+
+               GameplayLayer l = new GameplayLayer(nameLabel, widthLabel, heightLabel, normalsLabel, linkLabel, linkListLabel, widthSpinBox, heightSpinBox, editBtn, linkBtn, m_ColorPickerPreviewPadTexture);
+               l.TYPE_ID = data.LayerData[i].TYPE_ID;
+               l.Type = data.LayerData[i].Type;
+               l.Name = data.LayerData[i].LayerName;
+               l.LinkedLayers = data.LayerData[i].LinkedLayers;
+               l.Normal = data.LayerData[i].Normal;
+               m_LayersScrollView.Layers.Add(l);
+            }
+
+            // Load projectors
+            int numProjectorsInConfig = data.ProjectorData.Count;
+            for (int i = 0; i < numProjectorsInConfig; ++i)
+            {
+               float alpha = data.ProjectorData[i].Alpha;
+               float aspectRatio = data.ProjectorData[i].AspectRatio;
+               float far = data.ProjectorData[i].FarPlane;
+               float near = data.ProjectorData[i].NearPlane;
+               float fov = data.ProjectorData[i].Fov;
+               UVDualEdgeGraph edgeGraph = new UVDualEdgeGraph(m_Game.Content.Load<Texture2D>("Textures/Layer0_2"));
+               int numEdgesInConfig = data.ProjectorData[i].EdgeGraphData.EdgeData.Count;
+               int numVerticesInConfig = data.ProjectorData[i].EdgeGraphData.VertexData.Count;
+               int numQuadsInConfig = data.ProjectorData[i].EdgeGraphData.QuadData.Count;
+               edgeGraph.Edges = new List<UVEdge>();
+               edgeGraph.Quads = new List<UVQuad>();
+               edgeGraph.Vertices = new List<UVVertex>();
+               for (int j = 0; j < numEdgesInConfig; ++j)
+               {
+                  UVEdge e = new UVEdge(data.ProjectorData[i].EdgeGraphData.EdgeData[j].P1, data.ProjectorData[i].EdgeGraphData.EdgeData[j].P2);
+                  e.NextEdge = data.ProjectorData[i].EdgeGraphData.EdgeData[j].NextEdge;
+                  e.PrevEdge = data.ProjectorData[i].EdgeGraphData.EdgeData[j].PrevEdge;
+                  e.TwinEdge = data.ProjectorData[i].EdgeGraphData.EdgeData[j].TwinEdge;
+                  edgeGraph.Edges.Add(e);
+               }
+               for (int j = 0; j < numVerticesInConfig; ++j)
+               {
+                  UVVertex v = new UVVertex(data.ProjectorData[i].EdgeGraphData.VertexData[j].Vertex);
+                  v.ConnectedEdges = data.ProjectorData[i].EdgeGraphData.VertexData[j].ConnectedEdges;
+                  edgeGraph.Vertices.Add(v);
+               }
+               for (int j = 0; j < numQuadsInConfig; ++j)
+               {
+                  UVQuad q = new UVQuad(data.ProjectorData[i].EdgeGraphData.QuadData[j].OrthoQuadVertices, data.ProjectorData[i].EdgeGraphData.QuadData[j].P0, data.ProjectorData[i].EdgeGraphData.QuadData[j].P1, data.ProjectorData[i].EdgeGraphData.QuadData[j].P2, data.ProjectorData[i].EdgeGraphData.QuadData[j].P3, data.ProjectorData[i].EdgeGraphData.QuadData[j].InputLayer, m_Game.Content.Load<Texture2D>("Textures/Layer0_2"));
+                  q.IsScoreboard = data.ProjectorData[i].EdgeGraphData.QuadData[j].IsScoreboard;
+                  q.IsWall = data.ProjectorData[i].EdgeGraphData.QuadData[j].IsWall;
+                  edgeGraph.Quads.Add(q);
+               }
+               UVGrid grid = new UVGrid(data.ProjectorData[i].GridData.Width, data.ProjectorData[i].GridData.Height);
+               grid.Vertices = data.ProjectorData[i].GridData.Vertices;
+               bool isOn = data.ProjectorData[i].IsOn;
+               Viewport viewport = data.ProjectorData[i].Viewport;
+               Vector3 up = data.ProjectorData[i].Up;
+               Vector3 lookat = data.ProjectorData[i].LookAt;
+               Vector3 position = data.ProjectorData[i].Position;
+               float rotX = data.ProjectorData[i].RotX;
+               float rotY = data.ProjectorData[i].RotY;
+               float rotZ = data.ProjectorData[i].RotZ;
+               m_ProjectorPreview.AddProjector(alpha, aspectRatio, fov, near, far, edgeGraph, grid, isOn, viewport, position, lookat, up, rotX, rotY, rotZ);
+            }
+
+            return true;
+         }
+         catch (IOException e)
+         {
+            Console.WriteLine(e.Message);
+            return false;
+         }
+         /*catch (Exception e)
+         {
+            Console.WriteLine(e.Message);
+            return false;
+         }*/
+      }
+
+      private System.Windows.Forms.Screen[] GetOrderedScreens()
+      {
+         System.Windows.Forms.Screen[] screens = System.Windows.Forms.Screen.AllScreens;
+         bool swapped = false;
+         do
+         {
+            swapped = false;
+            for (int i = 1; i < screens.Length; ++i)
+            {
+               if (screens[i - 1].Bounds.X > screens[i].Bounds.X)
+               {
+                  System.Windows.Forms.Screen temp = screens[i - 1];
+                  screens[i - 1] = screens[i];
+                  screens[i] = temp;
+                  swapped = true;
+               }
+            }
+         } while (swapped);
+         return screens;
       }
 
       void SaveEditorConfig(string filename)
@@ -1954,6 +2132,7 @@ namespace ProjectionMappingGame.StateMachine
                tempQData.IsWall = m_ProjectorPreview.Projectors[i].EdgeGraph.Quads[j].IsWall;
                tempQData.IsScoreboard = m_ProjectorPreview.Projectors[i].EdgeGraph.Quads[j].IsScoreboard;
                tempQData.InputLayer = m_ProjectorPreview.Projectors[i].EdgeGraph.Quads[j].InputLayer;
+               tempQData.OrthoQuadVertices = m_ProjectorPreview.Projectors[i].EdgeGraph.Quads[j].Vertices;
                quadData.Add(tempQData);
             }
             for (int j = 0; j < m_ProjectorPreview.Projectors[i].EdgeGraph.Vertices.Count; ++j)
@@ -1996,7 +2175,7 @@ namespace ProjectionMappingGame.StateMachine
             lData.Type = m_LayersScrollView.Layers[i].Type;
             lData.Normal = m_LayersScrollView.Layers[i].Normal;
             lData.LinkedLayers = m_LayersScrollView.Layers[i].LinkedLayers;
-            lData.LayerName = m_LayersScrollView.Layers[i].Name;
+            lData.LayerName = m_LayersScrollView.Layers[i].NameLabel.Text;
             data.LayerData.Add(lData);
          }
 
@@ -2048,6 +2227,7 @@ namespace ProjectionMappingGame.StateMachine
          float aspectRatio = (float)m_ProjectorPreview.Projectors[lastIndex].Viewport.Height / (float)m_ProjectorPreview.Projectors[lastIndex].Viewport.Width;
          m_ProjectorPreview.Projectors[lastIndex].Grid.Reset(m_UVGridEditor.Viewport.Width, m_UVGridEditor.Viewport.Width * aspectRatio);
          m_ProjectorPreview.Projectors[lastIndex].EdgeGraph.AssembleGraph(m_ProjectorPreview.Projectors[lastIndex].Grid.GetIntersectionPoints());
+         m_UVDualEdgeGraphEditor.SetNumProjectors(m_ProjectorPreview.Projectors.Count);
       }
 
       public override void Resize(int dx, int dy)

@@ -250,16 +250,19 @@ namespace ProjectionMappingGame.Editor
       public List<UVEdge> Edges
       {
          get { return m_Edges; }
+         set { m_Edges = value; }
       }
 
       public List<UVVertex> Vertices
       {
          get { return m_Vertices; }
+         set { m_Vertices = value; }
       }
 
       public List<UVQuad> Quads
       {
          get { return m_Quads; }
+         set { m_Quads = value; }
       }
 
       #endregion

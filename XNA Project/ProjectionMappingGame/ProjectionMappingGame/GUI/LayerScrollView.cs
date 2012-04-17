@@ -315,6 +315,7 @@ namespace ProjectionMappingGame.GUI
       public List<Layer> Layers
       {
          get { return m_Layers; }
+         set { m_Layers = value; }
       }
    }
 }

@@ -120,6 +120,7 @@ namespace ProjectionMappingGame.Editor
       public List<Vector2> Vertices
       {
          get { return m_Vertices; }
+         set { m_Vertices = value; }
       }
 
       public float Width

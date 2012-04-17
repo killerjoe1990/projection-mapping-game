@@ -599,8 +599,7 @@ namespace ProjectionMappingGame.StateMachine
               }
           }
       }
-
-
+      
       public Game.ColorPicker Colors
       {
           get
