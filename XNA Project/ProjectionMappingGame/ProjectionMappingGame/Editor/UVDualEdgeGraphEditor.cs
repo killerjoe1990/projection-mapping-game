@@ -630,6 +630,24 @@ namespace ProjectionMappingGame.Editor
 
       #region Public Access TV
 
+      public int SelectedQuadIndex
+      {
+         get { return m_SelectedQuad; }
+         set { m_SelectedQuad = value; }
+      }
+
+      public int SelectedEdgeIndex
+      {
+         get { return m_SelectedEdge; }
+         set { m_SelectedEdge = value; }
+      }
+
+      public int SelectedVertIndex
+      {
+         get { return m_SelectedVertex; }
+         set { m_SelectedVertex = value; }
+      }
+
       public UVDualEdgeGraph EdgeGraph
       {
          get { return m_DualEdgeGraph; }

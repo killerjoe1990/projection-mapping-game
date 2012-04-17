@@ -1651,6 +1651,9 @@ namespace ProjectionMappingGame.StateMachine
          Viewport defaultViewport = m_Game.GraphicsDevice.Viewport;
 
          UVDualEdgeGraph graph = m_UVDualEdgeGraphEditor.EdgeGraph;
+         int selectedQuad = m_UVDualEdgeGraphEditor.SelectedQuadIndex;
+         int selectedVert = m_UVDualEdgeGraphEditor.SelectedVertIndex;
+         int selectedEdge = m_UVDualEdgeGraphEditor.SelectedEdgeIndex;
          for (int i = 0; i < m_ProjectorPreview.Projectors.Count; ++i)
          {
             m_UVDualEdgeGraphEditor.DumpEdgeGraph();
@@ -1665,6 +1668,10 @@ namespace ProjectionMappingGame.StateMachine
          }
          m_UVDualEdgeGraphEditor.DumpEdgeGraph();
          m_UVDualEdgeGraphEditor.SetEdgeGraph(graph);
+
+         m_UVDualEdgeGraphEditor.SelectedQuadIndex = selectedQuad;
+         m_UVDualEdgeGraphEditor.SelectedVertIndex = selectedVert;
+         m_UVDualEdgeGraphEditor.SelectedEdgeIndex = selectedEdge;
 
          if (m_ProjectorPreview.RenderNormals)
          {
