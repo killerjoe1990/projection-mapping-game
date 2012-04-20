@@ -240,6 +240,16 @@ namespace ProjectionMappingGame.Editor
             {
                m_LinkedLayers.Add(value[i]);
             }
+
+            List<int> set = m_LinkedLayers.ToList<int>();
+            string list = "";
+            for (int i = 0; i < set.Count; ++i)
+            {
+               list += (set[i] + 1).ToString();
+               if (i != set.Count - 1)
+                  list += ",";
+            }
+            m_LinkListLabel.Text = list;
          }
       }
 

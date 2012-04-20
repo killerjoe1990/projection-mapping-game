@@ -648,6 +648,24 @@ namespace ProjectionMappingGame.Editor
          set { m_SelectedVertex = value; }
       }
 
+      public int HoveredQuadIndex
+      {
+         get { return m_HoveredQuad; }
+         set { m_HoveredQuad = value; }
+      }
+
+      public int HoveredEdgeIndex
+      {
+         get { return m_HoveredEdge; }
+         set { m_HoveredEdge = value; }
+      }
+
+      public int HoveredVertIndex
+      {
+         get { return m_HoveredVertex; }
+         set { m_HoveredVertex = value; }
+      }
+
       public UVDualEdgeGraph EdgeGraph
       {
          get { return m_DualEdgeGraph; }
