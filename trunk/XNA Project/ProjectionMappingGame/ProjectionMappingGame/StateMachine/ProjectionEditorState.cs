@@ -694,8 +694,10 @@ namespace ProjectionMappingGame.StateMachine
          #region Layers Menu
 
          // Scrollview
+         int scrollHeight = GameConstants.WindowHeight - (GUI_LAYERS_Y + GUI_MENU_ITEM_HEIGHT * 1 - 2 + 20);
+
          m_ScrollMouseInput = new MouseInput(new Vector2(-(GUI_TOOLBAR_X + 2), -(GUI_LAYERS_Y + GUI_MENU_ITEM_HEIGHT * 1 - 2)));
-         m_LayersScrollView = new LayerScrollView(m_Game, new Rectangle(GUI_TOOLBAR_X + 2, GUI_LAYERS_Y + GUI_MENU_ITEM_HEIGHT * 1 - 2, GUI_TOOLBAR_WIDTH - 2, 210),
+         m_LayersScrollView = new LayerScrollView(m_Game, new Rectangle(GUI_TOOLBAR_X + 2, GUI_LAYERS_Y + GUI_MENU_ITEM_HEIGHT * 1 - 2, GUI_TOOLBAR_WIDTH - 2, scrollHeight),
             new Rectangle(),
             m_ScrollViewBackgroundTexture,
             m_ScrollViewScrollPadTexture,
@@ -1654,6 +1656,15 @@ namespace ProjectionMappingGame.StateMachine
          int selectedQuad = m_UVDualEdgeGraphEditor.SelectedQuadIndex;
          int selectedVert = m_UVDualEdgeGraphEditor.SelectedVertIndex;
          int selectedEdge = m_UVDualEdgeGraphEditor.SelectedEdgeIndex;
+         int hoveredQuad = m_UVDualEdgeGraphEditor.HoveredQuadIndex;
+         int hoveredVert = m_UVDualEdgeGraphEditor.HoveredVertIndex;
+         int hoveredEdge = m_UVDualEdgeGraphEditor.HoveredEdgeIndex;
+         m_UVDualEdgeGraphEditor.SelectedQuadIndex = -1;
+         m_UVDualEdgeGraphEditor.SelectedVertIndex = -1;
+         m_UVDualEdgeGraphEditor.SelectedEdgeIndex = -1;
+         m_UVDualEdgeGraphEditor.HoveredQuadIndex = -1;
+         m_UVDualEdgeGraphEditor.HoveredVertIndex = -1;
+         m_UVDualEdgeGraphEditor.HoveredEdgeIndex = -1;
          for (int i = 0; i < m_ProjectorPreview.Projectors.Count; ++i)
          {
             m_UVDualEdgeGraphEditor.DumpEdgeGraph();
@@ -1672,6 +1683,9 @@ namespace ProjectionMappingGame.StateMachine
          m_UVDualEdgeGraphEditor.SelectedQuadIndex = selectedQuad;
          m_UVDualEdgeGraphEditor.SelectedVertIndex = selectedVert;
          m_UVDualEdgeGraphEditor.SelectedEdgeIndex = selectedEdge;
+         m_UVDualEdgeGraphEditor.HoveredQuadIndex = hoveredQuad;
+         m_UVDualEdgeGraphEditor.HoveredVertIndex = hoveredVert;
+         m_UVDualEdgeGraphEditor.HoveredEdgeIndex = hoveredEdge;
 
          if (m_ProjectorPreview.RenderNormals)
          {

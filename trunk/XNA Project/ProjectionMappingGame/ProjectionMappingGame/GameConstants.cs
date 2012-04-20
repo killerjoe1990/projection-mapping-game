@@ -52,7 +52,7 @@ namespace ProjectionMappingGame
       public const float PROJECTOR_SCALE = 3.0f;
       public const float LIGHT_SCALE = 3.0f;
       public static Vector3 DEFAULT_BUILDING_POSITION = new Vector3(0.0f, DEFAULT_CUBE_SCALE / 2.0f, 0.0f);
-      public static Vector3 DEFAULT_CAMERA_POSITION = new Vector3(0.0f, 0.0f, -100.0f);
+      public static Vector3 DEFAULT_CAMERA_POSITION = new Vector3(0.0f, 0.0f, -300.0f);
       public static Vector3 DEFAULT_PROJECTOR_POSITION1 = new Vector3(0.0f, DEFAULT_CUBE_SCALE / 2.0f, (DEFAULT_CUBE_SCALE * 2));
       public static Vector3 DEFAULT_PROJECTOR_POSITION2 = new Vector3((DEFAULT_CUBE_SCALE * 2), DEFAULT_CUBE_SCALE / 2.0f, 0.0f);
       public static Vector3 DEFAULT_PROJECTOR_POSITION3 = new Vector3(0.0f, DEFAULT_CUBE_SCALE / 2.0f, -(DEFAULT_CUBE_SCALE * 2));
