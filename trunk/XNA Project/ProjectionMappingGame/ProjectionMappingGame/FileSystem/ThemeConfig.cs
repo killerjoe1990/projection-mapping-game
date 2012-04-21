@@ -25,7 +25,8 @@ namespace ProjectionMappingGame.FileSystem
       // Constants for the expected directories in a given theme folder that contain
       // the background, spritesheet and platform textures respectively.
       public const string BACKGROUND_DIRECTORY = "Background";
-      public const string SPRITESHEET_DIRECTORY = "SpriteSheets";
+      public const string MOVINGSPRITE_DIRECTORY = "MovingSprites";
+      public const string STATICSPRITE_DIRECTORY = "StaticSprites";
       public const string PLATFORM_DIRECTORY = "Platforms";
 
       // Constants for the accepted file type for background, spritesheet and platform textures
@@ -38,7 +39,8 @@ namespace ProjectionMappingGame.FileSystem
       // Theme configuration
       public string Name;                    // Theme name; also directory it is loaded from
       public List<string> Backgrounds;       // Background texture file names to load into runtime
-      public List<string> SpriteSheets;      // Spritesheet texture file names to load into runtime
+      public List<string> MovingSprites;      // Spritesheet texture file names to load into runtime
+      public List<string> StaticSprites;
       public List<List<string>> Platforms;   // Platform texture file names to load into runtime
    }
 }
