@@ -88,21 +88,6 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="Tiles\Type2\BlockB0.png">
-      <Name>BlockB0</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Tiles\Type2\BlockB1.png">
-      <Name>BlockB1</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Tiles\Type2\Platform.png">
-      <Name>Platform</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
     <Compile Include="Sprites\Idle.png">
       <Name>Idle</Name>
       <Importer>TextureImporter</Importer>
@@ -408,31 +393,6 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="Tiles\Type1\Center2.png">
-      <Name>Center2</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Tiles\Type1\Center3.png">
-      <Name>Center3</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Tiles\Type1\Center.png">
-      <Name>Center</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Tiles\Type1\left.png">
-      <Name>left</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Tiles\Type1\right.png">
-      <Name>right</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
     <Compile Include="Textures\GUI\window_sizer_background.png">
       <Name>window_sizer_background</Name>
       <Importer>TextureImporter</Importer>
@@ -467,197 +427,6 @@
       <Name>scoreBackground</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Heart\Background\HeartBackground0.png">
-      <Name>HeartBackground0</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Heart\Background\HeartBackground1.png">
-      <Name>HeartBackground1</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Heart\Background\HeartBackground10.png">
-      <Name>HeartBackground10</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Heart\Background\HeartBackground11.png">
-      <Name>HeartBackground11</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Heart\Background\HeartBackground12.png">
-      <Name>HeartBackground12</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Heart\Background\HeartBackground13.png">
-      <Name>HeartBackground13</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Heart\Background\HeartBackground2.png">
-      <Name>HeartBackground2</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Heart\Background\HeartBackground3.png">
-      <Name>HeartBackground3</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Heart\Background\HeartBackground4.png">
-      <Name>HeartBackground4</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Heart\Background\HeartBackground5.png">
-      <Name>HeartBackground5</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Heart\Background\HeartBackground6.png">
-      <Name>HeartBackground6</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Heart\Background\HeartBackground7.png">
-      <Name>HeartBackground7</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Heart\Background\HeartBackground8.png">
-      <Name>HeartBackground8</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Heart\Background\HeartBackground9.png">
-      <Name>HeartBackground9</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Heart\Platforms\HeartPlatform0-0.png">
-      <Name>HeartPlatform0-0</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Heart\Platforms\HeartPlatform1-0.png">
-      <Name>HeartPlatform1-0</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Heart\Platforms\HeartPlatform2-0.png">
-      <Name>HeartPlatform2-0</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Background\SpaceBackground0.png">
-      <Name>SpaceBackground0</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Platforms\SpacePlatform0-0.png">
-      <Name>SpacePlatform0-0</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
-    </Compile>
-    <Compile Include="Themes\Space\Platforms\SpacePlatform0-1.png">
-      <Name>SpacePlatform0-1</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
-    </Compile>
-    <Compile Include="Themes\Space\Platforms\SpacePlatform0-2.png">
-      <Name>SpacePlatform0-2</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
-    </Compile>
-    <Compile Include="Themes\Space\Sprites\SpaceSprite0.png">
-      <Name>SpaceSprite0</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\RedBlue\Background\RedBlueBackground0.png">
-      <Name>RedBlueBackground0</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\RedBlue\Background\RedBlueBackground1.png">
-      <Name>RedBlueBackground1</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Corners\Platforms\CornersPlatform0-0.png">
-      <Name>CornersPlatform0-0</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Corners\Platforms\CornersPlatform1-0.png">
-      <Name>CornersPlatform1-0</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Corners\Platforms\CornersPlatform2-0.png">
-      <Name>CornersPlatform2-0</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Corners\Platforms\CornersPlatform3-0.png">
-      <Name>CornersPlatform3-0</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Corners\Background\CornersBackground0.png">
-      <Name>CornersBackground0</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Corners\Background\CornersBackground1.png">
-      <Name>CornersBackground1</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Corners\Background\CornersBackground2.png">
-      <Name>CornersBackground2</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Corners\Background\CornersBackground3.png">
-      <Name>CornersBackground3</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\RedBlue\Platforms\RedBluePlatform0-0.png">
-      <Name>RedBluePlatform0-0</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\RedBlue\Platforms\RedBluePlatform1-0.png">
-      <Name>RedBluePlatform1-0</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Themes\Space\Platforms\SpacePlatform1-0.png">
-      <Name>SpacePlatform1-0</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
-    </Compile>
-    <Compile Include="Themes\Space\Platforms\SpacePlatform1-1.png">
-      <Name>SpacePlatform1-1</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
-    </Compile>
-    <Compile Include="Themes\Space\Platforms\SpacePlatform1-2.png">
-      <Name>SpacePlatform1-2</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
     </Compile>
     <Compile Include="Sprites\Stunned.png">
       <Name>Stunned</Name>
@@ -763,11 +532,7 @@
       <Processor>FontDescriptionProcessor</Processor>
     </Compile>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Themes\Corners\Sprites\" />
-    <Folder Include="Themes\Heart\Sprites\" />
-    <Folder Include="Themes\RedBlue\Sprites\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />
   <!--  To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

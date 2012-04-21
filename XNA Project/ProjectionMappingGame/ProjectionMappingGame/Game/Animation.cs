@@ -19,6 +19,8 @@ namespace ProjectionMappingGame.Game
         int m_NumFrames;
         bool m_Repeat;
 
+        event EventHandler m_AnimationEnd;
+
         public Animation(Texture2D texture)
         {
             m_Frames = texture;
@@ -45,6 +47,11 @@ namespace ProjectionMappingGame.Game
             m_Repeat = repeat;
         }
 
+        public void RegisterAnimationEnd(EventHandler handler)
+        {
+            m_AnimationEnd += handler;
+        }
+
         public void SetColor(Color c)
         {
             m_Color = c;
@@ -68,7 +75,15 @@ namespace ProjectionMappingGame.Game
             }
             else
             {
-                m_CurrentFrame = (m_CurrentFrame >= m_NumFrames) ? m_NumFrames - 1 : m_CurrentFrame;
+                if(m_CurrentFrame >= m_NumFrames)
+                {
+                    m_CurrentFrame = m_NumFrames - 1;
+
+                    if (m_AnimationEnd != null)
+                    {
+                        m_AnimationEnd(this, null);
+                    }
+                }
             }
 
             if (moveFrames > 0)

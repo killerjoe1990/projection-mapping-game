@@ -22,8 +22,8 @@ namespace ProjectionMappingGame.Game
         Matrix m_NormalRotation;
         Vector3 m_Normal;
 
-        Themes.Theme m_NextTheme;
-        Themes.Theme m_CurrentTheme;
+        Theme m_NextTheme;
+        Theme m_CurrentTheme;
 
         bool m_ChangeTheme;
         float m_ThemeTimerLast;
@@ -233,7 +233,7 @@ namespace ProjectionMappingGame.Game
             device.SetRenderTarget(m_PlatformShadowTarget);
             device.Clear(Color.Transparent);
 
-            spriteBatch.Begin();
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
 
             foreach (Platform platform in m_Platforms)
             {
@@ -290,7 +290,7 @@ namespace ProjectionMappingGame.Game
                 }
             }
 
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied);
 
             // Background always goes in the back.
             m_CurrentTheme.Draw(spriteBatch, themeFadeColor);
@@ -338,25 +338,9 @@ namespace ProjectionMappingGame.Game
             spriteBatch.End();
         }
 
-        private Themes.Theme CreateTheme(StateMachine.ThemeTextures tex)
+        private Theme CreateTheme(StateMachine.ThemeTextures tex)
         {
-            switch (tex.Name)
-            {
-                case "Space":
-                    return new Themes.SpaceTheme(tex, new Point(m_WindowWidth, m_WindowHeight));
-                    
-                case "Heart":
-                    return new Themes.HeartTheme(tex, new Point(m_WindowWidth, m_WindowHeight));
-
-                case "Corners":
-                    return new Themes.CornersTheme(tex, new Point(m_WindowWidth, m_WindowHeight));
-
-                case "RedBlue":
-                    return new Themes.RedBlueTheme(tex, new Point(m_WindowWidth, m_WindowHeight));
-                    
-            }
-
-            return null; 
+            return new Theme(tex, new Point(m_WindowWidth, m_WindowHeight));
         }
 
         private void CheckBounds(Player player)

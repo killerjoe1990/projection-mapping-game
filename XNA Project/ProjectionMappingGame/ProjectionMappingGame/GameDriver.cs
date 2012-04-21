@@ -66,6 +66,15 @@ namespace ProjectionMappingGame
       {
          get { return m_GraphicsManager; }
       }
+
+      public List<ThemeTextures> Themes
+      {
+          get
+          {
+              return m_Themes;
+          }
+      }
+
       #region Initialization
 
       /// <summary>
@@ -96,9 +105,7 @@ namespace ProjectionMappingGame
          // Show mouse
          this.IsMouseVisible = true;
 
-         // Load themes - This is where I read texture filenames in the provided directory
-         // and their textures into my Theme[] array.
-         //LoadThemes();
+         
       }
 
       void Window_ClientSizeChanged(object sender, EventArgs e)
@@ -129,8 +136,13 @@ namespace ProjectionMappingGame
       /// </summary>
       protected override void LoadContent()
       {
+          
          // Create a new SpriteBatch, which can be used to draw in 2D.
          m_SpriteBatch = new SpriteBatch(GraphicsDevice);
+
+         // Load themes - This is where I read texture filenames in the provided directory
+         // and their textures into my Theme[] array.
+         LoadThemes();
 
          // Load all states
          m_FSM.LoadContent(Content);
@@ -147,7 +159,7 @@ namespace ProjectionMappingGame
       /// </summary>
       protected override void UnloadContent()
       {
-         /*
+         
          for (int i = 0; i < m_Themes.Count; ++i)
          {
             for (int j = 0; j < m_Themes[i].Background.Length; ++j)
@@ -161,12 +173,16 @@ namespace ProjectionMappingGame
                   m_Themes[i].Platforms[j][n].Dispose();
                }
             }
-            //for (int j = 0; j < m_Themes[i].SpriteSheets.Length; ++j)
-            //{
-            //   m_Themes[i].SpriteSheets[i].Dispose();
-            //}
+            for (int j = 0; j < m_Themes[i].StaticSprites.Length; ++j)
+            {
+               m_Themes[i].StaticSprites[i].Dispose();
+            }
+            for (int j = 0; j < m_Themes[i].MovingSprites.Length; ++j)
+            {
+                m_Themes[i].MovingSprites[i].Dispose();
+            }
          }
-          */
+          
       }
 
       #endregion
@@ -202,6 +218,7 @@ namespace ProjectionMappingGame
          // Clear the back buffer
          GraphicsDevice.Clear(Color.CornflowerBlue);
 
+     
          // Draw all active states
          m_FSM.Draw(m_SpriteBatch);
 
@@ -317,13 +334,22 @@ namespace ProjectionMappingGame
                }
 
                // Load spritesheets
-               /*string spritesheetDir = theme.Name + "\\" + ThemeConfig.SPRITESHEET_DIRECTORY;
-               string[] spritesheets = Directory.GetFiles(spritesheetDir, ThemeConfig.SPRITESHEET_FILE_EXT);
-               theme.SpriteSheets = new List<string>();
-               for (int j = 0; j < spritesheets.Length; ++j)
+               string spritesheetDir = theme.Name + "\\" + ThemeConfig.MOVINGSPRITE_DIRECTORY;
+               string[] moveSpritesheets = Directory.GetFiles(spritesheetDir, ThemeConfig.SPRITESHEET_FILE_EXT);
+               theme.MovingSprites = new List<string>();
+               for (int j = 0; j < moveSpritesheets.Length; ++j)
                {
-                  theme.SpriteSheets.Add(spritesheets[j]);
-               }*/
+                  theme.MovingSprites.Add(moveSpritesheets[j]);
+               }
+
+               // Load spritesheets
+               string spritesheetDir2 = theme.Name + "\\" + ThemeConfig.STATICSPRITE_DIRECTORY;
+               string[] staticSpritesheets = Directory.GetFiles(spritesheetDir2, ThemeConfig.SPRITESHEET_FILE_EXT);
+               theme.StaticSprites = new List<string>();
+               for (int j = 0; j < staticSpritesheets.Length; ++j)
+               {
+                   theme.StaticSprites.Add(staticSpritesheets[j]);
+               }
 
                // Load platforms
                string platformDir = theme.Name + "\\" + ThemeConfig.PLATFORM_DIRECTORY;
@@ -366,7 +392,8 @@ namespace ProjectionMappingGame
          t.Name = themeConfig.Name;
          t.Background = new Texture2D[themeConfig.Backgrounds.Count];
          t.Platforms = new Texture2D[themeConfig.Platforms.Count][];
-         //t.SpriteSheets = new Texture2D[themeConfig.SpriteSheets.Count];
+         t.MovingSprites = new Texture2D[themeConfig.MovingSprites.Count];
+         t.StaticSprites = new Texture2D[themeConfig.StaticSprites.Count];
          for (int j = 0; j < themeConfig.Backgrounds.Count; ++j)
          {
             t.Background[j] = Texture2D.FromStream(GraphicsDevice, File.OpenRead(themeConfig.Backgrounds[j]));
@@ -379,10 +406,14 @@ namespace ProjectionMappingGame
                t.Platforms[j][i] = Texture2D.FromStream(GraphicsDevice, File.OpenRead(themeConfig.Platforms[j][i]));
             }
          }
-         /*for (int j = 0; j < themeConfig.SpriteSheets.Count; ++j)
+         for (int j = 0; j < themeConfig.MovingSprites.Count; ++j)
          {
-            t.SpriteSheets[j] = Texture2D.FromStream(GraphicsDevice, File.OpenRead(themeConfig.SpriteSheets[j]));
-         }*/
+            t.MovingSprites[j] = Texture2D.FromStream(GraphicsDevice, File.OpenRead(themeConfig.MovingSprites[j]));
+         }
+         for (int j = 0; j < themeConfig.StaticSprites.Count; ++j)
+         {
+             t.StaticSprites[j] = Texture2D.FromStream(GraphicsDevice, File.OpenRead(themeConfig.StaticSprites[j]));
+         }
          return t;
       }
 
