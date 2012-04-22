@@ -6,6 +6,9 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.Text.RegularExpressions;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace Theme_Editor
 {
@@ -53,6 +56,7 @@ namespace Theme_Editor
             m_Plats = new Dictionary<string, PlatformValues>();
             m_MSprites = new Dictionary<string, SpriteValues>();
             m_SSprites = new Dictionary<string, SpriteValues>();
+
         }
 
         private void btn_AddBackground_Click(object sender, EventArgs e)
@@ -187,7 +191,7 @@ namespace Theme_Editor
             pv.CenterImages = new List<string>();
             pv.Blinking = chck_PlatformBlink.Checked;
 
-            if(chck_PlatformBlink.Checked)
+            if (chck_PlatformBlink.Checked)
             {
                 EnsureOneBlinking(platName);
             }
@@ -519,14 +523,207 @@ namespace Theme_Editor
 
         private void btn_Preview_Click(object sender, EventArgs e)
         {
-            m_Backgrounds = new string[lst_Backgrounds.Items.Count];
+            string check = CheckDependencies();
 
-            for (int i = 0; i < m_Backgrounds.Length; ++i)
+            if (check != "")
             {
-                m_Backgrounds[i] = (string)lst_Backgrounds.Items[i];
+                DialogResult = System.Windows.Forms.DialogResult.None;
+                MessageBox.Show(check, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+            else
+            {
+                m_Backgrounds = new string[lst_Backgrounds.Items.Count];
+
+                for (int i = 0; i < m_Backgrounds.Length; ++i)
+                {
+                    m_Backgrounds[i] = (string)lst_Backgrounds.Items[i];
+                }
             }
         }
 
-        
+        private string CheckDependencies()
+        {
+            string errors = "";
+
+            if (lst_Backgrounds.Items.Count < 1)
+            {
+                errors += "At least 1 background frame required. \n";
+            }
+
+            bool hasChecked = false;
+
+            foreach (KeyValuePair<string, PlatformValues> pv in m_Plats)
+            {
+                if (pv.Value.Blinking)
+                {
+                    hasChecked = true;
+                }
+            }
+
+            if (!hasChecked || m_Plats.Count < 2)
+            {
+                errors += "Only 1 blinking platform and at least 1 normal platform required. \n";
+            }
+
+            return errors;
+        }
+
+        private void btn_Save_Click(object sender, EventArgs e)
+        {
+            string check = CheckDependencies();
+
+            if (check != "")
+            {
+                MessageBox.Show(check, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+            else
+            {
+                SaveForm form = new SaveForm();
+
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    string error = SaveTheme(form.Name);
+
+                    if (error != "")
+                    {
+                        MessageBox.Show(error, "SAVE ERROR", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    }
+                }
+
+            }
+        }
+
+        private string SaveTheme(string name)
+        {
+            string error = "";
+
+            XElement root = new XElement("Theme",
+                new XAttribute("Name", name),
+                new XElement("Background",
+                    new XAttribute("Rate", m_BackgroundRate)));
+
+
+            if (!System.IO.Directory.Exists("Themes\\" + name))
+            {
+                System.IO.Directory.CreateDirectory("Themes\\" + name + "\\Background");
+
+                for (int i = 0; i < lst_Backgrounds.Items.Count; ++i)
+                {
+                    string file = (string)lst_Backgrounds.Items[i];
+                    string extension = Regex.Match(file, @"\.\w{3}").ToString();
+                    System.IO.File.Copy(file, "Themes\\" + name + "\\Background\\" + name + "Background" + i + extension);
+                }
+
+                System.IO.Directory.CreateDirectory("Themes\\" + name + "\\Platforms");
+
+                int platNumber = 1;
+
+                for (int i = 0; i < m_Plats.Count; ++i)
+                {
+                    KeyValuePair<string, PlatformValues> element = m_Plats.ElementAt(i);
+
+                    if (element.Value.Blinking)
+                    {
+                        SavePlatforms(element, name, 0);
+                    }
+                    else
+                    {
+                        SavePlatforms(element, name, platNumber);
+                        platNumber++;
+                    }
+                }
+
+                XElement msprite = new XElement("MovingSprites",
+                    new XAttribute("Number", m_NumObjects),
+                    new XAttribute("MinSize", m_MSminSize),
+                    new XAttribute("MaxSize", m_MSminSize + m_MSsizeRange),
+                    new XAttribute("MinSpeed", m_MinSpeed),
+                    new XAttribute("MaxSpeed", m_MinSpeed + m_SpeedRange));
+
+                System.IO.Directory.CreateDirectory("Themes\\" + name + "\\MovingSprites");
+
+                for (int i = 0; i < m_MSprites.Count; ++i)
+                {
+                    KeyValuePair<string, SpriteValues> element = m_MSprites.ElementAt(i);
+                    string file = element.Key;
+                    string extension = Regex.Match(file, @"\.\w{3}").ToString();
+                    System.IO.File.Copy(file, "Themes\\" + name + "\\MovingSprites\\" + name + "Sprite" + i + extension);
+
+                    msprite.Add(new XElement("Sprite",
+                        new XAttribute("Frames", element.Value.Frames),
+                        new XAttribute("Rate", element.Value.Rate)));
+                }
+
+                root.Add(msprite);
+
+                System.IO.Directory.CreateDirectory("Themes\\" + name + "\\StaticSprites");
+
+                XElement ssprite = new XElement("StaticSprites",
+                    new XAttribute("MinSize", m_SSminSize),
+                    new XAttribute("MaxSize", m_SSminSize + m_SSsizeRange),
+                    new XAttribute("MinTime", m_MinTime),
+                    new XAttribute("MaxTime", m_MinTime + m_TimeRange));
+
+                for (int i = 0; i < m_SSprites.Count; ++i)
+                {
+                    KeyValuePair<string, SpriteValues> element = m_SSprites.ElementAt(i);
+                    string file = element.Key;
+                    string extension = Regex.Match(file, @"\.\w{3}").ToString();
+                    System.IO.File.Copy(file, "Themes\\" + name + "\\StaticSprites\\" + name + "Sprite" + i + extension);
+
+                    ssprite.Add(new XElement("Sprite",
+                        new XAttribute("Frames", element.Value.Frames),
+                        new XAttribute("Rate", element.Value.Rate)));
+                }
+
+                root.Add(ssprite);
+
+                root.Save("Themes\\" + name + "\\ThemeConfig.xml");
+            }
+            else
+            {
+                error += "Theme name already exists.";
+            }
+
+            return error;
+        }
+
+        private void SavePlatforms(KeyValuePair<string, PlatformValues> element, string name, int index)
+        {
+            System.IO.Directory.CreateDirectory("Themes\\" + name + "\\Platforms\\" + index);
+
+            int platIndex = 0;
+
+            if (element.Value.LeftImage != null)
+            {
+                string file = element.Value.LeftImage;
+                string extension = Regex.Match(file, @"\.\w{3}").ToString();
+                System.IO.File.Copy(file, "Themes\\" + name + "\\Platforms\\" + index + "\\" + name + "Platform" + platIndex + extension);
+                platIndex++;
+            }
+            foreach (string s in element.Value.CenterImages)
+            {
+                string file = s;
+                string extension = Regex.Match(file, @"\.\w{3}").ToString();
+                System.IO.File.Copy(file, "Themes\\" + name + "\\Platforms\\" + index + "\\" + name + "Platform" + platIndex + extension);
+                platIndex++;
+            }
+            if (element.Value.RightImage != null)
+            {
+                string file = element.Value.RightImage;
+                string extension = Regex.Match(file, @"\.\w{3}").ToString();
+                System.IO.File.Copy(file, "Themes\\" + name + "\\Platforms\\" + index + "\\" + name + "Platform" + platIndex + extension);
+            }
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            if (DialogResult != DialogResult.OK)
+            {
+                DialogResult = DialogResult.Abort;
+            }
+            base.OnClosed(e);
+        }
     }
+
 }
