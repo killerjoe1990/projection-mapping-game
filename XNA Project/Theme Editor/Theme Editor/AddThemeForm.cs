@@ -174,9 +174,17 @@ namespace Theme_Editor
                 pic_PlatformLeft.Image = null;
                 pic_PlatformRight.Image = null;
 
-                lst_PlatformLeft.Items.Add(m_Plats[key].LeftImage);
+                if (m_Plats[key].LeftImage != null)
+                {
+                    lst_PlatformLeft.Items.Add(m_Plats[key].LeftImage);
+                }
+
                 lst_PlatformCenter.Items.AddRange(m_Plats[key].CenterImages.ToArray());
-                lst_PlatformRight.Items.Add(m_Plats[key].RightImage);
+
+                if (m_Plats[key].RightImage != null)
+                {
+                    lst_PlatformRight.Items.Add(m_Plats[key].RightImage);
+                }
             }
         }
 
