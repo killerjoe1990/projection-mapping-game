@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Theme Name="Fire">
+  <Background Rate="5"/>
+  <MovingSprites Number ="0" MinSize="32" MaxSize="64" MinSpeed="22" MaxSpeed="45">
+  </MovingSprites>
+  <StaticSprites MinSize ="32" MaxSize="64" MinTime="1" MaxTime="2">
+  </StaticSprites>
+</Theme>

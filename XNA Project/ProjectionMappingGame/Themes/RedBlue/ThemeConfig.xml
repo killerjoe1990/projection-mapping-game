@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Theme Name="RedBlue">
+  <Background Rate="1"/>
+  <MovingSprites Number ="0" MinSize="32" MaxSize="64" MinSpeed="22" MaxSpeed="45">
+  </MovingSprites>
+  <StaticSprites MinSize ="64" MaxSize="128" MinTime="0.3" MaxTime="2">
+  </StaticSprites>
+</Theme>

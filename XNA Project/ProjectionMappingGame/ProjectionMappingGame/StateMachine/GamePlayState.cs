@@ -41,13 +41,61 @@ namespace ProjectionMappingGame.StateMachine
             set;
         }
 
+        public float BackgroundRate
+        {
+            get;
+            set;
+        }
+
         public Texture2D[] MovingSprites
         {
            get;
            set;
         }
 
+        public int NumMovingSprites
+        {
+            get;
+            set;
+        }
+
+        public Vector2[] MovingSpriteInfo
+        {
+            get;
+            set;
+        }
+
+        public Point MovingSpriteSize
+        {
+            get;
+            set;
+        }
+
+        public Vector2 MovingSpriteSpeed
+        {
+            get;
+            set;
+        }
+
         public Texture2D[] StaticSprites
+        {
+            get;
+            set;
+        }
+
+        public Vector2[] StaticSpriteInfo
+        {
+            get;
+            set;
+        }
+
+        public Point StaticSpriteSize
+        {
+            get;
+            set;
+        }
+
+        public Vector2 StaticSpriteTime
         {
             get;
             set;

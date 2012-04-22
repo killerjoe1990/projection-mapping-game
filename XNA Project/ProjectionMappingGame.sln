@@ -5,6 +5,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectionMappingGame", "Pr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectionMappingGameContent", "ProjectionMappingGame\ProjectionMappingGameContent\ProjectionMappingGameContent.contentproj", "{68F3C186-8015-4322-A954-0EA247924894}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Theme Editor", "Theme Editor\Theme Editor\Theme Editor.csproj", "{FA35B5A3-62D0-4353-8FC4-FAC711D63284}"
+EndProject
+Project("{96E2B04D-8817-42C6-938A-82C39BA4D311}") = "Theme EditorContent", "Theme Editor\Theme EditorContent\Theme EditorContent.contentproj", "{F3187DB4-DB2D-450E-87B1-C9CCFDEDA5CB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -17,6 +21,12 @@ Global
 		{39363109-4555-4F65-BA99-38F0E2E05348}.Release|x86.Build.0 = Release|x86
 		{68F3C186-8015-4322-A954-0EA247924894}.Debug|x86.ActiveCfg = Debug|x86
 		{68F3C186-8015-4322-A954-0EA247924894}.Release|x86.ActiveCfg = Release|x86
+		{FA35B5A3-62D0-4353-8FC4-FAC711D63284}.Debug|x86.ActiveCfg = Debug|x86
+		{FA35B5A3-62D0-4353-8FC4-FAC711D63284}.Debug|x86.Build.0 = Debug|x86
+		{FA35B5A3-62D0-4353-8FC4-FAC711D63284}.Release|x86.ActiveCfg = Release|x86
+		{FA35B5A3-62D0-4353-8FC4-FAC711D63284}.Release|x86.Build.0 = Release|x86
+		{F3187DB4-DB2D-450E-87B1-C9CCFDEDA5CB}.Debug|x86.ActiveCfg = Debug|x86
+		{F3187DB4-DB2D-450E-87B1-C9CCFDEDA5CB}.Release|x86.ActiveCfg = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
