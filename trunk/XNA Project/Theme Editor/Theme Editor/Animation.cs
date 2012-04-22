@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 
-namespace ProjectionMappingGame.Game
+namespace Theme_Editor
 {
     public class Animation
     {
@@ -41,14 +41,7 @@ namespace ProjectionMappingGame.Game
 
             m_Color = Color.White;
 
-            if (rate != 0)
-            {
-                m_FrameRate = 1.0f / rate;
-            }
-            else
-            {
-                m_FrameRate = 1;
-            }
+            m_FrameRate = 1.0f/rate;
             m_Counter = 0;
             m_NumFrames = numFrames;
             m_Repeat = repeat;
@@ -133,14 +126,7 @@ namespace ProjectionMappingGame.Game
 
         public AnimatedBackground(Texture2D[] frames, float rate, int width, int height)
         {
-            if (rate != 0)
-            {
-                m_Rate = 1.0f / rate;
-            }
-            else
-            {
-                m_Rate = 1;
-            }
+            m_Rate = 1.0f / rate;
 
             m_Frames = frames;
             m_NumFrames = frames.Length;

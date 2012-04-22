@@ -13,21 +13,6 @@ namespace ProjectionMappingGame.Game
 {
     public class Theme
     {
-        const int NUM_MOVING_OBJECTS = 8;
-        const int OBJECT_SIZE_MAX = 64;
-        const int OBJECT_SIZE_MIN = 32;
-
-        const float OBJECT_SPEED_MAX = 45;
-        const float OBJECT_SPEED_MIN = 22;
-
-        const float OBJECT_TIME_MAX = 3;
-        const float OBJECT_TIME_MIN = 0.3f;
-
-        const int OBJECT_FRAMES = 1;
-        const int OBJECT_RATE = 5;
-
-        const int BACKGROUND_RATE = 10;
-
         // Contains all Texture2D data needed.
         protected ThemeTextures m_Textures;
         protected Point m_WindowSize;
@@ -42,16 +27,16 @@ namespace ProjectionMappingGame.Game
             m_Textures = textures;
             m_WindowSize = windowSize;
 
-            m_Background = new AnimatedBackground(m_Textures.Background, BACKGROUND_RATE, windowSize.X, windowSize.Y);
+            m_Background = new AnimatedBackground(m_Textures.Background, textures.BackgroundRate, windowSize.X, windowSize.Y);
 
             m_Objects = new List<MoveableObject>();
 
             if (m_Textures.MovingSprites.Length > 0)
             {
-                for (int i = 0; i < NUM_MOVING_OBJECTS; ++i)
+                for (int i = 0; i < textures.NumMovingSprites; ++i)
                 {
-                    int size = GameConstants.RANDOM.Next(OBJECT_SIZE_MAX - OBJECT_SIZE_MIN) + OBJECT_SIZE_MIN;
-                    float speed = (float)GameConstants.RANDOM.NextDouble() * (OBJECT_SPEED_MAX - OBJECT_SPEED_MIN) + OBJECT_SPEED_MIN;
+                    int size = GameConstants.RANDOM.Next(textures.MovingSpriteSize.Y - textures.MovingSpriteSize.X) + textures.MovingSpriteSize.X;
+                    float speed = (float)GameConstants.RANDOM.NextDouble() * (textures.MovingSpriteSpeed.Y - textures.MovingSpriteSpeed.X) + textures.MovingSpriteSpeed.X;
                     Vector2 position = new Vector2();
                     position.X = (float)GameConstants.RANDOM.NextDouble() * m_WindowSize.X;
                     position.Y = (float)GameConstants.RANDOM.NextDouble() * m_WindowSize.Y;
@@ -61,13 +46,13 @@ namespace ProjectionMappingGame.Game
 
                     int texIndex = GameConstants.RANDOM.Next(textures.MovingSprites.Length);
 
-                    obj.Animation = new Animation(textures.MovingSprites[texIndex], OBJECT_FRAMES, OBJECT_RATE, true);
+                    obj.Animation = new Animation(textures.MovingSprites[texIndex], (int)textures.MovingSpriteInfo[texIndex].X, textures.MovingSpriteInfo[texIndex].Y, true);
 
                     m_Objects.Add(obj);
                 }
             }
 
-            m_StaticTimer = (float)GameConstants.RANDOM.NextDouble() * (OBJECT_TIME_MAX - OBJECT_TIME_MIN) + OBJECT_TIME_MIN;
+            m_StaticTimer = (float)GameConstants.RANDOM.NextDouble() * (m_Textures.StaticSpriteTime.Y - m_Textures.StaticSpriteTime.X) + m_Textures.StaticSpriteTime.X;
         }
 
         public void Update(float deltaTime)
@@ -79,13 +64,18 @@ namespace ProjectionMappingGame.Game
                 m_Objects[i].Update(deltaTime);
             }
 
+            foreach (MoveableObject obj in m_Objects)
+            {
+                obj.ScreenBounce(obj.CheckBounds(m_WindowSize.X, m_WindowSize.Y), m_WindowSize);
+            }
+
             if (m_Textures.StaticSprites.Length > 0)
             {
                 m_StaticTimer -= deltaTime;
 
                 if (m_StaticTimer < 0)
                 {
-                    int size = GameConstants.RANDOM.Next(OBJECT_SIZE_MAX - OBJECT_SIZE_MIN) + OBJECT_SIZE_MIN;
+                    int size = GameConstants.RANDOM.Next(m_Textures.StaticSpriteSize.Y - m_Textures.StaticSpriteSize.X) + m_Textures.StaticSpriteSize.X;
                     Vector2 position = new Vector2();
                     position.X = (float)GameConstants.RANDOM.NextDouble() * m_WindowSize.X;
                     position.Y = (float)GameConstants.RANDOM.NextDouble() * m_WindowSize.Y;
@@ -94,12 +84,12 @@ namespace ProjectionMappingGame.Game
 
                     int texIndex = GameConstants.RANDOM.Next(m_Textures.StaticSprites.Length);
 
-                    obj.Animation = new Animation(m_Textures.StaticSprites[texIndex], 6, OBJECT_RATE, false);
+                    obj.Animation = new Animation(m_Textures.StaticSprites[texIndex], (int)m_Textures.StaticSpriteInfo[texIndex].X, m_Textures.StaticSpriteInfo[texIndex].Y, false);
                     obj.Animation.RegisterAnimationEnd(StaticObjectDone);
 
                     m_Objects.Add(obj);
 
-                    m_StaticTimer = (float)GameConstants.RANDOM.NextDouble() * (OBJECT_TIME_MAX - OBJECT_TIME_MIN) + OBJECT_TIME_MIN;
+                    m_StaticTimer = (float)GameConstants.RANDOM.NextDouble() * (m_Textures.StaticSpriteTime.Y - m_Textures.StaticSpriteTime.X) + m_Textures.StaticSpriteTime.X;
                 }
             }
         }

@@ -36,6 +36,8 @@ namespace ProjectionMappingGame.FileSystem
       public const string SPRITESHEET_FILE_EXT = "*.png";
       public const string PLATFORM_FILE_EXT = "*.png";
 
+      public const string CONFIGURATION_XML = "ThemeConfig.xml";
+
       // Theme configuration
       public string Name;                    // Theme name; also directory it is loaded from
       public List<string> Backgrounds;       // Background texture file names to load into runtime

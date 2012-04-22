@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Theme Name="Space">
+  <Background Rate="1"/>
+  <MovingSprites Number ="10" MinSize="32" MaxSize="64" MinSpeed="22" MaxSpeed="45">
+    <Sprite Frames="1" Rate="1"/>
+  </MovingSprites>
+  <StaticSprites MinSize ="32" MaxSize="64" MinTime="1" MaxTime="2">
+  </StaticSprites>
+</Theme>

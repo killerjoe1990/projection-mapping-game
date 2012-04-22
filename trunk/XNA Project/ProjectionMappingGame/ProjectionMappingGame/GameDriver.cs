@@ -29,6 +29,7 @@ using Microsoft.Xna.Framework.Input;
 // Local includes
 using ProjectionMappingGame.StateMachine;
 using ProjectionMappingGame.FileSystem;
+using System.Xml;
 
 #endregion
 
@@ -175,11 +176,11 @@ namespace ProjectionMappingGame
             }
             for (int j = 0; j < m_Themes[i].StaticSprites.Length; ++j)
             {
-               m_Themes[i].StaticSprites[i].Dispose();
+               m_Themes[i].StaticSprites[j].Dispose();
             }
             for (int j = 0; j < m_Themes[i].MovingSprites.Length; ++j)
             {
-                m_Themes[i].MovingSprites[i].Dispose();
+                m_Themes[i].MovingSprites[j].Dispose();
             }
          }
           
@@ -389,15 +390,27 @@ namespace ProjectionMappingGame
       ThemeTextures LoadTheme(ThemeConfig themeConfig)
       {
          ThemeTextures t = new ThemeTextures();
-         t.Name = themeConfig.Name;
+         
          t.Background = new Texture2D[themeConfig.Backgrounds.Count];
          t.Platforms = new Texture2D[themeConfig.Platforms.Count][];
          t.MovingSprites = new Texture2D[themeConfig.MovingSprites.Count];
+         t.MovingSpriteInfo = new Vector2[themeConfig.MovingSprites.Count];
          t.StaticSprites = new Texture2D[themeConfig.StaticSprites.Count];
+         t.StaticSpriteInfo = new Vector2[themeConfig.StaticSprites.Count];
+
+         XmlDocument config = new XmlDocument();
+         config.Load(themeConfig.Name + "\\" + ThemeConfig.CONFIGURATION_XML);
+          XmlNode root = config.SelectSingleNode("Theme");
+         t.Name = root.Attributes["Name"].Value;
+
+         XmlNode node = root.SelectSingleNode("Background");
+         t.BackgroundRate = float.Parse(node.Attributes["Rate"].Value);
+
          for (int j = 0; j < themeConfig.Backgrounds.Count; ++j)
          {
             t.Background[j] = Texture2D.FromStream(GraphicsDevice, File.OpenRead(themeConfig.Backgrounds[j]));
          }
+
          for (int j = 0; j < themeConfig.Platforms.Count; ++j)
          {
             t.Platforms[j] = new Texture2D[themeConfig.Platforms[j].Count];
@@ -406,12 +419,25 @@ namespace ProjectionMappingGame
                t.Platforms[j][i] = Texture2D.FromStream(GraphicsDevice, File.OpenRead(themeConfig.Platforms[j][i]));
             }
          }
+
+         node = config.SelectSingleNode("Theme/MovingSprites");
+         t.NumMovingSprites = Int32.Parse(node.Attributes["Number"].Value);
+         t.MovingSpriteSize = new Point(Int32.Parse(node.Attributes["MinSize"].Value), Int32.Parse(node.Attributes["MaxSize"].Value));
+         t.MovingSpriteSpeed = new Vector2(float.Parse(node.Attributes["MinSpeed"].Value), float.Parse(node.Attributes["MaxSpeed"].Value));
+
          for (int j = 0; j < themeConfig.MovingSprites.Count; ++j)
          {
+            t.MovingSpriteInfo[j] = new Vector2(float.Parse(node.ChildNodes[j].Attributes["Frames"].Value), float.Parse(node.ChildNodes[j].Attributes["Rate"].Value));
             t.MovingSprites[j] = Texture2D.FromStream(GraphicsDevice, File.OpenRead(themeConfig.MovingSprites[j]));
          }
+
+         node = config.SelectSingleNode("Theme/StaticSprites");
+         t.StaticSpriteSize = new Point(Int32.Parse(node.Attributes["MinSize"].Value), Int32.Parse(node.Attributes["MaxSize"].Value));
+         t.StaticSpriteTime = new Vector2(float.Parse(node.Attributes["MinTime"].Value), float.Parse(node.Attributes["MaxTime"].Value));
+
          for (int j = 0; j < themeConfig.StaticSprites.Count; ++j)
          {
+             t.StaticSpriteInfo[j] = new Vector2(float.Parse(node.ChildNodes[j].Attributes["Frames"].Value), float.Parse(node.ChildNodes[j].Attributes["Rate"].Value));
              t.StaticSprites[j] = Texture2D.FromStream(GraphicsDevice, File.OpenRead(themeConfig.StaticSprites[j]));
          }
          return t;
