@@ -32,11 +32,13 @@ namespace Theme_Editor
         Point m_WindowSize;
 
         bool m_EditorOpen;
+        bool m_Quit;
 
         public Game1()
         {
             m_Graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            m_Quit = false;
         }
 
         /// <summary>
@@ -89,6 +91,11 @@ namespace Theme_Editor
            if (r == DialogResult.OK)
            {
                CreatePreview();
+           }
+           else
+           {
+               m_Quit = true;
+               Exit();
            }
 
            m_EditorOpen = false;
@@ -169,69 +176,71 @@ namespace Theme_Editor
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            float deltaTime = (float)gameTime.ElapsedGameTime.Ticks / (float)System.TimeSpan.TicksPerSecond;
-
-            m_Background.Update(deltaTime);
-
-            List<Platform> newPlats = m_PlatSpawn.SpawnPlatforms(deltaTime);
-
-            if (newPlats != null)
+            if (!m_Quit)
             {
-                m_Platforms.AddRange(newPlats);
-            }
+                float deltaTime = (float)gameTime.ElapsedGameTime.Ticks / (float)System.TimeSpan.TicksPerSecond;
 
-            for (int i = m_Platforms.Count - 1; i >= 0; --i)
-            {
-                m_Platforms[i].Update(deltaTime);
+                m_Background.Update(deltaTime);
 
-                if (m_Platforms[i].Status == PlatformStatus.Dead)
+                List<Platform> newPlats = m_PlatSpawn.SpawnPlatforms(deltaTime);
+
+                if (newPlats != null)
                 {
-                    m_Platforms.RemoveAt(i);
+                    m_Platforms.AddRange(newPlats);
+                }
+
+                for (int i = m_Platforms.Count - 1; i >= 0; --i)
+                {
+                    m_Platforms[i].Update(deltaTime);
+
+                    if (m_Platforms[i].Status == PlatformStatus.Dead)
+                    {
+                        m_Platforms.RemoveAt(i);
+                    }
+                }
+
+                for (int i = m_Objects.Count - 1; i >= 0; --i)
+                {
+                    m_Objects[i].Update(deltaTime);
+                }
+
+                foreach (MoveableObject obj in m_Objects)
+                {
+                    obj.ScreenBounce(obj.CheckBounds(m_WindowSize.X, m_WindowSize.Y), m_WindowSize);
+                }
+
+                if (m_ThemeForm.m_SSprites.Count > 0)
+                {
+                    m_StaticTimer -= deltaTime;
+
+                    if (m_StaticTimer < 0)
+                    {
+                        int size = GameConstants.RANDOM.Next(m_ThemeForm.m_SSsizeRange) + m_ThemeForm.m_SSminSize;
+                        Vector2 position = new Vector2();
+                        position.X = (float)GameConstants.RANDOM.NextDouble() * m_WindowSize.X;
+                        position.Y = (float)GameConstants.RANDOM.NextDouble() * m_WindowSize.Y;
+
+                        MoveableObject obj = new MoveableObject(new Rectangle((int)position.X, (int)position.Y, size, size), Vector2.Zero);
+
+                        int texIndex = GameConstants.RANDOM.Next(m_ThemeForm.m_SSprites.Count);
+
+                        SpriteValues sv = m_ThemeForm.m_SSprites.ElementAt(texIndex).Value;
+                        string key = m_ThemeForm.m_SSprites.ElementAt(texIndex).Key;
+
+                        obj.Animation = new Animation(Texture2D.FromStream(GraphicsDevice, System.IO.File.OpenRead(key)), sv.Frames, sv.Rate, false);
+                        obj.Animation.RegisterAnimationEnd(StaticObjectDone);
+
+                        m_Objects.Add(obj);
+
+                        m_StaticTimer = (float)GameConstants.RANDOM.NextDouble() * (m_ThemeForm.m_TimeRange) + m_ThemeForm.m_MinTime;
+                    }
+                }
+
+                if (!m_EditorOpen && Keyboard.GetState().IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Escape))
+                {
+                    OpenEditor();
                 }
             }
-
-            for (int i = m_Objects.Count - 1; i >= 0; --i)
-            {
-                m_Objects[i].Update(deltaTime);
-            }
-
-            foreach (MoveableObject obj in m_Objects)
-            {
-                obj.ScreenBounce(obj.CheckBounds(m_WindowSize.X, m_WindowSize.Y), m_WindowSize);
-            }
-
-            if (m_ThemeForm.m_SSprites.Count > 0)
-            {
-                m_StaticTimer -= deltaTime;
-
-                if (m_StaticTimer < 0)
-                {
-                    int size = GameConstants.RANDOM.Next(m_ThemeForm.m_SSsizeRange) + m_ThemeForm.m_SSminSize;
-                    Vector2 position = new Vector2();
-                    position.X = (float)GameConstants.RANDOM.NextDouble() * m_WindowSize.X;
-                    position.Y = (float)GameConstants.RANDOM.NextDouble() * m_WindowSize.Y;
-
-                    MoveableObject obj = new MoveableObject(new Rectangle((int)position.X, (int)position.Y, size, size), Vector2.Zero);
-
-                    int texIndex = GameConstants.RANDOM.Next(m_ThemeForm.m_SSprites.Count);
-
-                    SpriteValues sv = m_ThemeForm.m_SSprites.ElementAt(texIndex).Value;
-                    string key = m_ThemeForm.m_SSprites.ElementAt(texIndex).Key;
-
-                    obj.Animation = new Animation(Texture2D.FromStream(GraphicsDevice, System.IO.File.OpenRead(key)), sv.Frames, sv.Rate, false);
-                    obj.Animation.RegisterAnimationEnd(StaticObjectDone);
-
-                    m_Objects.Add(obj);
-
-                    m_StaticTimer = (float)GameConstants.RANDOM.NextDouble() * (m_ThemeForm.m_TimeRange) + m_ThemeForm.m_MinTime;
-                }
-            }
-
-            if (!m_EditorOpen && Keyboard.GetState().IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Escape))
-            {
-                OpenEditor();
-            }
-
             base.Update(gameTime);
         }
 
@@ -255,22 +264,24 @@ namespace Theme_Editor
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            m_SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
-
-            m_Background.Draw(m_SpriteBatch, SpriteEffects.None);
-
-            foreach (MoveableObject obj in m_Objects)
+            if (!m_Quit)
             {
-                obj.Draw(m_SpriteBatch);
+                m_SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
+
+                m_Background.Draw(m_SpriteBatch, SpriteEffects.None);
+
+                foreach (MoveableObject obj in m_Objects)
+                {
+                    obj.Draw(m_SpriteBatch);
+                }
+
+                foreach (Platform p in m_Platforms)
+                {
+                    p.Draw(m_SpriteBatch, Color.White);
+                }
+
+                m_SpriteBatch.End();
             }
-
-            foreach (Platform p in m_Platforms)
-            {
-                p.Draw(m_SpriteBatch, Color.White);
-            }
-
-            m_SpriteBatch.End();
-
             base.Draw(gameTime);
         }
     }

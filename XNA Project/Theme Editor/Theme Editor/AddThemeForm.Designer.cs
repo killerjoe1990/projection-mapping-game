@@ -39,6 +39,10 @@
             this.lst_Backgrounds = new System.Windows.Forms.ListBox();
             this.pic_Background = new System.Windows.Forms.PictureBox();
             this.tab_Platforms = new System.Windows.Forms.TabPage();
+            this.btn_PlatformRemove = new System.Windows.Forms.Button();
+            this.btn_PlatformAdd = new System.Windows.Forms.Button();
+            this.pic_PlatformRight = new System.Windows.Forms.PictureBox();
+            this.pic_PlatformCenter = new System.Windows.Forms.PictureBox();
             this.btn_PlatAddRight = new System.Windows.Forms.Button();
             this.btn_PlatRemoveLeft = new System.Windows.Forms.Button();
             this.m_PlatRemoveRight = new System.Windows.Forms.Button();
@@ -96,15 +100,13 @@
             this.btn_Save = new System.Windows.Forms.Button();
             this.btn_Preview = new System.Windows.Forms.Button();
             this.file_Open = new System.Windows.Forms.OpenFileDialog();
-            this.pic_PlatformCenter = new System.Windows.Forms.PictureBox();
-            this.pic_PlatformRight = new System.Windows.Forms.PictureBox();
-            this.btn_PlatformAdd = new System.Windows.Forms.Button();
-            this.btn_PlatformRemove = new System.Windows.Forms.Button();
             this.tab_Components.SuspendLayout();
             this.tab_Background.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.num_BackgroundRate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pic_Background)).BeginInit();
             this.tab_Platforms.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pic_PlatformRight)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pic_PlatformCenter)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pic_PlatformLeft)).BeginInit();
             this.tab_MoveSprites.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.num_MSpriteNumber)).BeginInit();
@@ -123,8 +125,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.num_SSpriteMinTime)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_SSpriteSizeRange)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_SSpriteMinSize)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pic_PlatformCenter)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pic_PlatformRight)).BeginInit();
             this.SuspendLayout();
             // 
             // tab_Components
@@ -273,6 +273,44 @@
             this.tab_Platforms.TabIndex = 1;
             this.tab_Platforms.Text = "Platforms";
             this.tab_Platforms.UseVisualStyleBackColor = true;
+            // 
+            // btn_PlatformRemove
+            // 
+            this.btn_PlatformRemove.Location = new System.Drawing.Point(175, 468);
+            this.btn_PlatformRemove.Name = "btn_PlatformRemove";
+            this.btn_PlatformRemove.Size = new System.Drawing.Size(75, 23);
+            this.btn_PlatformRemove.TabIndex = 19;
+            this.btn_PlatformRemove.Text = "Remove";
+            this.btn_PlatformRemove.UseVisualStyleBackColor = true;
+            this.btn_PlatformRemove.Click += new System.EventHandler(this.btn_PlatformRemove_Click);
+            // 
+            // btn_PlatformAdd
+            // 
+            this.btn_PlatformAdd.Location = new System.Drawing.Point(67, 468);
+            this.btn_PlatformAdd.Name = "btn_PlatformAdd";
+            this.btn_PlatformAdd.Size = new System.Drawing.Size(75, 23);
+            this.btn_PlatformAdd.TabIndex = 18;
+            this.btn_PlatformAdd.Text = "Add";
+            this.btn_PlatformAdd.UseVisualStyleBackColor = true;
+            this.btn_PlatformAdd.Click += new System.EventHandler(this.btn_PlatformAdd_Click);
+            // 
+            // pic_PlatformRight
+            // 
+            this.pic_PlatformRight.Location = new System.Drawing.Point(819, 377);
+            this.pic_PlatformRight.Name = "pic_PlatformRight";
+            this.pic_PlatformRight.Size = new System.Drawing.Size(160, 151);
+            this.pic_PlatformRight.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pic_PlatformRight.TabIndex = 17;
+            this.pic_PlatformRight.TabStop = false;
+            // 
+            // pic_PlatformCenter
+            // 
+            this.pic_PlatformCenter.Location = new System.Drawing.Point(819, 204);
+            this.pic_PlatformCenter.Name = "pic_PlatformCenter";
+            this.pic_PlatformCenter.Size = new System.Drawing.Size(160, 151);
+            this.pic_PlatformCenter.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pic_PlatformCenter.TabIndex = 16;
+            this.pic_PlatformCenter.TabStop = false;
             // 
             // btn_PlatAddRight
             // 
@@ -950,6 +988,7 @@
             this.btn_Save.TabIndex = 1;
             this.btn_Save.Text = "Save";
             this.btn_Save.UseVisualStyleBackColor = true;
+            this.btn_Save.Click += new System.EventHandler(this.btn_Save_Click);
             // 
             // btn_Preview
             // 
@@ -968,44 +1007,6 @@
             this.file_Open.Filter = "Image Files | *.png";
             this.file_Open.Multiselect = true;
             // 
-            // pic_PlatformCenter
-            // 
-            this.pic_PlatformCenter.Location = new System.Drawing.Point(819, 204);
-            this.pic_PlatformCenter.Name = "pic_PlatformCenter";
-            this.pic_PlatformCenter.Size = new System.Drawing.Size(160, 151);
-            this.pic_PlatformCenter.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pic_PlatformCenter.TabIndex = 16;
-            this.pic_PlatformCenter.TabStop = false;
-            // 
-            // pic_PlatformRight
-            // 
-            this.pic_PlatformRight.Location = new System.Drawing.Point(819, 377);
-            this.pic_PlatformRight.Name = "pic_PlatformRight";
-            this.pic_PlatformRight.Size = new System.Drawing.Size(160, 151);
-            this.pic_PlatformRight.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pic_PlatformRight.TabIndex = 17;
-            this.pic_PlatformRight.TabStop = false;
-            // 
-            // btn_PlatformAdd
-            // 
-            this.btn_PlatformAdd.Location = new System.Drawing.Point(67, 468);
-            this.btn_PlatformAdd.Name = "btn_PlatformAdd";
-            this.btn_PlatformAdd.Size = new System.Drawing.Size(75, 23);
-            this.btn_PlatformAdd.TabIndex = 18;
-            this.btn_PlatformAdd.Text = "Add";
-            this.btn_PlatformAdd.UseVisualStyleBackColor = true;
-            this.btn_PlatformAdd.Click += new System.EventHandler(this.btn_PlatformAdd_Click);
-            // 
-            // btn_PlatformRemove
-            // 
-            this.btn_PlatformRemove.Location = new System.Drawing.Point(175, 468);
-            this.btn_PlatformRemove.Name = "btn_PlatformRemove";
-            this.btn_PlatformRemove.Size = new System.Drawing.Size(75, 23);
-            this.btn_PlatformRemove.TabIndex = 19;
-            this.btn_PlatformRemove.Text = "Remove";
-            this.btn_PlatformRemove.UseVisualStyleBackColor = true;
-            this.btn_PlatformRemove.Click += new System.EventHandler(this.btn_PlatformRemove_Click);
-            // 
             // AddThemeForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1023,6 +1024,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.pic_Background)).EndInit();
             this.tab_Platforms.ResumeLayout(false);
             this.tab_Platforms.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pic_PlatformRight)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pic_PlatformCenter)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pic_PlatformLeft)).EndInit();
             this.tab_MoveSprites.ResumeLayout(false);
             this.tab_MoveSprites.PerformLayout();
@@ -1043,8 +1046,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.num_SSpriteMinTime)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_SSpriteSizeRange)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_SSpriteMinSize)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pic_PlatformCenter)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pic_PlatformRight)).EndInit();
             this.ResumeLayout(false);
 
         }
