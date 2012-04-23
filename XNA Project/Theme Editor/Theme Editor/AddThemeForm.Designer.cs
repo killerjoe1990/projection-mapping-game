@@ -100,6 +100,8 @@
             this.btn_Save = new System.Windows.Forms.Button();
             this.btn_Preview = new System.Windows.Forms.Button();
             this.file_Open = new System.Windows.Forms.OpenFileDialog();
+            this.btn_Load = new System.Windows.Forms.Button();
+            this.fldr_Directories = new System.Windows.Forms.FolderBrowserDialog();
             this.tab_Components.SuspendLayout();
             this.tab_Background.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.num_BackgroundRate)).BeginInit();
@@ -982,7 +984,7 @@
             // 
             // btn_Save
             // 
-            this.btn_Save.Location = new System.Drawing.Point(697, 616);
+            this.btn_Save.Location = new System.Drawing.Point(619, 616);
             this.btn_Save.Name = "btn_Save";
             this.btn_Save.Size = new System.Drawing.Size(75, 23);
             this.btn_Save.TabIndex = 1;
@@ -1007,11 +1009,26 @@
             this.file_Open.Filter = "Image Files | *.png";
             this.file_Open.Multiselect = true;
             // 
+            // btn_Load
+            // 
+            this.btn_Load.Location = new System.Drawing.Point(729, 616);
+            this.btn_Load.Name = "btn_Load";
+            this.btn_Load.Size = new System.Drawing.Size(75, 23);
+            this.btn_Load.TabIndex = 3;
+            this.btn_Load.Text = "Load";
+            this.btn_Load.UseVisualStyleBackColor = true;
+            this.btn_Load.Click += new System.EventHandler(this.btn_Load_Click);
+            // 
+            // fldr_Directories
+            // 
+            this.fldr_Directories.ShowNewFolderButton = false;
+            // 
             // AddThemeForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1166, 665);
+            this.Controls.Add(this.btn_Load);
             this.Controls.Add(this.btn_Preview);
             this.Controls.Add(this.btn_Save);
             this.Controls.Add(this.tab_Components);
@@ -1124,5 +1141,7 @@
         private System.Windows.Forms.PictureBox pic_PlatformCenter;
         private System.Windows.Forms.Button btn_PlatformRemove;
         private System.Windows.Forms.Button btn_PlatformAdd;
+        private System.Windows.Forms.Button btn_Load;
+        private System.Windows.Forms.FolderBrowserDialog fldr_Directories;
     }
 }
