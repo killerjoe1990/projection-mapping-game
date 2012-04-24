@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Theme Name="Storm">
-  <Background Rate="1"/>
-  <MovingSprites Number ="0" MinSize="32" MaxSize="64" MinSpeed="22" MaxSpeed="45">
-  </MovingSprites>
-  <StaticSprites MinSize ="64" MaxSize="128" MinTime="0.3" MaxTime="2">
+<Theme Name="Storm2">
+  <Background Rate="1" />
+  <MovingSprites Number="1" MinSize="32" MaxSize="64" MinSpeed="22" MaxSpeed="45" />
+  <StaticSprites MinSize="128" MaxSize="192" MinTime="0.3" MaxTime="1.5999999">
+    <Sprite Frames="8" Rate="20" />
   </StaticSprites>
 </Theme>
