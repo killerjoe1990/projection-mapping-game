@@ -31,6 +31,11 @@ namespace Theme_Editor
 
         Point m_WindowSize;
 
+        Texture2D[] m_BackgroundFrames;
+        Texture2D[][] m_PlatTextures;
+        Texture2D[] m_MovingTextures;
+        Texture2D[] m_StaticTextures;
+
         bool m_EditorOpen;
         bool m_Quit;
 
@@ -68,9 +73,6 @@ namespace Theme_Editor
         /// </summary>
         protected override void LoadContent()
         {
-            // Create a new SpriteBatch, which can be used to draw textures.
-            m_SpriteBatch = new SpriteBatch(GraphicsDevice);
-
             OpenEditor();
         }
 
@@ -81,6 +83,47 @@ namespace Theme_Editor
         protected override void UnloadContent()
         {
             // TODO: Unload any non ContentManager content here
+        }
+
+        protected void Reset()
+        {
+            m_SpriteBatch.Dispose();
+
+            m_Background = null;
+            m_Objects = null;
+            m_Platforms = null;
+            m_PlatSpawn = null;
+            
+            foreach(Texture2D t in m_BackgroundFrames)
+            {
+                t.Dispose();
+            }
+
+            m_BackgroundFrames = null;
+
+            foreach (Texture2D[] ta in m_PlatTextures)
+            {
+                foreach (Texture2D t in ta)
+                {
+                    t.Dispose();
+                }
+            }
+
+            m_PlatTextures = null;
+
+            foreach (Texture2D t in m_MovingTextures)
+            {
+                t.Dispose();
+            }
+
+            m_MovingTextures = null;
+
+            foreach (Texture2D t in m_StaticTextures)
+            {
+                t.Dispose();
+            }
+
+            m_StaticTextures = null;
         }
 
         protected void OpenEditor()
@@ -103,46 +146,66 @@ namespace Theme_Editor
 
         protected void CreatePreview()
         {
-            Texture2D[] backgroundFrames = new Texture2D[m_ThemeForm.m_Backgrounds.Length];
+            System.IO.Stream stream;
+            m_SpriteBatch = new SpriteBatch(GraphicsDevice);
+
+            m_BackgroundFrames = new Texture2D[m_ThemeForm.m_Backgrounds.Length];
 
             m_Platforms = new List<Platform>();
 
-            for(int i = 0; i < backgroundFrames.Length; ++i)
+            for(int i = 0; i < m_BackgroundFrames.Length; ++i)
             {
-                backgroundFrames[i] = Texture2D.FromStream(GraphicsDevice, System.IO.File.OpenRead(m_ThemeForm.m_Backgrounds[i]));
+                stream = System.IO.File.OpenRead(m_ThemeForm.m_Backgrounds[i]);
+                m_BackgroundFrames[i] = Texture2D.FromStream(GraphicsDevice, stream);
+                stream.Close();
             }
 
-            m_Background = new AnimatedBackground(backgroundFrames, m_ThemeForm.m_BackgroundRate, GameConstants.DEFAULT_WINDOW_WIDTH, GameConstants.DEFAULT_WINDOW_HEIGHT);
+            m_Background = new AnimatedBackground(m_BackgroundFrames, m_ThemeForm.m_BackgroundRate, GameConstants.DEFAULT_WINDOW_WIDTH, GameConstants.DEFAULT_WINDOW_HEIGHT);
 
-            Texture2D[][] platTextures = new Texture2D[m_ThemeForm.m_Plats.Count][];
+            m_PlatTextures = new Texture2D[m_ThemeForm.m_Plats.Count][];
 
-            for (int i = 0; i < platTextures.Length; ++i)
+            for (int i = 0; i < m_PlatTextures.Length; ++i)
             {
                 PlatformValues pv = m_ThemeForm.m_Plats.ElementAt(i).Value;
                 List<Texture2D> plats = new List<Texture2D>();
 
                 if (pv.LeftImage != null)
                 {
-                    plats.Add(Texture2D.FromStream(GraphicsDevice, System.IO.File.OpenRead(pv.LeftImage)));
+                    stream = System.IO.File.OpenRead(pv.LeftImage);
+                    plats.Add(Texture2D.FromStream(GraphicsDevice, stream));
+                    stream.Close();
                 }
 
                 foreach (string s in pv.CenterImages)
                 {
-                    plats.Add(Texture2D.FromStream(GraphicsDevice, System.IO.File.OpenRead(s)));
+                    stream = System.IO.File.OpenRead(s);
+                    plats.Add(Texture2D.FromStream(GraphicsDevice, stream));
+                    stream.Close();
                 }
 
                 if(pv.RightImage != null)
                 {
-                    plats.Add(Texture2D.FromStream(GraphicsDevice, System.IO.File.OpenRead(pv.RightImage)));
+                    stream = System.IO.File.OpenRead(pv.RightImage);
+                    plats.Add(Texture2D.FromStream(GraphicsDevice, stream));
+                    stream.Close();
                 }
                 
-                platTextures[i] = plats.ToArray();
+                m_PlatTextures[i] = plats.ToArray();
                 
             }
 
-            m_PlatSpawn = new PlatformSpawner(platTextures, GameConstants.DEFAULT_WINDOW_WIDTH);
+            m_PlatSpawn = new PlatformSpawner(m_PlatTextures, GameConstants.DEFAULT_WINDOW_WIDTH);
 
             m_Objects = new List<MoveableObject>();
+
+            m_MovingTextures = new Texture2D[m_ThemeForm.m_MSprites.Count];
+
+            for (int i = 0; i < m_MovingTextures.Length; ++i)
+            {
+                stream = System.IO.File.OpenRead((string)m_ThemeForm.m_MSprites.Keys.ElementAt(i));
+                m_MovingTextures[i] = Texture2D.FromStream(GraphicsDevice, stream);
+                stream.Close();
+            }
 
             if (m_ThemeForm.m_MSprites.Count > 0)
             {
@@ -160,10 +223,19 @@ namespace Theme_Editor
 
                     MoveableObject obj = new MoveableObject(new Rectangle((int)position.X, (int)position.Y, size, size), speed * direction);
 
-                    obj.Animation = new Animation(Texture2D.FromStream(GraphicsDevice, System.IO.File.OpenRead(m_ThemeForm.m_MSprites.ElementAt(texIndex).Key)), sv.Frames, sv.Rate, true);
+                    obj.Animation = new Animation(m_MovingTextures[texIndex], sv.Frames, sv.Rate, true);
 
                     m_Objects.Add(obj);
                 }
+            }
+
+            m_StaticTextures = new Texture2D[m_ThemeForm.m_SSprites.Count];
+
+            for (int i = 0; i < m_StaticTextures.Length; ++i)
+            {
+                stream = System.IO.File.OpenRead((string)m_ThemeForm.m_SSprites.Keys.ElementAt(i));
+                m_StaticTextures[i] = Texture2D.FromStream(GraphicsDevice,stream);
+                stream.Close();
             }
 
             m_StaticTimer = (float)GameConstants.RANDOM.NextDouble() * (m_ThemeForm.m_TimeRange) + m_ThemeForm.m_MinTime;
@@ -176,7 +248,7 @@ namespace Theme_Editor
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            if (!m_Quit)
+            if (!m_Quit && !m_EditorOpen)
             {
                 float deltaTime = (float)gameTime.ElapsedGameTime.Ticks / (float)System.TimeSpan.TicksPerSecond;
 
@@ -222,12 +294,11 @@ namespace Theme_Editor
 
                         MoveableObject obj = new MoveableObject(new Rectangle((int)position.X, (int)position.Y, size, size), Vector2.Zero);
 
-                        int texIndex = GameConstants.RANDOM.Next(m_ThemeForm.m_SSprites.Count);
+                        int texIndex = GameConstants.RANDOM.Next(m_StaticTextures.Length);
 
                         SpriteValues sv = m_ThemeForm.m_SSprites.ElementAt(texIndex).Value;
-                        string key = m_ThemeForm.m_SSprites.ElementAt(texIndex).Key;
 
-                        obj.Animation = new Animation(Texture2D.FromStream(GraphicsDevice, System.IO.File.OpenRead(key)), sv.Frames, sv.Rate, false);
+                        obj.Animation = new Animation(m_StaticTextures[texIndex], sv.Frames, sv.Rate, false);
                         obj.Animation.RegisterAnimationEnd(StaticObjectDone);
 
                         m_Objects.Add(obj);
@@ -238,6 +309,7 @@ namespace Theme_Editor
 
                 if (!m_EditorOpen && Keyboard.GetState().IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Escape))
                 {
+                    Reset();
                     OpenEditor();
                 }
             }
@@ -264,7 +336,7 @@ namespace Theme_Editor
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            if (!m_Quit)
+            if (!m_Quit && !m_EditorOpen)
             {
                 m_SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
 

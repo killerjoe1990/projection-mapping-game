@@ -126,6 +126,8 @@ namespace ProjectionMappingGame.StateMachine
 
       Texture2D m_PortalTex;
       Texture2D m_HUDTex;
+      Texture2D m_TitlePage;
+      Texture2D m_BestScoreTex;
 
       Game.Player[] m_Players;
 
@@ -199,10 +201,10 @@ namespace ProjectionMappingGame.StateMachine
          m_Players[(int)PlayerIndex.Two].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, GameConstants.PLAYER_JUMP_FRAMES, GameConstants.PLAYER_JUMP_FRAMERATE, false));
          m_Players[(int)PlayerIndex.Two].AddAnimation(Game.Player.Animations.STUNNED, new Game.Animation(m_PlayerStunTex, 3, 5, true));
 
-         m_Players[(int)PlayerIndex.One].LoadHudContent(m_ArialFontLarge, m_Game.GraphicsDevice, m_HUDTex);
-         m_Players[(int)PlayerIndex.Two].LoadHudContent(m_ArialFontLarge, m_Game.GraphicsDevice, m_HUDTex);
-         m_Players[(int)PlayerIndex.Three].LoadHudContent(m_ArialFontLarge, m_Game.GraphicsDevice, m_HUDTex);
-         m_Players[(int)PlayerIndex.Four].LoadHudContent(m_ArialFontLarge, m_Game.GraphicsDevice, m_HUDTex);
+         m_Players[(int)PlayerIndex.One].LoadHudContent(m_ArialFontLarge, m_Game.GraphicsDevice, m_HUDTex, m_BestScoreTex);
+         m_Players[(int)PlayerIndex.Two].LoadHudContent(m_ArialFontLarge, m_Game.GraphicsDevice, m_HUDTex, m_BestScoreTex);
+         m_Players[(int)PlayerIndex.Three].LoadHudContent(m_ArialFontLarge, m_Game.GraphicsDevice, m_HUDTex, m_BestScoreTex);
+         m_Players[(int)PlayerIndex.Four].LoadHudContent(m_ArialFontLarge, m_Game.GraphicsDevice, m_HUDTex, m_BestScoreTex);
 
          m_ScoreBoard.LoadContent(m_HUDTex,m_ArialFontLarge);
 
@@ -232,6 +234,10 @@ namespace ProjectionMappingGame.StateMachine
 
          m_HUDTex = content.Load<Texture2D>("Textures/scoreBackground");
 
+         m_BestScoreTex = content.Load<Texture2D>("Textures/bestScore");
+
+         m_TitlePage = content.Load<Texture2D>("Textures/TitleScreen");
+
          GameConstants.WHITE_TEXTURE = content.Load<Texture2D>("Textures/white");
 
          m_Collectables[0] = new Game.InvinciblePowerup(new Rectangle(0, 0, GameConstants.POWERUP_DIM, GameConstants.POWERUP_DIM), Vector2.Zero, null);
@@ -246,6 +252,16 @@ namespace ProjectionMappingGame.StateMachine
       {
           m_PowerUpTimer -= elapsedTime;
           m_ThemeTimer -= elapsedTime;
+
+          bool showTitle = true;
+
+          foreach (Game.Player p in m_Players)
+          {
+              if (p.State != Game.Player.States.DEAD)
+              {
+                  showTitle = false;
+              }
+          }
 
           if (m_ThemeTimer <= 0)
           {
@@ -269,8 +285,10 @@ namespace ProjectionMappingGame.StateMachine
 
           foreach (Game.Level l in m_Levels)
           {
+              l.ShowTitle(showTitle);
               l.Update(elapsedTime);
           }
+
           m_ScoreBoard.Update(elapsedTime, m_Players);
       }
 
@@ -289,11 +307,21 @@ namespace ProjectionMappingGame.StateMachine
 
       public void PlayerDied(Game.Player player)
       {
+          int bonus = GameConstants.BONUS_POINTS;
+
+          foreach (Game.Player p in m_Players)
+          {
+              if (p != player && p.HUD.PlayerScore > player.HUD.PlayerScore)
+              {
+                  bonus = 0;
+              }
+          }
+
           foreach (Game.Player p in m_Players)
           {
               if (p != player && p.State == Game.Player.States.PLAYING)
               {
-                  p.HUD.PlayerDefeated();
+                  p.HUD.PlayerDefeated((int)(player.HUD.PlayerScore * GameConstants.POINTS_FOR_KILL) + bonus);
               }
           }
       }
@@ -489,10 +517,10 @@ namespace ProjectionMappingGame.StateMachine
          m_Players[(int)PlayerIndex.One].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_RUN_FRAMERATE, false));
          m_Players[(int)PlayerIndex.Two].AddAnimation(Game.Player.Animations.RUN, new Game.Animation(m_PlayerRunTex, 10, GameConstants.PLAYER_RUN_FRAMERATE, true));
          m_Players[(int)PlayerIndex.Two].AddAnimation(Game.Player.Animations.JUMP, new Game.Animation(m_PlayerJumpTex, 11, GameConstants.PLAYER_RUN_FRAMERATE, false));
-         m_Players[(int)PlayerIndex.One].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex);
-         m_Players[(int)PlayerIndex.Two].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex);
-         m_Players[(int)PlayerIndex.Three].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex);
-         m_Players[(int)PlayerIndex.Four].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex);
+         m_Players[(int)PlayerIndex.One].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex, m_BestScoreTex);
+         m_Players[(int)PlayerIndex.Two].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex, m_BestScoreTex);
+         m_Players[(int)PlayerIndex.Three].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex, m_BestScoreTex);
+         m_Players[(int)PlayerIndex.Four].LoadHudContent(m_ArialFont, m_Game.GraphicsDevice, m_HUDTex, m_BestScoreTex);
          m_ScoreBoard.LoadContent(m_HUDTex,m_ArialFontLarge);
 
          foreach (Game.Player p in m_Players)
@@ -565,6 +593,32 @@ namespace ProjectionMappingGame.StateMachine
           }
       }
 
+      public Texture2D TitleScreen
+      {
+          get
+          {
+              return m_TitlePage;
+          }
+      }
+
+
+      public int PlayersAlive
+      {
+          get
+          {
+              int a = 0;
+
+              foreach (Game.Player p in m_Players)
+              {
+                  if (p.State == Game.Player.States.PLAYING || p.State == Game.Player.States.PORTING)
+                  {
+                      a++;
+                  }
+              }
+
+              return a;
+          }
+      }
       #endregion
 
    }

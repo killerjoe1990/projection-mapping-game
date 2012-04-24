@@ -11,6 +11,11 @@ namespace ProjectionMappingGame.Game
 {
     public class Player : MoveableObject
     {
+        const float DPAD_SENSITIVITY = 0.4f;
+
+        const char MIN_CHAR = ' ';
+        const char MAX_CHAR = '`';
+
         public enum Bonus
         {
             NONE,
@@ -22,6 +27,7 @@ namespace ProjectionMappingGame.Game
         public enum States
         {
             DEAD,
+            NAME_CHANGE,
             SPAWNING,
             PLAYING,
             PORTING
@@ -36,10 +42,15 @@ namespace ProjectionMappingGame.Game
         }
 
         Animation[] m_Animations;
+        Texture2D[] m_OrigonalTextures;
         Vector2 m_Impulse;
         Vector2 m_CollisionImpulse;
         PlayerIndex m_Player;
         PlayerMenu m_PlayerHud;
+
+        char[] m_Name;
+        int m_CharIndex;
+        Vector2 m_LastDPad;
 
         StateMachine.GamePlayState m_Parent;
 
@@ -95,6 +106,11 @@ namespace ProjectionMappingGame.Game
 
         private void Initialize(PlayerIndex player, StateMachine.GamePlayState parent)
         {
+            m_LastDPad = Vector2.Zero;
+            m_Name = new char[] { 'P', 'L', 'R', ' ' };
+            m_Name[3] = ((int)player + 1).ToString().First();
+            m_CharIndex = 0;
+
             m_Parent = parent;
 
             m_Player = player;
@@ -107,7 +123,9 @@ namespace ProjectionMappingGame.Game
             m_CollisionImpulse = Vector2.Zero;
 
             m_Animations = new Animation[Enum.GetValues(typeof(Animations)).Length];
+            m_OrigonalTextures = new Texture2D[m_Animations.Length];
             m_Animations[(int)Animations.IDLE] = m_CurrentAnimation;
+            m_OrigonalTextures[(int)Animations.IDLE] = m_CurrentAnimation.Texture;
 
             m_OnGround = false;
 
@@ -120,7 +138,7 @@ namespace ProjectionMappingGame.Game
 
             m_ColorPicker = parent.Colors;
             m_PlayerColor = Color.Red;
-            SetColor(Color.Red);
+            //SetColor(Color.Red);
 
             m_SpeedMult = 1;
             m_SpeedTimer = 0;
@@ -163,13 +181,30 @@ namespace ProjectionMappingGame.Game
             //m_PlayerHud.WindowSize = lvl.WindowSize;
         }
 
-        public void SetColor(Color c)
+        public new void SetColor(Color c)
         {
-            foreach (Animation a in m_Animations)
+            for(int i = 0; i < m_Animations.Length; ++i)
             {
+                Animation a = m_Animations[i];
+                Texture2D t = m_OrigonalTextures[i];
                 if (a != null)
                 {
-                    a.SetColor(c);
+                    Texture2D tex = new Texture2D(m_Parent.Graphics, t.Width, t.Height);
+
+                    Color[] colors = new Color[t.Width * t.Height];
+                    t.GetData<Color>(colors);
+
+                    for(int j = 0; j < colors.Length; ++j)
+                    {
+                        if(colors[j].Equals(GameConstants.SWAP_COLOR))
+                        {
+                            colors[j] = c;
+                        }
+                    }
+
+                    tex.SetData<Color>(colors);
+
+                    a.Texture = tex;
                 }
             }
         }
@@ -200,12 +235,13 @@ namespace ProjectionMappingGame.Game
 
         public void AddAnimation(Animations type, Animation anim)
         {
+            m_OrigonalTextures[(int)type] = anim.Texture;
             m_Animations[(int)type] = anim;
         }
 
-        public void LoadHudContent(SpriteFont font, GraphicsDevice device, Texture2D background)
+        public void LoadHudContent(SpriteFont font, GraphicsDevice device, Texture2D background, Texture2D bestScore)
         {
-            m_PlayerHud.LoadContent(font,device,background);
+            m_PlayerHud.LoadContent(font,device,background, bestScore);
         }
 
         private void onKeyDown(object sender, Keys[] keys)
@@ -232,6 +268,8 @@ namespace ProjectionMappingGame.Game
                 case States.DEAD:
                     if (keys.Contains(Keys.Enter))
                     {
+                        m_PlayerHud.Reset();
+
                         m_Position.Y = GameConstants.START_Y;
                         m_Position.X = (m_WindowSize.X / 2.0f) + (((int)m_Player - GameConstants.MAX_PLAYERS / 2)) * (GameConstants.PLAYER_DIM_X + GameConstants.START_SPACING);
                         m_Bounds.X = (int)m_Position.X;
@@ -239,13 +277,14 @@ namespace ProjectionMappingGame.Game
 
                         m_PlayerColor = m_ColorPicker.TryColor(m_PlayerColor);
 
+                        SetColor(m_PlayerColor);
+
                         State = States.SPAWNING;
                     }
                     break;
                 case States.SPAWNING:
                     if (keys.Contains(Keys.Space))
                     {
-                        SetColor(m_PlayerColor);
                         State = States.PLAYING;
                     }
                     if (keys.Contains(Keys.A))
@@ -254,7 +293,7 @@ namespace ProjectionMappingGame.Game
                         m_PlayerColor = m_ColorPicker.GetLastColor(m_PlayerColor);
                         m_ColorPicker.ReturnColor(lastColor);
 
-                        m_Animations[(int)Animations.IDLE].SetColor(m_PlayerColor);
+                        SetColor(m_PlayerColor);
                     }
                     if (keys.Contains(Keys.D))
                     {
@@ -262,7 +301,7 @@ namespace ProjectionMappingGame.Game
                         m_PlayerColor = m_ColorPicker.GetNextColor(m_PlayerColor);
                         m_ColorPicker.ReturnColor(lastColor);
 
-                        m_Animations[(int)Animations.IDLE].SetColor(m_PlayerColor);
+                        SetColor(m_PlayerColor);
                     }
                     break;
             }
@@ -319,33 +358,93 @@ namespace ProjectionMappingGame.Game
                 case States.DEAD:
                     if (button.Equals(GUI.GamepadInput.Buttons.START))
                     {
+                        m_PlayerHud.Reset();
+
                         m_Position.Y = GameConstants.START_Y;
                         m_Position.X = (m_WindowSize.X / 2.0f) + (((int)m_Player - GameConstants.MAX_PLAYERS / 2)) * (GameConstants.PLAYER_DIM_X + GameConstants.START_SPACING);
                         m_Bounds.X = (int)m_Position.X;
                         m_Bounds.Y = (int)m_Position.Y;
 
                         m_PlayerColor = m_ColorPicker.TryColor(m_PlayerColor);
-
+                        SetColor(m_PlayerColor);
                         State = States.SPAWNING;
                     }
+                    if (button.Equals(GUI.GamepadInput.Buttons.SELECT))
+                    {
+                        m_PlayerHud.Reset();
+
+                        m_Position.Y = GameConstants.START_Y;
+                        m_Position.X = (m_WindowSize.X / 2.0f) + (((int)m_Player - GameConstants.MAX_PLAYERS / 2)) * (GameConstants.PLAYER_DIM_X + GameConstants.START_SPACING);
+                        m_Bounds.X = (int)m_Position.X;
+                        m_Bounds.Y = (int)m_Position.Y;
+
+                        m_PlayerColor = m_ColorPicker.TryColor(m_PlayerColor);
+                        SetColor(m_PlayerColor);
+
+                        m_CharIndex = 0;
+
+                        State = States.NAME_CHANGE;
+                    }
                     break;
+                case States.NAME_CHANGE:
+                        if (button.Equals(GUI.GamepadInput.Buttons.A))
+                        {
+                            State = States.SPAWNING;
+                        }
+                        if (button.Equals(GUI.GamepadInput.Buttons.D_UP))
+                        {
+                            m_Name[m_CharIndex]--;
+                            if (m_Name[m_CharIndex] < MIN_CHAR)
+                            {
+                                m_Name[m_CharIndex] = MAX_CHAR;
+                            }
+                        }
+                        if (button.Equals(GUI.GamepadInput.Buttons.D_DOWN))
+                        {
+                            m_Name[m_CharIndex]++;
+                            if (m_Name[m_CharIndex] > MAX_CHAR)
+                            {
+                                m_Name[m_CharIndex] = MIN_CHAR;
+                            }
+                        }
+                        if (button.Equals(GUI.GamepadInput.Buttons.LB))
+                        {
+                            m_CharIndex--;
+
+                            if (m_CharIndex < 0)
+                            {
+                                m_CharIndex = m_Name.Length - 1;
+                            }
+                        }
+                        if (button.Equals(GUI.GamepadInput.Buttons.RB))
+                        {
+                            m_CharIndex = (m_CharIndex + 1) % m_Name.Length;
+                        }
+                        break;
                 case States.SPAWNING:
                     if (button.Equals(GUI.GamepadInput.Buttons.A))
                     {
-                        SetColor(m_PlayerColor);
                         State = States.PLAYING;
                     }
                     if (button.Equals(GUI.GamepadInput.Buttons.LB))
                     {
                         Color lastColor = m_PlayerColor;
                         m_PlayerColor = m_ColorPicker.GetLastColor(m_PlayerColor);
+                        SetColor(m_PlayerColor);
                         m_ColorPicker.ReturnColor(lastColor);
                     }
                     if (button.Equals(GUI.GamepadInput.Buttons.RB))
                     {
                         Color lastColor = m_PlayerColor;
                         m_PlayerColor = m_ColorPicker.GetNextColor(m_PlayerColor);
+                        SetColor(m_PlayerColor);
                         m_ColorPicker.ReturnColor(lastColor);
+                    }
+                    if (button.Equals(GUI.GamepadInput.Buttons.SELECT))
+                    {
+                        m_CharIndex = 0;
+
+                        State = States.NAME_CHANGE;
                     }
                     break;
             }
@@ -358,17 +457,19 @@ namespace ProjectionMappingGame.Game
 
         private void onAxisChange(object sender, GUI.GamepadInput.Axis axis, float degree)
         {
-            if (State == States.PLAYING)
+            switch(State)
             {
-                if (axis.Equals(GUI.GamepadInput.Axis.LS_X))
-                {
-                    m_Move = degree;
-
-                    if (m_Animations[(int)Animations.RUN] != null && m_OnGround)
+                case States.PLAYING:
+                    if (axis.Equals(GUI.GamepadInput.Axis.LS_X))
                     {
-                        m_CurrentAnimation = m_Animations[(int)Animations.RUN];
+                        m_Move = degree;
+
+                        if (m_Animations[(int)Animations.RUN] != null && m_OnGround)
+                        {
+                            m_CurrentAnimation = m_Animations[(int)Animations.RUN];
+                        }
                     }
-                }
+                    break;  
             }
         }
 
@@ -411,7 +512,7 @@ namespace ProjectionMappingGame.Game
                         m_SpeedMult = 1;
                     }
 
-                    m_PlayerHud.Update(deltaTime);
+                    m_PlayerHud.Update(deltaTime, m_Parent.PlayersAlive);
 
                     m_Velocity += m_Impulse * deltaTime;
                     m_Velocity += m_CollisionImpulse * deltaTime;
@@ -714,7 +815,6 @@ namespace ProjectionMappingGame.Game
         {
             m_ColorPicker.ReturnColor(m_PlayerColor);
 
-            m_PlayerHud.Reset();
             m_Position = Vector2.Zero;
             m_Velocity = Vector2.Zero;
             State = States.DEAD;
@@ -728,7 +828,7 @@ namespace ProjectionMappingGame.Game
         {
             SpriteEffects effect = SpriteEffects.None;
 
-            if (m_Velocity.X > 0)
+            if (m_Velocity.X < 0)
             {
                 effect = SpriteEffects.FlipHorizontally;
             }
@@ -752,19 +852,24 @@ namespace ProjectionMappingGame.Game
                             break;
                         case Bonus.STUNNED:
                             float intensity = ((float)Math.Sin(10 * (double)m_StatusTimer) + 1.0f) / 2.0f;
-                            Color c1 = m_PlayerColor;
+                            Color c1 = Color.White;
                             c1 = Color.Multiply(c1, intensity);
                             c1.A = 255;
                             m_CurrentAnimation.SetColor(c1);
                             break;
                         case Bonus.NONE:
-                            m_CurrentAnimation.SetColor(m_PlayerColor);
+                            m_CurrentAnimation.SetColor(Color.White);
                             break;
                     }
 
                     m_CurrentAnimation.Draw(batch, m_Bounds, effect);
                     break;
                 case States.SPAWNING:
+                    m_Animations[(int)Animations.IDLE].SetColor(Color.White);
+                    m_Animations[(int)Animations.IDLE].Draw(batch, m_Bounds, effect);
+                    break;
+                case States.NAME_CHANGE:
+                    m_Animations[(int)Animations.IDLE].SetColor(Color.White);
                     m_Animations[(int)Animations.IDLE].Draw(batch, m_Bounds, effect);
                     break;
                 case States.PORTING:
@@ -774,21 +879,27 @@ namespace ProjectionMappingGame.Game
             }
         }
 
-        public void DrawHUD(SpriteBatch batch)
+        public Color PlayerColor
         {
-            switch (State)
+            get
             {
-                case States.PLAYING:
-                    m_PlayerHud.DrawWithNoCharSelection(batch, m_PlayerColor);
-                    break;
-                case States.SPAWNING:
-                    m_PlayerHud.DrawWithCharSelection(batch, m_PlayerColor);
-                    break;
-                case States.PORTING:
-                    m_PlayerHud.DrawWithNoCharSelection(batch, m_PlayerColor);
-                    break;
-                case States.DEAD:
-                    break;
+                return m_PlayerColor;
+            }
+        }
+
+        public string PlayerName
+        {
+            get
+            {
+                return new string(m_Name);
+            }
+        }
+
+        public int NameIndex
+        {
+            get
+            {
+                return m_CharIndex;
             }
         }
 

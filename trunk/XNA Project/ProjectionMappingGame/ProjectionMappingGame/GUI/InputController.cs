@@ -289,7 +289,11 @@ namespace ProjectionMappingGame.GUI
             RB,
             LB,
             START,
-            SELECT
+            SELECT,
+            D_UP,
+            D_LEFT,
+            D_RIGHT,
+            D_DOWN
         }
         public enum Axis
         {
@@ -297,8 +301,6 @@ namespace ProjectionMappingGame.GUI
             LS_Y,
             RS_X,
             RS_Y,
-            D_Y,
-            D_X,
             LT,
             RT
         }
@@ -360,7 +362,6 @@ namespace ProjectionMappingGame.GUI
 
             if (padState.IsConnected)
             {
-
                 #region Check LS Axis
 
                 if ((padState.ThumbSticks.Left.X >= AXIS_BUFFER || padState.ThumbSticks.Left.X <= -AXIS_BUFFER) && m_AxisChange[(int)player] != null)
@@ -727,6 +728,140 @@ namespace ProjectionMappingGame.GUI
                     }
                 }
                 #endregion
+
+                #region Check D_UP
+                if (padState.DPad.Up == ButtonState.Pressed)
+                {
+                    if (m_LastState[(int)player].DPad.Up == ButtonState.Pressed)
+                    {
+                        if (m_ButtonHold[(int)player] != null)
+                        {
+                            m_ButtonHold[(int)player](this, Buttons.D_UP);
+                            handled = true;
+                        }
+                    }
+                    else
+                    {
+                        if (m_ButtonDown[(int)player] != null)
+                        {
+                            m_ButtonDown[(int)player](this, Buttons.D_UP);
+                            handled = true;
+                        }
+                    }
+                }
+                else
+                {
+                    if (m_LastState[(int)player].DPad.Up == ButtonState.Pressed)
+                    {
+                        if (m_ButtonUp[(int)player] != null)
+                        {
+                            m_ButtonUp[(int)player](this, Buttons.D_UP);
+                            handled = true;
+                        }
+                    }
+                }
+                #endregion
+
+                #region Check D_LEFT
+                if (padState.DPad.Left == ButtonState.Pressed)
+                {
+                    if (m_LastState[(int)player].DPad.Left == ButtonState.Pressed)
+                    {
+                        if (m_ButtonHold[(int)player] != null)
+                        {
+                            m_ButtonHold[(int)player](this, Buttons.D_LEFT);
+                            handled = true;
+                        }
+                    }
+                    else
+                    {
+                        if (m_ButtonDown[(int)player] != null)
+                        {
+                            m_ButtonDown[(int)player](this, Buttons.D_LEFT);
+                            handled = true;
+                        }
+                    }
+                }
+                else
+                {
+                    if (m_LastState[(int)player].DPad.Left == ButtonState.Pressed)
+                    {
+                        if (m_ButtonUp[(int)player] != null)
+                        {
+                            m_ButtonUp[(int)player](this, Buttons.D_LEFT);
+                            handled = true;
+                        }
+                    }
+                }
+                #endregion
+
+                #region Check D_RIGHT
+                if (padState.DPad.Right == ButtonState.Pressed)
+                {
+                    if (m_LastState[(int)player].DPad.Right == ButtonState.Pressed)
+                    {
+                        if (m_ButtonHold[(int)player] != null)
+                        {
+                            m_ButtonHold[(int)player](this, Buttons.D_RIGHT);
+                            handled = true;
+                        }
+                    }
+                    else
+                    {
+                        if (m_ButtonDown[(int)player] != null)
+                        {
+                            m_ButtonDown[(int)player](this, Buttons.D_RIGHT);
+                            handled = true;
+                        }
+                    }
+                }
+                else
+                {
+                    if (m_LastState[(int)player].DPad.Right == ButtonState.Pressed)
+                    {
+                        if (m_ButtonUp[(int)player] != null)
+                        {
+                            m_ButtonUp[(int)player](this, Buttons.D_RIGHT);
+                            handled = true;
+                        }
+                    }
+                }
+                #endregion
+
+                #region Check D_DOWN
+                if (padState.DPad.Down == ButtonState.Pressed)
+                {
+                    if (m_LastState[(int)player].DPad.Down == ButtonState.Pressed)
+                    {
+                        if (m_ButtonHold[(int)player] != null)
+                        {
+                            m_ButtonHold[(int)player](this, Buttons.D_DOWN);
+                            handled = true;
+                        }
+                    }
+                    else
+                    {
+                        if (m_ButtonDown[(int)player] != null)
+                        {
+                            m_ButtonDown[(int)player](this, Buttons.D_DOWN);
+                            handled = true;
+                        }
+                    }
+                }
+                else
+                {
+                    if (m_LastState[(int)player].DPad.Down == ButtonState.Pressed)
+                    {
+                        if (m_ButtonUp[(int)player] != null)
+                        {
+                            m_ButtonUp[(int)player](this, Buttons.D_DOWN);
+                            handled = true;
+                        }
+                    }
+                }
+                #endregion
+
+                
 
                 m_LastState[(int)player] = padState;
 

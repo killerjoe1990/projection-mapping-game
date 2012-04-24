@@ -13,7 +13,6 @@ namespace ProjectionMappingGame.Game
 {
     public class Level
     {
-
         RenderTarget2D m_PlatformShadowTarget;
         RenderTarget2D m_PlayerShadowTarget;
         Vector2 m_ShadowOffset;
@@ -28,6 +27,11 @@ namespace ProjectionMappingGame.Game
         bool m_ChangeTheme;
         float m_ThemeTimerLast;
         float m_ThemeTimer;
+
+        float m_TitleFade;
+        Texture2D m_TitlePage;
+        Rectangle m_TitleRect;
+        bool m_ShowTitle;
 
         //Parent
         StateMachine.GamePlayState m_GameState;
@@ -87,6 +91,11 @@ namespace ProjectionMappingGame.Game
             SwapTheme();
             m_ThemeTimer = m_ThemeTimerLast = 0;
 
+            m_ShowTitle = false;
+            m_TitleFade = 0;
+            m_TitleRect = new Rectangle((int)(width * 0.25f), (int)(height * 0.25f), (int)(width * 0.5f), (int)(height * 0.5f));
+
+            m_TitlePage = m_GameState.TitleScreen;
             // DEBUG
             //m_ShadowOffset = new Vector2(-10, -10);
 
@@ -105,6 +114,15 @@ namespace ProjectionMappingGame.Game
             {
                 m_ThemeTimerLast = m_ThemeTimer;
                 m_ThemeTimer += elapsedTime;
+            }
+
+            if (m_ShowTitle)
+            {
+                m_TitleFade += (elapsedTime / GameConstants.TITLE_FADE);
+            }
+            else
+            {
+                m_TitleFade -= (elapsedTime / GameConstants.TITLE_FADE);
             }
 
             // Update any logic here
@@ -318,13 +336,13 @@ namespace ProjectionMappingGame.Game
 
 
             // HUD goes BEHIND every player.
-           /* foreach (Player player in m_Players)
-            {
-                if (player != null)
-                {
-                    player.DrawHUD(spriteBatch);
-                }
-            }*/
+            /* foreach (Player player in m_Players)
+             {
+                 if (player != null)
+                 {
+                     player.DrawHUD(spriteBatch);
+                 }
+             }*/
 
             // Players should ALWAYS be on top.
             foreach (Player player in m_Players)
@@ -334,6 +352,12 @@ namespace ProjectionMappingGame.Game
                     player.Draw(spriteBatch);
                 }
             }
+
+            // Title screen if nobody is playing
+            Color titleColor = Color.White;
+            m_TitleFade = MathHelper.Clamp(m_TitleFade, 0, 1);
+            titleColor.A = (byte)(255 * m_TitleFade);
+            spriteBatch.Draw(m_TitlePage, m_TitleRect, titleColor);
 
             spriteBatch.End();
         }
@@ -413,6 +437,11 @@ namespace ProjectionMappingGame.Game
                     c.Velocity = vel;
                 }
             }
+        }
+
+        public void ShowTitle(bool show)
+        {
+            m_ShowTitle = show;
         }
 
         public void AddPortal(int dest, Texture2D image, Color c)
