@@ -54,6 +54,18 @@ namespace ProjectionMappingGame.Game
             m_Repeat = repeat;
         }
 
+        public Texture2D Texture
+        {
+            get
+            {
+                return m_Frames;
+            }
+            set
+            {
+                m_Frames = value;
+            }
+        }
+
         public void RegisterAnimationEnd(EventHandler handler)
         {
             m_AnimationEnd += handler;

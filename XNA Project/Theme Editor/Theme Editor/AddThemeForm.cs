@@ -608,17 +608,23 @@ namespace Theme_Editor
             try
             {
 
+                pic_Background.Image = null;
+                pic_Background.Update();
+
                 XElement root = new XElement("Theme",
                     new XAttribute("Name", name),
                     new XElement("Background",
                         new XAttribute("Rate", m_BackgroundRate)));
 
+                string tempName = name;
+                bool overrideTheme = false;
 
                 if (System.IO.Directory.Exists("Themes\\" + name))
                 {
                     if (MessageBox.Show("Theme name already exists. Override Theme?", "Save", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes)
                     {
-                        System.IO.Directory.Delete("Themes\\" + name, true);
+                        overrideTheme = true;
+                        name = "XX" + name + "XX";
                     }
                     else
                     {
@@ -632,7 +638,7 @@ namespace Theme_Editor
                 {
                     string file = (string)lst_Backgrounds.Items[i];
                     string extension = Regex.Match(file, @"\.\w{3}").ToString();
-                    System.IO.File.Copy(file, "Themes\\" + name + "\\Background\\" + name + "Background" + i + extension);
+                    System.IO.File.Copy(file, "Themes\\" + name + "\\Background\\" + tempName + "Background" + i + extension, true);
                 }
 
                 System.IO.Directory.CreateDirectory("Themes\\" + name + "\\Platforms");
@@ -645,11 +651,11 @@ namespace Theme_Editor
 
                     if (element.Value.Blinking)
                     {
-                        SavePlatforms(element, name, 0);
+                        SavePlatforms(element, "Themes\\" + name, tempName, 0);
                     }
                     else
                     {
-                        SavePlatforms(element, name, platNumber);
+                        SavePlatforms(element, "Themes\\" + name, tempName, platNumber);
                         platNumber++;
                     }
                 }
@@ -668,7 +674,7 @@ namespace Theme_Editor
                     KeyValuePair<string, SpriteValues> element = m_MSprites.ElementAt(i);
                     string file = element.Key;
                     string extension = Regex.Match(file, @"\.\w{3}").ToString();
-                    System.IO.File.Copy(file, "Themes\\" + name + "\\MovingSprites\\" + name + "Sprite" + i + extension);
+                    System.IO.File.Copy(file, "Themes\\" + name + "\\MovingSprites\\" + tempName + "Sprite" + i + extension, true);
 
                     msprite.Add(new XElement("Sprite",
                         new XAttribute("Frames", element.Value.Frames),
@@ -690,7 +696,7 @@ namespace Theme_Editor
                     KeyValuePair<string, SpriteValues> element = m_SSprites.ElementAt(i);
                     string file = element.Key;
                     string extension = Regex.Match(file, @"\.\w{3}").ToString();
-                    System.IO.File.Copy(file, "Themes\\" + name + "\\StaticSprites\\" + name + "Sprite" + i + extension);
+                    System.IO.File.Copy(file, "Themes\\" + name + "\\StaticSprites\\" + tempName + "Sprite" + i + extension, true);
 
                     ssprite.Add(new XElement("Sprite",
                         new XAttribute("Frames", element.Value.Frames),
@@ -701,6 +707,13 @@ namespace Theme_Editor
 
                 root.Save("Themes\\" + name + "\\ThemeConfig.xml");
 
+                if (overrideTheme)
+                {
+                    System.IO.Directory.Delete("Themes\\" + tempName, true);
+                    System.IO.Directory.Move("Themes\\" + name, "Themes\\" + tempName);
+
+                    LoadTheme("Themes\\" + tempName);
+                }
             }
             catch (Exception e)
             {
@@ -711,9 +724,9 @@ namespace Theme_Editor
             return error;
         }
 
-        private void SavePlatforms(KeyValuePair<string, PlatformValues> element, string name, int index)
+        private void SavePlatforms(KeyValuePair<string, PlatformValues> element, string root, string name, int index)
         {
-            System.IO.Directory.CreateDirectory("Themes\\" + name + "\\Platforms\\" + index);
+            System.IO.Directory.CreateDirectory(root + "\\Platforms\\" + index);
 
             int platIndex = 0;
 
@@ -721,21 +734,21 @@ namespace Theme_Editor
             {
                 string file = element.Value.LeftImage;
                 string extension = Regex.Match(file, @"\.\w{3}").ToString();
-                System.IO.File.Copy(file, "Themes\\" + name + "\\Platforms\\" + index + "\\" + name + "Platform" + platIndex + extension);
+                System.IO.File.Copy(file, root + "\\Platforms\\" + index + "\\" + name + "Platform" + platIndex + extension, true);
                 platIndex++;
             }
             foreach (string s in element.Value.CenterImages)
             {
                 string file = s;
                 string extension = Regex.Match(file, @"\.\w{3}").ToString();
-                System.IO.File.Copy(file, "Themes\\" + name + "\\Platforms\\" + index + "\\" + name + "Platform" + platIndex + extension);
+                System.IO.File.Copy(file, root + "\\Platforms\\" + index + "\\" + name + "Platform" + platIndex + extension, true);
                 platIndex++;
             }
             if (element.Value.RightImage != null)
             {
                 string file = element.Value.RightImage;
                 string extension = Regex.Match(file, @"\.\w{3}").ToString();
-                System.IO.File.Copy(file, "Themes\\" + name + "\\Platforms\\" + index + "\\" + name + "Platform" + platIndex + extension);
+                System.IO.File.Copy(file, root + "\\Platforms\\" + index + "\\" + name + "Platform" + platIndex + extension, true);
             }
         }
 
@@ -754,103 +767,109 @@ namespace Theme_Editor
             {
                 if (System.IO.File.Exists(fldr_Directories.SelectedPath + "\\ThemeConfig.xml"))
                 {
-                    XmlDocument config = new XmlDocument();
-                    config.Load(fldr_Directories.SelectedPath + "\\ThemeConfig.xml");
-
-                    string[] files = System.IO.Directory.GetFiles(fldr_Directories.SelectedPath + "\\Background");
-
-                    lst_Backgrounds.Items.Clear();
-                    lst_Backgrounds.Items.AddRange(files);
-
-                    num_BackgroundRate.Value = decimal.Parse(config.SelectSingleNode("Theme/Background").Attributes["Rate"].Value);
-
-                    files = System.IO.Directory.GetFiles(fldr_Directories.SelectedPath + "\\MovingSprites");
-
-                    lst_MovingSprites.Items.Clear();
-                    lst_MovingSprites.Items.AddRange(files);
-                    XmlNode nodes = config.SelectSingleNode("Theme/MovingSprites");
-                    num_MSpriteMinSize.Value = decimal.Parse(nodes.Attributes["MinSize"].Value);
-                    num_MSpriteSizeRange.Value = decimal.Parse(nodes.Attributes["MaxSize"].Value) - num_MSpriteMinSize.Value;
-                    num_MSpriteNumber.Value = decimal.Parse(nodes.Attributes["Number"].Value);
-                    num_MSpriteMinSpeed.Value = decimal.Parse(nodes.Attributes["MinSpeed"].Value);
-                    num_MSpriteSpeedRange.Value = decimal.Parse(nodes.Attributes["MaxSpeed"].Value) - num_MSpriteMinSpeed.Value;
-                    m_MSprites.Clear();
-                    for(int i = 0; i < files.Length; ++i)
-                    {
-                        SpriteValues sv = new SpriteValues();
-
-                        sv.Frames = Int32.Parse(nodes.ChildNodes[i].Attributes["Frames"].Value);
-                        sv.Rate = float.Parse(nodes.ChildNodes[i].Attributes["Rate"].Value);
-
-                        m_MSprites.Add(files[i], sv);
-                    }
-
-                    files = System.IO.Directory.GetFiles(fldr_Directories.SelectedPath + "\\StaticSprites");
-
-                    lst_StaticSprites.Items.Clear();
-                    lst_StaticSprites.Items.AddRange(files);
-                    nodes = config.SelectSingleNode("Theme/StaticSprites");
-                    num_SSpriteMinSize.Value = decimal.Parse(nodes.Attributes["MinSize"].Value);
-                    num_SSpriteSizeRange.Value = decimal.Parse(nodes.Attributes["MaxSize"].Value) - num_SSpriteMinSize.Value;
-                    num_SSpriteMinTime.Value = decimal.Parse(nodes.Attributes["MinTime"].Value);
-                    num_SSpriteTimeRange.Value = decimal.Parse(nodes.Attributes["MaxTime"].Value) - num_SSpriteMinTime.Value;
-                    m_SSprites.Clear();
-                    for(int i = 0; i < files.Length; ++i)
-                    {
-                        SpriteValues sv = new SpriteValues();
-
-                        sv.Frames = Int32.Parse(nodes.ChildNodes[i].Attributes["Frames"].Value);
-                        sv.Rate = float.Parse(nodes.ChildNodes[i].Attributes["Rate"].Value);
-
-                        m_SSprites.Add(files[i], sv);
-                    }
-
-                    string[] directories = System.IO.Directory.GetDirectories(fldr_Directories.SelectedPath + "\\Platforms");
-
-                    files = System.IO.Directory.GetFiles(directories[0]);
-                    PlatformValues pv = new PlatformValues();
-                    pv.Blinking = true;
-                    pv.LeftImage = files[0];
-                    pv.CenterImages = new List<string>();
-                    if (files.Length > 1)
-                    {
-                        for (int i = 1; i < files.Length - 1; ++i)
-                        {
-                            pv.CenterImages.Add(files[i]);
-                        }
-                        pv.RightImage = files[files.Length - 1];
-                    }
-                    m_Plats.Add("Platform0", pv);
-                    lst_Platforms.Items.Add("Platform0");
-
-                    for (int i = 1; i < directories.Length; ++i)
-                    {
-                        files = System.IO.Directory.GetFiles(directories[1]);
-
-                        pv = new PlatformValues();
-                        pv.Blinking = false;
-                        pv.LeftImage = files[0];
-                        pv.CenterImages = new List<string>();
-
-                        if (files.Length > 1)
-                        {
-                            for (int j = 1; j < files.Length - 1; ++j)
-                            {
-                                pv.CenterImages.Add(files[j]);
-                            }
-                            pv.RightImage = files[files.Length - 1];
-                        }
-                        m_Plats.Add("Platform" + i, pv);
-                        lst_Platforms.Items.Add("Platform" + i);
-                    }
-
-                    m_PlatNumber = directories.Length;
+                    LoadTheme(fldr_Directories.SelectedPath);
                 }
                 else
                 {
                     MessageBox.Show("No Theme Detected", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+        }
+
+        private void LoadTheme(string path)
+        {
+            XmlDocument config = new XmlDocument();
+            config.Load(path + "\\ThemeConfig.xml");
+
+            string[] files = System.IO.Directory.GetFiles(path + "\\Background");
+
+            lst_Backgrounds.Items.Clear();
+            lst_Backgrounds.Items.AddRange(files);
+
+            num_BackgroundRate.Value = decimal.Parse(config.SelectSingleNode("Theme/Background").Attributes["Rate"].Value);
+
+            files = System.IO.Directory.GetFiles(path + "\\MovingSprites");
+
+            lst_MovingSprites.Items.Clear();
+            lst_MovingSprites.Items.AddRange(files);
+            XmlNode nodes = config.SelectSingleNode("Theme/MovingSprites");
+            num_MSpriteMinSize.Value = decimal.Parse(nodes.Attributes["MinSize"].Value);
+            num_MSpriteSizeRange.Value = decimal.Parse(nodes.Attributes["MaxSize"].Value) - num_MSpriteMinSize.Value;
+            num_MSpriteNumber.Value = decimal.Parse(nodes.Attributes["Number"].Value);
+            num_MSpriteMinSpeed.Value = decimal.Parse(nodes.Attributes["MinSpeed"].Value);
+            num_MSpriteSpeedRange.Value = decimal.Parse(nodes.Attributes["MaxSpeed"].Value) - num_MSpriteMinSpeed.Value;
+            m_MSprites.Clear();
+            for (int i = 0; i < files.Length; ++i)
+            {
+                SpriteValues sv = new SpriteValues();
+
+                sv.Frames = Int32.Parse(nodes.ChildNodes[i].Attributes["Frames"].Value);
+                sv.Rate = float.Parse(nodes.ChildNodes[i].Attributes["Rate"].Value);
+
+                m_MSprites.Add(files[i], sv);
+            }
+
+            files = System.IO.Directory.GetFiles(path + "\\StaticSprites");
+
+            lst_StaticSprites.Items.Clear();
+            lst_StaticSprites.Items.AddRange(files);
+            nodes = config.SelectSingleNode("Theme/StaticSprites");
+            num_SSpriteMinSize.Value = decimal.Parse(nodes.Attributes["MinSize"].Value);
+            num_SSpriteSizeRange.Value = decimal.Parse(nodes.Attributes["MaxSize"].Value) - num_SSpriteMinSize.Value;
+            num_SSpriteMinTime.Value = decimal.Parse(nodes.Attributes["MinTime"].Value);
+            num_SSpriteTimeRange.Value = decimal.Parse(nodes.Attributes["MaxTime"].Value) - num_SSpriteMinTime.Value;
+            m_SSprites.Clear();
+            for (int i = 0; i < files.Length; ++i)
+            {
+                SpriteValues sv = new SpriteValues();
+
+                sv.Frames = Int32.Parse(nodes.ChildNodes[i].Attributes["Frames"].Value);
+                sv.Rate = float.Parse(nodes.ChildNodes[i].Attributes["Rate"].Value);
+
+                m_SSprites.Add(files[i], sv);
+            }
+
+            string[] directories = System.IO.Directory.GetDirectories(path + "\\Platforms");
+
+            files = System.IO.Directory.GetFiles(directories[0]);
+            m_Plats.Clear();
+            PlatformValues pv = new PlatformValues();
+            pv.Blinking = true;
+            pv.LeftImage = files[0];
+            pv.CenterImages = new List<string>();
+            if (files.Length > 1)
+            {
+                for (int i = 1; i < files.Length - 1; ++i)
+                {
+                    pv.CenterImages.Add(files[i]);
+                }
+                pv.RightImage = files[files.Length - 1];
+            }
+            m_Plats.Add("Platform0", pv);
+            lst_Platforms.Items.Add("Platform0");
+
+            for (int i = 1; i < directories.Length; ++i)
+            {
+                files = System.IO.Directory.GetFiles(directories[1]);
+
+                pv = new PlatformValues();
+                pv.Blinking = false;
+                pv.LeftImage = files[0];
+                pv.CenterImages = new List<string>();
+
+                if (files.Length > 1)
+                {
+                    for (int j = 1; j < files.Length - 1; ++j)
+                    {
+                        pv.CenterImages.Add(files[j]);
+                    }
+                    pv.RightImage = files[files.Length - 1];
+                }
+                m_Plats.Add("Platform" + i, pv);
+                lst_Platforms.Items.Add("Platform" + i);
+            }
+
+            m_PlatNumber = directories.Length;
         }
     }
 

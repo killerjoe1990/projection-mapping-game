@@ -83,6 +83,8 @@ namespace ProjectionMappingGame
       public const float PORT_AGAIN_DELAY = 3.0f;
 
        //Game
+      public static Color SWAP_COLOR = new Color(142, 243, 34);
+
       public const int MAX_PLAYERS = 4;
       public const int PLAYER_DIM_X = 48;
       public const int PLAYER_DIM_Y = 48;
@@ -90,7 +92,8 @@ namespace ProjectionMappingGame
       public const float MOVE_SPEED = 12300;
       public const float BOUNCE_IMPULSE_UP = -25000;
       public const float BOUNCE_IMPULSE_DOWN = 0;
-      public const int POINTS_FOR_KILL = 20;
+      public const float POINTS_FOR_KILL = 0.2f;
+      public const int BONUS_POINTS = 10;
       public const int POINTS_PER_INTERVAL = 1;
       public const float POINT_INTERVAL = 1;
 
@@ -146,6 +149,8 @@ namespace ProjectionMappingGame
 
       public const float CHANGE_THEME_MIN = 10;
       public const float CHANGE_THEME_MAX = 20;
+
+      public const float TITLE_FADE = 2.0f;
 
        // random
       public static Random RANDOM = new Random();

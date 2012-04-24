@@ -19,6 +19,8 @@ namespace ProjectionMappingGame.Game
         SpriteFont m_ArialFont;
 
         int m_MaxScore;
+        string m_HighScoreName;
+        Color m_HighScoreColor;
 
         public ScoreBoard(GameDriver gameDriver,int x,int y,int w, int h)
         {
@@ -27,6 +29,7 @@ namespace ProjectionMappingGame.Game
             this.m_Viewport = new Viewport(x, y, w, h);
 
             m_MaxScore = 0;
+            m_HighScoreName = "";
 
             // Initialize render target
             m_RenderTarget = new RenderTarget2D(m_Game.GraphicsDevice, w, h, true, m_Game.GraphicsDevice.DisplayMode.Format, DepthFormat.Depth24);
@@ -46,6 +49,8 @@ namespace ProjectionMappingGame.Game
                     if (players[i].HUD.PlayerScore > m_MaxScore)
                     {
                         m_MaxScore = players[i].HUD.PlayerScore;
+                        m_HighScoreName = players[i].PlayerName;
+                        m_HighScoreColor = players[i].PlayerColor;
                     }
                 }
             }
@@ -86,9 +91,19 @@ namespace ProjectionMappingGame.Game
         {
             spriteBatch.Begin();
 
+            int max = -1;
+
             for (int i = 0; i < players.Length; ++i)
             {
-                players[i].HUD.Draw(spriteBatch, players[i].Animation.getColor(), players[i].State);
+                if (players[i].State == Player.States.PLAYING && players[i].HUD.PlayerScore > max)
+                {
+                    max = players[i].HUD.PlayerScore;
+                }
+            }
+
+            for (int i = 0; i < players.Length; ++i)
+            {
+                players[i].HUD.Draw(spriteBatch, players[i].PlayerColor, players[i].State, players[i].PlayerName, players[i].NameIndex, (players[i].HUD.PlayerScore >= max));
             }
 
             Rectangle background = ScreenRect(0.0f, 0.75f, 1.0f, 0.25f);
@@ -96,13 +111,17 @@ namespace ProjectionMappingGame.Game
             //string strTimeSec = String.Format("{0:00}", bestPlayerTimeInSeconds);
             //string time = bestPlayerTimeInMinutes + ":" + strTimeSec;
             string scoreString = "Best Score " + m_MaxScore;
+            Vector2 scoreDim = m_ArialFont.MeasureString(scoreString);
             spriteBatch.Draw(m_BestTimeBackground, background, Color.White);
             spriteBatch.DrawString(m_ArialFont, scoreString, TransformVec(BEST_TIME_POSITION, dim) + new Vector2(-m_ArialFont.MeasureString(scoreString).Length() / 2, 0.0f), GameConstants.HUD_COLOR);
-
+            spriteBatch.DrawString(m_ArialFont, m_HighScoreName, TransformVec(HIGHSCORE_NAME_POSITION, dim) + new Vector2(scoreDim.Y + 10, 0) + new Vector2(-(m_ArialFont.MeasureString(m_HighScoreName).Length() + scoreDim.Y) / 2, 0.0f), GameConstants.HUD_COLOR);
+            spriteBatch.Draw(GameConstants.WHITE_TEXTURE, new Rectangle((int)(TransformVec(HIGHSCORE_NAME_POSITION, dim) + new Vector2(-(m_ArialFont.MeasureString(m_HighScoreName).Length() + scoreDim.Y) / 2, 0.0f)).X, (int)TransformVec(HIGHSCORE_NAME_POSITION, dim).Y, (int)scoreDim.Y, (int)scoreDim.Y), m_HighScoreColor);
             spriteBatch.End();
         }
 
         Vector2 BEST_TIME_POSITION = new Vector2(0.5f, 0.8f);
+        Vector2 HIGHSCORE_NAME_POSITION = new Vector2(0.5f, 0.9f);
+
 
         #region Public Access TV
 
