@@ -97,11 +97,16 @@
             this.num_SSpriteMinTime = new System.Windows.Forms.NumericUpDown();
             this.num_SSpriteSizeRange = new System.Windows.Forms.NumericUpDown();
             this.num_SSpriteMinSize = new System.Windows.Forms.NumericUpDown();
-            this.btn_Save = new System.Windows.Forms.Button();
-            this.btn_Preview = new System.Windows.Forms.Button();
             this.file_Open = new System.Windows.Forms.OpenFileDialog();
-            this.btn_Load = new System.Windows.Forms.Button();
             this.fldr_Directories = new System.Windows.Forms.FolderBrowserDialog();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.previewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.loadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.label17 = new System.Windows.Forms.Label();
             this.tab_Components.SuspendLayout();
             this.tab_Background.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.num_BackgroundRate)).BeginInit();
@@ -127,6 +132,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.num_SSpriteMinTime)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_SSpriteSizeRange)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_SSpriteMinSize)).BeginInit();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // tab_Components
@@ -135,10 +141,10 @@
             this.tab_Components.Controls.Add(this.tab_Platforms);
             this.tab_Components.Controls.Add(this.tab_MoveSprites);
             this.tab_Components.Controls.Add(this.tab_StaticSprites);
-            this.tab_Components.Location = new System.Drawing.Point(41, 35);
+            this.tab_Components.Location = new System.Drawing.Point(0, 25);
             this.tab_Components.Name = "tab_Components";
             this.tab_Components.SelectedIndex = 0;
-            this.tab_Components.Size = new System.Drawing.Size(1084, 575);
+            this.tab_Components.Size = new System.Drawing.Size(1170, 632);
             this.tab_Components.TabIndex = 0;
             // 
             // tab_Background
@@ -154,7 +160,7 @@
             this.tab_Background.Location = new System.Drawing.Point(4, 22);
             this.tab_Background.Name = "tab_Background";
             this.tab_Background.Padding = new System.Windows.Forms.Padding(3);
-            this.tab_Background.Size = new System.Drawing.Size(1076, 549);
+            this.tab_Background.Size = new System.Drawing.Size(1162, 606);
             this.tab_Background.TabIndex = 0;
             this.tab_Background.Text = "Background";
             this.tab_Background.UseVisualStyleBackColor = true;
@@ -271,7 +277,7 @@
             this.tab_Platforms.Location = new System.Drawing.Point(4, 22);
             this.tab_Platforms.Name = "tab_Platforms";
             this.tab_Platforms.Padding = new System.Windows.Forms.Padding(3);
-            this.tab_Platforms.Size = new System.Drawing.Size(1076, 549);
+            this.tab_Platforms.Size = new System.Drawing.Size(1162, 606);
             this.tab_Platforms.TabIndex = 1;
             this.tab_Platforms.Text = "Platforms";
             this.tab_Platforms.UseVisualStyleBackColor = true;
@@ -469,6 +475,8 @@
             // 
             // tab_MoveSprites
             // 
+            this.tab_MoveSprites.BackColor = System.Drawing.Color.LightGray;
+            this.tab_MoveSprites.Controls.Add(this.label17);
             this.tab_MoveSprites.Controls.Add(this.btn_MSpriteRemove);
             this.tab_MoveSprites.Controls.Add(this.btn_MSpriteAdd);
             this.tab_MoveSprites.Controls.Add(this.label13);
@@ -490,14 +498,13 @@
             this.tab_MoveSprites.Controls.Add(this.num_MSpriteMinSize);
             this.tab_MoveSprites.Location = new System.Drawing.Point(4, 22);
             this.tab_MoveSprites.Name = "tab_MoveSprites";
-            this.tab_MoveSprites.Size = new System.Drawing.Size(1076, 549);
+            this.tab_MoveSprites.Size = new System.Drawing.Size(1162, 606);
             this.tab_MoveSprites.TabIndex = 2;
             this.tab_MoveSprites.Text = "Moving Sprites";
-            this.tab_MoveSprites.UseVisualStyleBackColor = true;
             // 
             // btn_MSpriteRemove
             // 
-            this.btn_MSpriteRemove.Location = new System.Drawing.Point(297, 467);
+            this.btn_MSpriteRemove.Location = new System.Drawing.Point(359, 429);
             this.btn_MSpriteRemove.Name = "btn_MSpriteRemove";
             this.btn_MSpriteRemove.Size = new System.Drawing.Size(75, 23);
             this.btn_MSpriteRemove.TabIndex = 18;
@@ -507,7 +514,7 @@
             // 
             // btn_MSpriteAdd
             // 
-            this.btn_MSpriteAdd.Location = new System.Drawing.Point(199, 467);
+            this.btn_MSpriteAdd.Location = new System.Drawing.Point(209, 429);
             this.btn_MSpriteAdd.Name = "btn_MSpriteAdd";
             this.btn_MSpriteAdd.Size = new System.Drawing.Size(75, 23);
             this.btn_MSpriteAdd.TabIndex = 17;
@@ -518,7 +525,7 @@
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(248, 38);
+            this.label13.Location = new System.Drawing.Point(206, 9);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(39, 13);
             this.label13.TabIndex = 16;
@@ -527,7 +534,7 @@
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(407, 237);
+            this.label12.Location = new System.Drawing.Point(441, 57);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(100, 13);
             this.label12.TabIndex = 15;
@@ -536,7 +543,7 @@
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(407, 174);
+            this.label11.Location = new System.Drawing.Point(441, 31);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(93, 13);
             this.label11.TabIndex = 14;
@@ -545,7 +552,7 @@
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(21, 356);
+            this.label10.Location = new System.Drawing.Point(18, 135);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(95, 13);
             this.label10.TabIndex = 13;
@@ -554,7 +561,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(24, 281);
+            this.label9.Location = new System.Drawing.Point(18, 109);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(82, 13);
             this.label9.TabIndex = 12;
@@ -563,7 +570,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(21, 206);
+            this.label8.Location = new System.Drawing.Point(18, 83);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(82, 13);
             this.label8.TabIndex = 11;
@@ -572,7 +579,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(21, 132);
+            this.label7.Location = new System.Drawing.Point(18, 57);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(71, 13);
             this.label7.TabIndex = 10;
@@ -581,7 +588,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(21, 69);
+            this.label6.Location = new System.Drawing.Point(18, 31);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(71, 13);
             this.label6.TabIndex = 9;
@@ -589,23 +596,23 @@
             // 
             // num_MSpriteNumber
             // 
-            this.num_MSpriteNumber.Location = new System.Drawing.Point(21, 375);
+            this.num_MSpriteNumber.Location = new System.Drawing.Point(119, 133);
             this.num_MSpriteNumber.Name = "num_MSpriteNumber";
-            this.num_MSpriteNumber.Size = new System.Drawing.Size(120, 20);
+            this.num_MSpriteNumber.Size = new System.Drawing.Size(64, 20);
             this.num_MSpriteNumber.TabIndex = 8;
             this.num_MSpriteNumber.ValueChanged += new System.EventHandler(this.num_MSpriteNumber_ValueChanged);
             // 
             // num_MSpriteRate
             // 
             this.num_MSpriteRate.DecimalPlaces = 2;
-            this.num_MSpriteRate.Location = new System.Drawing.Point(407, 253);
+            this.num_MSpriteRate.Location = new System.Drawing.Point(546, 55);
             this.num_MSpriteRate.Minimum = new decimal(new int[] {
             1,
             0,
             0,
             131072});
             this.num_MSpriteRate.Name = "num_MSpriteRate";
-            this.num_MSpriteRate.Size = new System.Drawing.Size(120, 20);
+            this.num_MSpriteRate.Size = new System.Drawing.Size(64, 20);
             this.num_MSpriteRate.TabIndex = 7;
             this.num_MSpriteRate.Value = new decimal(new int[] {
             1,
@@ -616,14 +623,14 @@
             // 
             // num_MSpriteFrames
             // 
-            this.num_MSpriteFrames.Location = new System.Drawing.Point(407, 200);
+            this.num_MSpriteFrames.Location = new System.Drawing.Point(546, 29);
             this.num_MSpriteFrames.Minimum = new decimal(new int[] {
             1,
             0,
             0,
             0});
             this.num_MSpriteFrames.Name = "num_MSpriteFrames";
-            this.num_MSpriteFrames.Size = new System.Drawing.Size(120, 20);
+            this.num_MSpriteFrames.Size = new System.Drawing.Size(64, 20);
             this.num_MSpriteFrames.TabIndex = 6;
             this.num_MSpriteFrames.Value = new decimal(new int[] {
             1,
@@ -634,9 +641,9 @@
             // 
             // pic_MovingSprite
             // 
-            this.pic_MovingSprite.Location = new System.Drawing.Point(540, 37);
+            this.pic_MovingSprite.Location = new System.Drawing.Point(616, 29);
             this.pic_MovingSprite.Name = "pic_MovingSprite";
-            this.pic_MovingSprite.Size = new System.Drawing.Size(514, 462);
+            this.pic_MovingSprite.Size = new System.Drawing.Size(400, 400);
             this.pic_MovingSprite.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pic_MovingSprite.TabIndex = 5;
             this.pic_MovingSprite.TabStop = false;
@@ -644,7 +651,7 @@
             // lst_MovingSprites
             // 
             this.lst_MovingSprites.FormattingEnabled = true;
-            this.lst_MovingSprites.Location = new System.Drawing.Point(176, 57);
+            this.lst_MovingSprites.Location = new System.Drawing.Point(209, 29);
             this.lst_MovingSprites.Name = "lst_MovingSprites";
             this.lst_MovingSprites.Size = new System.Drawing.Size(225, 394);
             this.lst_MovingSprites.TabIndex = 4;
@@ -653,14 +660,14 @@
             // num_MSpriteSpeedRange
             // 
             this.num_MSpriteSpeedRange.DecimalPlaces = 2;
-            this.num_MSpriteSpeedRange.Location = new System.Drawing.Point(21, 300);
+            this.num_MSpriteSpeedRange.Location = new System.Drawing.Point(119, 107);
             this.num_MSpriteSpeedRange.Minimum = new decimal(new int[] {
             1,
             0,
             0,
             131072});
             this.num_MSpriteSpeedRange.Name = "num_MSpriteSpeedRange";
-            this.num_MSpriteSpeedRange.Size = new System.Drawing.Size(120, 20);
+            this.num_MSpriteSpeedRange.Size = new System.Drawing.Size(64, 20);
             this.num_MSpriteSpeedRange.TabIndex = 3;
             this.num_MSpriteSpeedRange.Value = new decimal(new int[] {
             1,
@@ -672,14 +679,14 @@
             // num_MSpriteMinSpeed
             // 
             this.num_MSpriteMinSpeed.DecimalPlaces = 2;
-            this.num_MSpriteMinSpeed.Location = new System.Drawing.Point(21, 223);
+            this.num_MSpriteMinSpeed.Location = new System.Drawing.Point(119, 81);
             this.num_MSpriteMinSpeed.Minimum = new decimal(new int[] {
             1,
             0,
             0,
             131072});
             this.num_MSpriteMinSpeed.Name = "num_MSpriteMinSpeed";
-            this.num_MSpriteMinSpeed.Size = new System.Drawing.Size(120, 20);
+            this.num_MSpriteMinSpeed.Size = new System.Drawing.Size(64, 20);
             this.num_MSpriteMinSpeed.TabIndex = 2;
             this.num_MSpriteMinSpeed.Value = new decimal(new int[] {
             1,
@@ -690,7 +697,7 @@
             // 
             // num_MSpriteSizeRange
             // 
-            this.num_MSpriteSizeRange.Location = new System.Drawing.Point(21, 148);
+            this.num_MSpriteSizeRange.Location = new System.Drawing.Point(119, 55);
             this.num_MSpriteSizeRange.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -702,7 +709,7 @@
             0,
             0});
             this.num_MSpriteSizeRange.Name = "num_MSpriteSizeRange";
-            this.num_MSpriteSizeRange.Size = new System.Drawing.Size(120, 20);
+            this.num_MSpriteSizeRange.Size = new System.Drawing.Size(64, 20);
             this.num_MSpriteSizeRange.TabIndex = 1;
             this.num_MSpriteSizeRange.Value = new decimal(new int[] {
             1,
@@ -713,7 +720,7 @@
             // 
             // num_MSpriteMinSize
             // 
-            this.num_MSpriteMinSize.Location = new System.Drawing.Point(21, 88);
+            this.num_MSpriteMinSize.Location = new System.Drawing.Point(119, 29);
             this.num_MSpriteMinSize.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -725,7 +732,7 @@
             0,
             0});
             this.num_MSpriteMinSize.Name = "num_MSpriteMinSize";
-            this.num_MSpriteMinSize.Size = new System.Drawing.Size(120, 20);
+            this.num_MSpriteMinSize.Size = new System.Drawing.Size(64, 20);
             this.num_MSpriteMinSize.TabIndex = 0;
             this.num_MSpriteMinSize.Value = new decimal(new int[] {
             1,
@@ -755,7 +762,7 @@
             this.tab_StaticSprites.Controls.Add(this.num_SSpriteMinSize);
             this.tab_StaticSprites.Location = new System.Drawing.Point(4, 22);
             this.tab_StaticSprites.Name = "tab_StaticSprites";
-            this.tab_StaticSprites.Size = new System.Drawing.Size(1076, 549);
+            this.tab_StaticSprites.Size = new System.Drawing.Size(1162, 606);
             this.tab_StaticSprites.TabIndex = 3;
             this.tab_StaticSprites.Text = "Static Sprites";
             this.tab_StaticSprites.UseVisualStyleBackColor = true;
@@ -982,56 +989,88 @@
             0});
             this.num_SSpriteMinSize.ValueChanged += new System.EventHandler(this.num_SSpriteMinSize_ValueChanged);
             // 
-            // btn_Save
-            // 
-            this.btn_Save.Location = new System.Drawing.Point(619, 616);
-            this.btn_Save.Name = "btn_Save";
-            this.btn_Save.Size = new System.Drawing.Size(75, 23);
-            this.btn_Save.TabIndex = 1;
-            this.btn_Save.Text = "Save";
-            this.btn_Save.UseVisualStyleBackColor = true;
-            this.btn_Save.Click += new System.EventHandler(this.btn_Save_Click);
-            // 
-            // btn_Preview
-            // 
-            this.btn_Preview.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.btn_Preview.Location = new System.Drawing.Point(513, 616);
-            this.btn_Preview.Name = "btn_Preview";
-            this.btn_Preview.Size = new System.Drawing.Size(75, 23);
-            this.btn_Preview.TabIndex = 2;
-            this.btn_Preview.Text = "Preview";
-            this.btn_Preview.UseVisualStyleBackColor = true;
-            this.btn_Preview.Click += new System.EventHandler(this.btn_Preview_Click);
-            // 
             // file_Open
             // 
             this.file_Open.DefaultExt = "png";
             this.file_Open.Filter = "Image Files | *.png";
             this.file_Open.Multiselect = true;
             // 
-            // btn_Load
-            // 
-            this.btn_Load.Location = new System.Drawing.Point(729, 616);
-            this.btn_Load.Name = "btn_Load";
-            this.btn_Load.Size = new System.Drawing.Size(75, 23);
-            this.btn_Load.TabIndex = 3;
-            this.btn_Load.Text = "Load";
-            this.btn_Load.UseVisualStyleBackColor = true;
-            this.btn_Load.Click += new System.EventHandler(this.btn_Load_Click);
-            // 
             // fldr_Directories
             // 
             this.fldr_Directories.ShowNewFolderButton = false;
+            // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fileToolStripMenuItem});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(1182, 24);
+            this.menuStrip1.TabIndex = 4;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // fileToolStripMenuItem
+            // 
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.previewToolStripMenuItem,
+            this.saveToolStripMenuItem,
+            this.loadToolStripMenuItem,
+            this.toolStripSeparator1,
+            this.exitToolStripMenuItem});
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.fileToolStripMenuItem.Text = "File";
+            // 
+            // exitToolStripMenuItem
+            // 
+            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.exitToolStripMenuItem.Text = "Exit";
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(149, 6);
+            // 
+            // previewToolStripMenuItem
+            // 
+            this.previewToolStripMenuItem.Name = "previewToolStripMenuItem";
+            this.previewToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.previewToolStripMenuItem.Text = "Preview";
+            this.previewToolStripMenuItem.Click += new System.EventHandler(this.previewToolStripMenuItem_Click);
+            // 
+            // saveToolStripMenuItem
+            // 
+            this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.saveToolStripMenuItem.Text = "Save";
+            this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
+            // 
+            // loadToolStripMenuItem
+            // 
+            this.loadToolStripMenuItem.Name = "loadToolStripMenuItem";
+            this.loadToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.loadToolStripMenuItem.Text = "Load";
+            this.loadToolStripMenuItem.Click += new System.EventHandler(this.loadToolStripMenuItem_Click);
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(8, 9);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(84, 13);
+            this.label17.TabIndex = 19;
+            this.label17.Text = "Sprite Properties";
             // 
             // AddThemeForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1166, 665);
-            this.Controls.Add(this.btn_Load);
-            this.Controls.Add(this.btn_Preview);
-            this.Controls.Add(this.btn_Save);
+            this.ClientSize = new System.Drawing.Size(1182, 669);
             this.Controls.Add(this.tab_Components);
+            this.Controls.Add(this.menuStrip1);
+            this.MainMenuStrip = this.menuStrip1;
             this.Name = "AddThemeForm";
             this.Text = "AddThemeForm";
             this.tab_Components.ResumeLayout(false);
@@ -1063,7 +1102,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.num_SSpriteMinTime)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_SSpriteSizeRange)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_SSpriteMinSize)).EndInit();
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -1134,14 +1176,19 @@
         private System.Windows.Forms.NumericUpDown num_SSpriteMinTime;
         private System.Windows.Forms.NumericUpDown num_SSpriteSizeRange;
         private System.Windows.Forms.NumericUpDown num_SSpriteMinSize;
-        private System.Windows.Forms.Button btn_Save;
-        private System.Windows.Forms.Button btn_Preview;
         private System.Windows.Forms.OpenFileDialog file_Open;
         private System.Windows.Forms.PictureBox pic_PlatformRight;
         private System.Windows.Forms.PictureBox pic_PlatformCenter;
         private System.Windows.Forms.Button btn_PlatformRemove;
         private System.Windows.Forms.Button btn_PlatformAdd;
-        private System.Windows.Forms.Button btn_Load;
         private System.Windows.Forms.FolderBrowserDialog fldr_Directories;
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem previewToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem loadToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
+        private System.Windows.Forms.Label label17;
     }
 }
