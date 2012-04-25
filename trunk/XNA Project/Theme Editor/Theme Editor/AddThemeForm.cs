@@ -531,22 +531,7 @@ namespace Theme_Editor
 
         private void btn_Preview_Click(object sender, EventArgs e)
         {
-            string check = CheckDependencies();
-
-            if (check != "")
-            {
-                DialogResult = System.Windows.Forms.DialogResult.None;
-                MessageBox.Show(check, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-            }
-            else
-            {
-                m_Backgrounds = new string[lst_Backgrounds.Items.Count];
-
-                for (int i = 0; i < m_Backgrounds.Length; ++i)
-                {
-                    m_Backgrounds[i] = (string)lst_Backgrounds.Items[i];
-                }
-            }
+            
         }
 
         private string CheckDependencies()
@@ -578,27 +563,7 @@ namespace Theme_Editor
 
         private void btn_Save_Click(object sender, EventArgs e)
         {
-            string check = CheckDependencies();
-
-            if (check != "")
-            {
-                MessageBox.Show(check, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-            }
-            else
-            {
-                SaveForm form = new SaveForm();
-
-                if (form.ShowDialog() == DialogResult.OK)
-                {
-                    string error = SaveTheme(form.Name);
-
-                    if (error != "")
-                    {
-                        MessageBox.Show(error, "SAVE ERROR", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                    }
-                }
-
-            }
+            
         }
 
         private string SaveTheme(string name)
@@ -763,17 +728,7 @@ namespace Theme_Editor
 
         private void btn_Load_Click(object sender, EventArgs e)
         {
-            if (fldr_Directories.ShowDialog() == DialogResult.OK)
-            {
-                if (System.IO.File.Exists(fldr_Directories.SelectedPath + "\\ThemeConfig.xml"))
-                {
-                    LoadTheme(fldr_Directories.SelectedPath);
-                }
-                else
-                {
-                    MessageBox.Show("No Theme Detected", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
+            
         }
 
         private void LoadTheme(string path)
@@ -870,6 +825,71 @@ namespace Theme_Editor
             }
 
             m_PlatNumber = directories.Length;
+        }
+
+        private void previewToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string check = CheckDependencies();
+
+            if (check != "")
+            {
+                DialogResult = System.Windows.Forms.DialogResult.None;
+                MessageBox.Show(check, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+            else
+            {
+                m_Backgrounds = new string[lst_Backgrounds.Items.Count];
+
+                for (int i = 0; i < m_Backgrounds.Length; ++i)
+                {
+                    m_Backgrounds[i] = (string)lst_Backgrounds.Items[i];
+                }
+            }
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string check = CheckDependencies();
+
+            if (check != "")
+            {
+                MessageBox.Show(check, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+            else
+            {
+                SaveForm form = new SaveForm();
+
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    string error = SaveTheme(form.Name);
+
+                    if (error != "")
+                    {
+                        MessageBox.Show(error, "SAVE ERROR", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    }
+                }
+
+            }
+        }
+
+        private void loadToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (fldr_Directories.ShowDialog() == DialogResult.OK)
+            {
+                if (System.IO.File.Exists(fldr_Directories.SelectedPath + "\\ThemeConfig.xml"))
+                {
+                    LoadTheme(fldr_Directories.SelectedPath);
+                }
+                else
+                {
+                    MessageBox.Show("No Theme Detected", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
         }
     }
 
