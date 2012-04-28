@@ -321,6 +321,8 @@ namespace ProjectionMappingGame
             // Create and load each theme
             for (int i = 0; i < themes.Length; ++i)
             {
+               if (themes[i].Contains("svn")) continue;
+
                // Create a theme and configure it
                ThemeConfig theme = new ThemeConfig();
                theme.Name = themes[i];
@@ -331,6 +333,7 @@ namespace ProjectionMappingGame
                theme.Backgrounds = new List<string>();
                for (int j = 0; j < backgrounds.Length; ++j)
                {
+                  if (backgrounds[j].Contains("svn")) continue;
                   theme.Backgrounds.Add(backgrounds[j]);
                }
 
@@ -340,6 +343,7 @@ namespace ProjectionMappingGame
                theme.MovingSprites = new List<string>();
                for (int j = 0; j < moveSpritesheets.Length; ++j)
                {
+                  if (moveSpritesheets[j].Contains("svn")) continue;
                   theme.MovingSprites.Add(moveSpritesheets[j]);
                }
 
@@ -349,6 +353,7 @@ namespace ProjectionMappingGame
                theme.StaticSprites = new List<string>();
                for (int j = 0; j < staticSpritesheets.Length; ++j)
                {
+                  if (staticSpritesheets[j].Contains("svn")) continue;
                    theme.StaticSprites.Add(staticSpritesheets[j]);
                }
 
@@ -358,13 +363,16 @@ namespace ProjectionMappingGame
                theme.Platforms = new List<List<string>>();
                for (int j = 0; j < platformDirs.Length; ++j)
                {
+                  if (platformDirs[j].Contains("svn")) continue;
+
                   theme.Platforms.Add(new List<string>());
 
                   string d = platformDirs[j];
                   string[] platforms = Directory.GetFiles(d, ThemeConfig.PLATFORM_FILE_EXT);
                   for (int n = 0; n < platforms.Length; ++n)
                   {
-                     theme.Platforms[j].Add(platforms[n]);
+                     if (platforms[n].Contains("svn")) continue;
+                     theme.Platforms[theme.Platforms.Count - 1].Add(platforms[n]);
                   }
                }
 
