@@ -55,7 +55,7 @@ namespace ProjectionMappingGame.StateMachine
       GUI.Button m_DoneButton;
       GUI.Button m_ResetButton;
       GUI.Button m_QuitButton;
-      GUI.Button m_PlayButton;
+      //GUI.Button m_PlayButton;
       int m_LastSpinBoxValue;
 
       // GUI constants
@@ -145,10 +145,10 @@ namespace ProjectionMappingGame.StateMachine
          m_QuitButton.SetImage(GUI.Button.ImageType.CLICK, m_ButtonTextureOnPress);
          m_QuitButton.RegisterOnClick(QuitButton_OnClick);
 
-         m_PlayButton = new GUI.Button(new Microsoft.Xna.Framework.Rectangle(GameConstants.WindowWidth / 2 + GUI_BUTTON_WIDTH * 2 + GUI_BUTTON_PADDING_X, GameConstants.WindowHeight / 2 + GUI_BUTTON_Y, GUI_BUTTON_WIDTH, GUI_BUTTON_HEIGHT), m_ButtonTexture, m_MouseInput, m_Arial10Font, "Play", Microsoft.Xna.Framework.Color.Black);
-         m_PlayButton.SetImage(GUI.Button.ImageType.OVER, m_ButtonTextureOnHover);
-         m_PlayButton.SetImage(GUI.Button.ImageType.CLICK, m_ButtonTextureOnPress);
-         m_PlayButton.RegisterOnClick(PlayButton_OnClick);
+         //m_PlayButton = new GUI.Button(new Microsoft.Xna.Framework.Rectangle(GameConstants.WindowWidth / 2 + GUI_BUTTON_WIDTH * 2 + GUI_BUTTON_PADDING_X, GameConstants.WindowHeight / 2 + GUI_BUTTON_Y, GUI_BUTTON_WIDTH, GUI_BUTTON_HEIGHT), m_ButtonTexture, m_MouseInput, m_Arial10Font, "Play", Microsoft.Xna.Framework.Color.Black);
+         //m_PlayButton.SetImage(GUI.Button.ImageType.OVER, m_ButtonTextureOnHover);
+         //m_PlayButton.SetImage(GUI.Button.ImageType.CLICK, m_ButtonTextureOnPress);
+         //m_PlayButton.RegisterOnClick(PlayButton_OnClick);
 
          // Add basic monitor and additional projector outputs
          m_WindowSizers = new List<WindowSizerControl>();
@@ -346,7 +346,7 @@ namespace ProjectionMappingGame.StateMachine
          m_DoneButton.Draw(m_Game.GraphicsDevice, spriteBatch);
          m_ResetButton.Draw(m_Game.GraphicsDevice, spriteBatch);
          m_QuitButton.Draw(m_Game.GraphicsDevice, spriteBatch);
-         m_PlayButton.Draw(m_Game.GraphicsDevice, spriteBatch);
+         //m_PlayButton.Draw(m_Game.GraphicsDevice, spriteBatch);
          spriteBatch.End();
 
          // Draw window sizers

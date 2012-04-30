@@ -43,6 +43,15 @@ namespace ProjectionMappingGame.Components
       float m_Pitch, m_Yaw;
       float m_Distance;
 
+      /// <summary>
+      /// Constructor for type PointLightComponent creates an orbital point light in 3d space
+      /// at a specific position looking at a specific point.  This light only has diffuse and
+      /// specular phong contributions.
+      /// </summary>
+      /// <param name="p">Light position</param>
+      /// <param name="t">Light target/lookat</param>
+      /// <param name="d">Diffuse contribution in phong lighting</param>
+      /// <param name="s">Specular contribution in phong lighting</param>
       public PointLightComponent(Vector3 p, Vector3 t, Vector4 d, Vector4 s)
       {
          // Store properties
@@ -230,24 +239,36 @@ namespace ProjectionMappingGame.Components
          set { m_Distance = value; }
       }
 
+      /// <summary>
+      /// Accessor/Mutator for light's pitch (x rotation)
+      /// </summary>
       public float Pitch
       {
          get { return m_Pitch; }
          set { m_Pitch = value; }
       }
 
+      /// <summary>
+      /// Accessor/Mutator for light's yaw (y rotation)
+      /// </summary>
       public float Yaw
       {
          get { return m_Yaw; }
          set { m_Yaw = value; }
       }
 
+      /// <summary>
+      /// Accessor/Mutator for the light's diffuse contribution in Phong lighting.
+      /// </summary>
       public Vector4 Diffuse
       {
          get { return m_Diffuse; }
          set { m_Diffuse = value; }
       }
 
+      /// <summary>
+      /// Accessor/Mutator for the light's specular contribution in Phong lighting.
+      /// </summary>
       public Vector4 Specular
       {
          get { return m_Specular; }

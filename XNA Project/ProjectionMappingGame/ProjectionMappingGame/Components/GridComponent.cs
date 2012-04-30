@@ -1,13 +1,26 @@
-﻿using System;
+﻿#region File Description
+
+//-----------------------------------------------------------------------------
+// GridComponent.cs
+//
+// Author:          A.J. Fairfield (Adam, ajfairfi)
+// Date Created:    1/30/2012
+//-----------------------------------------------------------------------------
+
+#endregion
+
+#region Imports
+
+// System imports
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
+
+// XNA imports
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 
-//
-// Adapted from various microsoft tutorials
-//
+#endregion
 
 namespace ProjectionMappingGame.Components
 {
@@ -26,26 +39,38 @@ namespace ProjectionMappingGame.Components
       Color m_LineColor;
       Color m_HighliteColor;
 
+      /// <summary>
+      /// Constructor for type GridComponent creates a 3d grid configurable by 
+      /// overall size and individual division/cell size.
+      /// </summary>
+      /// <param name="device">XNA graphics card handle</param>
+      /// <param name="cellSize">Individual cell size</param>
+      /// <param name="gridSize">Entire grid extents (this is a cube)</param>
+      /// <param name="active">Initially active or not</param>
       public GridComponent(GraphicsDevice device, int cellSize, int gridSize, bool active)
       {
+         // Store configuration
          m_IsActive = active;
          m_GridSize = gridSize;
          m_CellSpacing = cellSize;
+         m_Graphics = device;
 
+         // Set defaults
          m_Effect = new BasicEffect(device);
          m_Effect.VertexColorEnabled = true;
          m_Effect.World = Matrix.Identity;
-
-         m_Graphics = device;
-
          m_LineColor = Color.DimGray;
          m_HighliteColor = Color.Blue;
 
+         // Build initial grid
          ResetLines();
       }
 
       #region Grid Assembly
 
+      /// <summary>
+      /// Re-compute the grid lines based on the grid size and cell spacing.
+      /// </summary>
       public void ResetLines()
       {
          // calculate nr of lines, +2 for the highlights, +12 for boundingbox
@@ -58,13 +83,10 @@ namespace ProjectionMappingGame.Components
          {
             vertexList.Add(new VertexPositionColor(new Vector3((i * m_CellSpacing), 0, m_GridSize), m_LineColor));
             vertexList.Add(new VertexPositionColor(new Vector3((i * m_CellSpacing), 0, -m_GridSize), m_LineColor));
-
             vertexList.Add(new VertexPositionColor(new Vector3((-i * m_CellSpacing), 0, m_GridSize), m_LineColor));
             vertexList.Add(new VertexPositionColor(new Vector3((-i * m_CellSpacing), 0, -m_GridSize), m_LineColor));
-
             vertexList.Add(new VertexPositionColor(new Vector3(m_GridSize, 0, (i * m_CellSpacing)), m_LineColor));
             vertexList.Add(new VertexPositionColor(new Vector3(-m_GridSize, 0, (i * m_CellSpacing)), m_LineColor));
-
             vertexList.Add(new VertexPositionColor(new Vector3(m_GridSize, 0, (-i * m_CellSpacing)), m_LineColor));
             vertexList.Add(new VertexPositionColor(new Vector3(-m_GridSize, 0, (-i * m_CellSpacing)), m_LineColor));
          }
@@ -72,7 +94,6 @@ namespace ProjectionMappingGame.Components
          // Fill grid axis lines
          vertexList.Add(new VertexPositionColor(Vector3.Forward * m_GridSize, Color.Blue));
          vertexList.Add(new VertexPositionColor(Vector3.Backward * m_GridSize, Color.Blue));
-
          vertexList.Add(new VertexPositionColor(Vector3.Right * m_GridSize, Color.Red));
          vertexList.Add(new VertexPositionColor(Vector3.Left * m_GridSize, Color.Red));
 
@@ -125,13 +146,16 @@ namespace ProjectionMappingGame.Components
 
       #region Rendering
 
+      /// <summary>
+      /// Render the grid in the provided view space.
+      /// </summary>
+      /// <param name="viewMatrix">Viewer transformation matrix</param>
+      /// <param name="projMatrix">Projection transformation matrix</param>
       public void Draw(Matrix viewMatrix, Matrix projMatrix)
       {
          m_Graphics.DepthStencilState = DepthStencilState.Default;
-
          m_Effect.View = viewMatrix;
          m_Effect.Projection = projMatrix;
-
          m_Effect.CurrentTechnique.Passes[0].Apply();
          {
             m_Graphics.DrawUserPrimitives(PrimitiveType.LineList, m_Vertices, 0, m_NumberOfLines);
@@ -142,6 +166,10 @@ namespace ProjectionMappingGame.Components
 
       #region Public Access TV
 
+      /// <summary>
+      /// Accessor/Mutator for the cell spacing.  Changing this forces
+      /// a recomputation of all grid lines...naturally.
+      /// </summary>
       public int CellSpacing
       {
          get { return m_CellSpacing; }
@@ -152,6 +180,9 @@ namespace ProjectionMappingGame.Components
          }
       }
 
+      /// <summary>
+      /// Accessor/Mutator to turn the grid on/off.
+      /// </summary>
       public bool IsActive
       {
          get { return m_IsActive; }

@@ -304,6 +304,7 @@ namespace ProjectionMappingGame
          }
          catch (IOException e)
          {
+            Console.WriteLine(e.Message);
             return false;
          }
       }

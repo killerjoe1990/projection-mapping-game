@@ -85,8 +85,8 @@ namespace ProjectionMappingGame.Components
       #region Orientation
 
       /// <summary>
-      /// Reflect updates position or rotation by recomputing
-      /// the camera's view matrix.
+      /// Reflect updates to position or rotation by recomputing the 
+      /// camera's view matrix.
       /// </summary>
       public void UpdateView()
       {
@@ -95,6 +95,10 @@ namespace ProjectionMappingGame.Components
          m_ViewMatrix = Matrix.CreateLookAt(Position, Target, Up);
       }
 
+      /// <summary>
+      /// Reflect updates to fov or aspect ratio by recomputing the
+      /// camera's projection matrix.
+      /// </summary>
       public void UpdateProjection()
       {
          m_ProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(m_Fov, m_AspectRatio, 0.1f, 1000f);
@@ -145,8 +149,8 @@ namespace ProjectionMappingGame.Components
       /// <summary>
       /// Handle camera rotation based off mouse input.
       /// </summary>
-      /// <param name="kState">Current frame's keyboard state</param>
-      /// <param name="mStatePrev">Preview frame's keyboard state</param>
+      /// <param name="mState">Current frame's mouse state</param>
+      /// <param name="mStatePrev">Preview frame's mouse state</param>
       /// <param name="elapsedTime">Elapsed time since last frame</param>
       public void HandleRotation(MouseState mState, MouseState mStatePrev, float elapsedTime)
       {
@@ -162,10 +166,8 @@ namespace ProjectionMappingGame.Components
                dx = elapsedTime * (mState.X - mStatePrev.X) * MOUSE_MOVEMENT_SCALAR;
                dy = elapsedTime * (mState.Y - mStatePrev.Y) * MOUSE_MOVEMENT_SCALAR;
 
-               if (dx != 0)
-                  OrbitRight(dx);  // Orbit right 'dx' radians
-               if (dy != 0)
-                  OrbitUp(-dy);     // Orbit up 'dy' radians
+               if (dx != 0) OrbitRight(dx);  // Orbit right 'dx' radians
+               if (dy != 0) OrbitUp(-dy);     // Orbit up 'dy' radians
             }
          }
       }
@@ -187,26 +189,18 @@ namespace ProjectionMappingGame.Components
       {
          Vector3 moveVector = Vector3.Zero;
 
-         // Forward
-         if (kState.IsKeyDown(Keys.W))
-               moveVector = Direction;
-         // Backward
-         else if (kState.IsKeyDown(Keys.S))
-               moveVector = -Direction;
-         // Straff Left
-         else if (kState.IsKeyDown(Keys.A))
-               moveVector = -Right;
-         // Straff Right
-         else if (kState.IsKeyDown(Keys.D))
-               moveVector = Right;
+         // Forward/Backward
+         if (kState.IsKeyDown(Keys.W)) moveVector = Direction;
+         else if (kState.IsKeyDown(Keys.S)) moveVector = -Direction;
+
+         // Straff Left/Right
+         else if (kState.IsKeyDown(Keys.A)) moveVector = -Right;
+         else if (kState.IsKeyDown(Keys.D)) moveVector = Right;
          moveVector.Y = 0.0f;
 
-         // Move Up
-         if (kState.IsKeyDown(Keys.Q))
-               moveVector = Vector3.Up;
-         // Move Down
-         else if (kState.IsKeyDown(Keys.E))
-               moveVector = -Vector3.Up;
+         // Move Up/Down
+         if (kState.IsKeyDown(Keys.Q)) moveVector = Vector3.Up;
+         else if (kState.IsKeyDown(Keys.E)) moveVector = -Vector3.Up;
 
          // Apply movement
          m_Target += (moveVector * KEYBOARD_TRANSLATE_SCALAR * elapsedTime);
@@ -253,13 +247,13 @@ namespace ProjectionMappingGame.Components
       {
          get
          {
-               //R v R' where v = (0,0,-1,0)
-               Vector3 dir = Vector3.Zero;
-               dir.X = -2.0f * ((m_Orientation.X * m_Orientation.Z) + (m_Orientation.W * m_Orientation.Y));
-               dir.Y = 2.0f * ((m_Orientation.W * m_Orientation.X) - (m_Orientation.Y * m_Orientation.Z));
-               dir.Z = ((m_Orientation.X * m_Orientation.X) + (m_Orientation.Y * m_Orientation.Y)) -
-                     ((m_Orientation.Z * m_Orientation.Z) + (m_Orientation.W * m_Orientation.W));
-               return Vector3.Normalize(dir);
+            //R v R' where v = (0,0,-1,0)
+            Vector3 dir = Vector3.Zero;
+            dir.X = -2.0f * ((m_Orientation.X * m_Orientation.Z) + (m_Orientation.W * m_Orientation.Y));
+            dir.Y = 2.0f * ((m_Orientation.W * m_Orientation.X) - (m_Orientation.Y * m_Orientation.Z));
+            dir.Z = ((m_Orientation.X * m_Orientation.X) + (m_Orientation.Y * m_Orientation.Y)) -
+                  ((m_Orientation.Z * m_Orientation.Z) + (m_Orientation.W * m_Orientation.W));
+            return Vector3.Normalize(dir);
          }
       }
 
@@ -270,13 +264,13 @@ namespace ProjectionMappingGame.Components
       {
          get
          {
-               //R v R' where v = (1,0,0,0)
-               Vector3 right = Vector3.Zero;
-               right.X = ((m_Orientation.X * m_Orientation.X) + (m_Orientation.W * m_Orientation.W)) -
-                        ((m_Orientation.Z * m_Orientation.Z) + (m_Orientation.Y * m_Orientation.Y));
-               right.Y = 2.0f * ((m_Orientation.X * m_Orientation.Y) + (m_Orientation.Z * m_Orientation.W));
-               right.Z = 2.0f * ((m_Orientation.X * m_Orientation.Z) - (m_Orientation.Y * m_Orientation.W));
-               return Vector3.Normalize(right);
+            //R v R' where v = (1,0,0,0)
+            Vector3 right = Vector3.Zero;
+            right.X = ((m_Orientation.X * m_Orientation.X) + (m_Orientation.W * m_Orientation.W)) -
+                     ((m_Orientation.Z * m_Orientation.Z) + (m_Orientation.Y * m_Orientation.Y));
+            right.Y = 2.0f * ((m_Orientation.X * m_Orientation.Y) + (m_Orientation.Z * m_Orientation.W));
+            right.Z = 2.0f * ((m_Orientation.X * m_Orientation.Z) - (m_Orientation.Y * m_Orientation.W));
+            return Vector3.Normalize(right);
          }
       }
 
@@ -287,13 +281,13 @@ namespace ProjectionMappingGame.Components
       {
          get
          {
-               //R v R' where v = (0,1,0,0)
-               Vector3 up = Vector3.Zero;
-               up.X = 2.0f * ((m_Orientation.X * m_Orientation.Y) - (m_Orientation.Z * m_Orientation.W));
-               up.Y = ((m_Orientation.Y * m_Orientation.Y) + (m_Orientation.W * m_Orientation.W)) -
-                     ((m_Orientation.Z * m_Orientation.Z) + (m_Orientation.X * m_Orientation.X));
-               up.Z = 2.0f * ((m_Orientation.Y * m_Orientation.Z) + (m_Orientation.X * m_Orientation.W));
-               return Vector3.Normalize(up);
+            //R v R' where v = (0,1,0,0)
+            Vector3 up = Vector3.Zero;
+            up.X = 2.0f * ((m_Orientation.X * m_Orientation.Y) - (m_Orientation.Z * m_Orientation.W));
+            up.Y = ((m_Orientation.Y * m_Orientation.Y) + (m_Orientation.W * m_Orientation.W)) -
+                  ((m_Orientation.Z * m_Orientation.Z) + (m_Orientation.X * m_Orientation.X));
+            up.Z = 2.0f * ((m_Orientation.Y * m_Orientation.Z) + (m_Orientation.X * m_Orientation.W));
+            return Vector3.Normalize(up);
          }
       }
 
@@ -329,6 +323,24 @@ namespace ProjectionMappingGame.Components
       }
 
       /// <summary>
+      /// Accessor/Mutator for camera's pitch (rotation x).
+      /// </summary>
+      public float Pitch
+      {
+         get { return m_Pitch; }
+         set { m_Pitch = value; }
+      }
+
+      /// <summary>
+      /// Accessor/Mutator for camera's yaw (rotation y).
+      /// </summary>
+      public float Yaw
+      {
+         get { return m_Yaw; }
+         set { m_Yaw = value; }
+      }
+
+      /// <summary>
       /// Accessor for the camera's calculated position.  This is calculated
       /// by adding the camera's inverse direction, scaled by it's zoom distance,
       /// to it's target point.
@@ -352,18 +364,6 @@ namespace ProjectionMappingGame.Components
       public Matrix ProjectionMatrix
       {
          get { return m_ProjectionMatrix; }
-      }
-
-      public float Pitch
-      {
-         get { return m_Pitch; }
-         set { m_Pitch = value; }
-      }
-
-      public float Yaw
-      {
-         get { return m_Yaw; }
-         set { m_Yaw = value; }
       }
 
       #endregion

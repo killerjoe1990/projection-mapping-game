@@ -187,15 +187,15 @@ namespace ProjectionMappingGame.Components
       #endregion
 
       // -- Input & Hotkeys -- //
-      Keys addToSelection = Keys.LeftControl;
-      Keys removeFromSelection = Keys.LeftAlt;
+      //Keys addToSelection = Keys.LeftControl;
+      //Keys removeFromSelection = Keys.LeftAlt;
 
       // other hotkeys:
       // Space = change of transformationSpace
       // Space + Shift = change of pivotType
       // 1, 2, 3, 4 = change of transformation-mode
 
-      private float inputScale;
+      //private float inputScale;
 
       /// <summary>
       /// The value to adjust all transformation when precisionMode is active.
