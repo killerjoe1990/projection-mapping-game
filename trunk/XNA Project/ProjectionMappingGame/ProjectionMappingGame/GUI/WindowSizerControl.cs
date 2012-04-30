@@ -29,7 +29,6 @@ namespace ProjectionMappingGame.GUI
 {
    class WindowSizerControl
    {
-      public int WindowID;
       public const int TITLE_X = DISPLAY_BORDER + 2;
       public const int TITLE_Y = DISPLAY_BORDER + 2;
       public const int WIDTH_LABEL_Y = 175;

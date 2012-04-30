@@ -12,7 +12,6 @@ namespace Theme_Editor
     {
         public bool m_IsBlinking;
 
-        private bool m_IsLoweringNumber;
         private float m_TimerToDestroyItself;
 
         private Texture2D m_White;
@@ -21,7 +20,6 @@ namespace Theme_Editor
             : base(position, velocity, tilesWide, images)
         {
             m_IsBlinking = false;
-            m_IsLoweringNumber = true;
             m_TimerToDestroyItself = 2.0f;
 
             Blink = true;

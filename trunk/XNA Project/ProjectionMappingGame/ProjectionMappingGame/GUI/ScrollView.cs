@@ -27,8 +27,6 @@ namespace ProjectionMappingGame.GUI
 {
    class ScrollView : ClickableElement
    {
-      protected event EventHandler m_OnClick;
-
       protected const int SCROLL_BAR_WIDTH = 16;
 
       protected MouseInput m_MouseInput;
@@ -40,7 +38,6 @@ namespace ProjectionMappingGame.GUI
       protected Texture2D m_ScrollPadTexture;
       protected Texture2D m_ScrollAreaTexture;
       protected Texture2D m_WhiteTexture;
-      protected bool m_IsActive;
 
       public ScrollView(Rectangle displayBounds, Rectangle scrollBounds, Texture2D background, Texture2D scrollpad, Texture2D scrollarea, Texture2D whiteTexture, MouseInput mouse)
       {
@@ -92,12 +89,6 @@ namespace ProjectionMappingGame.GUI
             m_DisplayBounds = value;
             m_ScrollBarBounds = new Rectangle(m_DisplayBounds.X + m_DisplayBounds.Width - SCROLL_BAR_WIDTH, m_DisplayBounds.Y, SCROLL_BAR_WIDTH, m_DisplayBounds.Height);
          }
-      }
-
-      public bool IsActive
-      {
-         get { return m_IsActive; }
-         set { m_IsActive = value; }
       }
 
       #endregion

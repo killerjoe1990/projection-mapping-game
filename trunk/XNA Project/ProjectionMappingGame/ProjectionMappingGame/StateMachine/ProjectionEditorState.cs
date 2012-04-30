@@ -59,7 +59,6 @@ namespace ProjectionMappingGame.StateMachine
       ProjectionMappingGame.GUI.Panel m_GridEditorPanel;
       ProjectionMappingGame.GUI.Panel m_UVEditorPanel;
       ProjectionMappingGame.GUI.Panel m_ProjectionEditorPanel;
-      Viewport m_Viewport;
 
       // Fonts
       SpriteFont m_ArialFont;
@@ -86,7 +85,6 @@ namespace ProjectionMappingGame.StateMachine
       Texture2D m_CheckboxUnCheckedTexture, m_CheckboxUnCheckedTextureOnHover, m_CheckboxUnCheckedTextureOnPress;
       Texture2D m_NonUniformScaleButtonTexture, m_NonUniformScaleButtonTextureOnHover, m_NonUniformScaleButtonTextureOnPress;
       Texture2D m_WallTexture;
-      Texture2D m_ScoreboardTexture;
 
       // Main viewports
       const int GUI_UV_GRID_EDITOR_X = GUI_LEFT_TOOLBAR_WIDTH;
@@ -116,7 +114,7 @@ namespace ProjectionMappingGame.StateMachine
       Label m_AppHeaderLabel;
       Label m_AppModeLabel;
       Label m_AppModeValueLabel;
-      Button m_ModeButton;
+      //Button m_ModeButton;
       Button m_PlayButton;
       Button m_QuitButton;
       Button m_ResetButton;
@@ -172,7 +170,6 @@ namespace ProjectionMappingGame.StateMachine
       Button m_NonUniformScaleButton;
 
       // Building section GUI objects
-      //ColorPickerComponent m_BuildingColorPicker;
       Label m_BuildingHeaderLabel;
       Label m_BuildingFilepathLabel;
       Label m_BuildingFilepathValueLabel;
@@ -197,9 +194,6 @@ namespace ProjectionMappingGame.StateMachine
       NumUpDown m_BuildingScaleXSpinBox;
       NumUpDown m_BuildingScaleYSpinBox;
       NumUpDown m_BuildingScaleZSpinBox;
-      //Label m_BuildingSnapToGroundLabel;
-      //Label m_BuildingColorLabel;
-      //Button m_BuildingColorButton;
       Button m_BuildingResetButton;
       Button m_BuildingDeleteButton;
 
@@ -219,13 +213,6 @@ namespace ProjectionMappingGame.StateMachine
       NumUpDown m_ProjectorPositionXSpinBox;
       NumUpDown m_ProjectorPositionYSpinBox;
       NumUpDown m_ProjectorPositionZSpinBox;
-      //Label m_ProjectorRotationLabel;
-      //Label m_ProjectorRotationXLabel;
-      //Label m_ProjectorRotationYLabel;
-      //Label m_ProjectorRotationZLabel;
-      //NumUpDown m_ProjectorRotationXSpinBox;
-      //NumUpDown m_ProjectorRotationYSpinBox;
-      //NumUpDown m_ProjectorRotationZSpinBox;
       Button m_ProjectorResetButton;
       Button m_ProjectorDeleteButton;
 
@@ -233,9 +220,6 @@ namespace ProjectionMappingGame.StateMachine
       Label m_LayersHeaderLabel;
       LayerScrollView m_LayersScrollView;
       Button m_NewGameplayLayerButton;
-      //Button m_NewParticleLayerButton;
-      //Button m_ShiftLayerUpButton;
-      //Button m_ShiftLayerDownButton;
       Button m_TrashLayerButton;
 
       const int GUI_GIZMO_BUTTON_WIDTH = 24;
@@ -275,7 +259,6 @@ namespace ProjectionMappingGame.StateMachine
          : base(game, StateType.ProjectionEditor)
       {
          m_GraphicsDevice = game.GraphicsDevice;
-         m_ScoreboardTexture = null;
 
          // Initialize input
          m_MouseInput = new MouseInput();
@@ -309,6 +292,7 @@ namespace ProjectionMappingGame.StateMachine
          m_ProjectorPreview.DeSelectBuilding();
 
          // Create the default gameplay layer
+         m_LayersScrollView.DeleteSelectedLayer();
          m_LayersScrollView.Clear();
          AssembleGameplayLayer();
 
@@ -344,9 +328,6 @@ namespace ProjectionMappingGame.StateMachine
          // Register gizmo selection event
          m_ProjectorPreview.Gizmo.RegisterOnSelect(Gizmo_OnSelect);
          m_ProjectorPreview.Gizmo.RegisterOnDeSelect(Gizmo_OnDeSelect);
-
-         // Load color picker
-         //m_BuildingColorPicker = new ColorPickerComponent(new Rectangle(m_RightMenuViewport.X + GUI_BUILDING_COLOR_PICKER_X, GUI_BUILDING_COLOR_PICKER_Y, GUI_BUILDING_COLOR_PICKER_WIDTH, GUI_BUILDING_COLOR_PICKER_HEIGHT), m_Game.GraphicsDevice, content, false);
 
          // Build the GUI
          BuildGUI();
@@ -430,10 +411,10 @@ namespace ProjectionMappingGame.StateMachine
          m_AppModeValueLabel = new Label("Editor", leftmenuColumn2X, GUI_APP_Y + GUI_MENU_ITEM_HEIGHT * 1, GUI_MENU_COLUMN_1_WIDTH, GUI_MENU_ITEM_HEIGHT, Color.Black, m_ArialFont10);
 
          // Buttons
-         m_ModeButton = new Button(new Rectangle(GUI_LEFT_MENU_COLUMN_1_X_TABBED, GUI_APP_Y + GUI_MENU_ITEM_HEIGHT * 1, (int)(GUI_QUIT_BUTTON_WIDTH * 0.9f), GUI_QUIT_BUTTON_HEIGHT), m_ButtonTexture, m_MouseInput, m_ArialFont10, "Preview", Color.Black);
-         m_ModeButton.SetImage(Button.ImageType.OVER, m_ButtonTextureOnHover);
-         m_ModeButton.SetImage(Button.ImageType.CLICK, m_ButtonTextureOnPress);
-         m_ModeButton.RegisterOnClick(ModeButton_OnClick);
+         //m_ModeButton = new Button(new Rectangle(GUI_LEFT_MENU_COLUMN_1_X_TABBED, GUI_APP_Y + GUI_MENU_ITEM_HEIGHT * 1, (int)(GUI_QUIT_BUTTON_WIDTH * 0.9f), GUI_QUIT_BUTTON_HEIGHT), m_ButtonTexture, m_MouseInput, m_ArialFont10, "Preview", Color.Black);
+         //m_ModeButton.SetImage(Button.ImageType.OVER, m_ButtonTextureOnHover);
+         //m_ModeButton.SetImage(Button.ImageType.CLICK, m_ButtonTextureOnPress);
+         //m_ModeButton.RegisterOnClick(ModeButton_OnClick);
          m_PlayButton = new Button(new Rectangle(leftmenuColumn2X, GUI_APP_Y + GUI_MENU_ITEM_HEIGHT * 1, (int)(GUI_QUIT_BUTTON_WIDTH * 0.9f), GUI_QUIT_BUTTON_HEIGHT), m_ButtonTexture, m_MouseInput, m_ArialFont10, "Play", Color.Black);
          m_PlayButton.SetImage(Button.ImageType.OVER, m_ButtonTextureOnHover);
          m_PlayButton.SetImage(Button.ImageType.CLICK, m_ButtonTextureOnPress);
@@ -883,7 +864,7 @@ namespace ProjectionMappingGame.StateMachine
       {
          m_ResetButton.IsActive = enabled;
          //m_PlayButton.IsActive = enabled;
-         m_ModeButton.IsActive = enabled;
+         //m_ModeButton.IsActive = enabled;
          m_QuitButton.IsActive = enabled;
          m_SaveButton.IsActive = enabled;
          m_OpenButton.IsActive = enabled;
@@ -1546,20 +1527,20 @@ namespace ProjectionMappingGame.StateMachine
             m_ProjectorPreview.Gizmo.ActiveMode = GizmoMode.Rotate;
       }
 
-      private void ModeButton_OnClick(object sender, EventArgs e)
+      /*private void ModeButton_OnClick(object sender, EventArgs e)
       {
          m_EditorMode = !m_EditorMode;
          if (m_EditorMode)
          {
-            m_ModeButton.Text = "Preview";
+            //m_ModeButton.Text = "Preview";
             m_ProjectorPreview.EditorMode = true;
          }
          else
          {
-            m_ModeButton.Text = "Editor";
+            //m_ModeButton.Text = "Editor";
             m_ProjectorPreview.EditorMode = false;
          }
-      }
+      }*/
 
       private void PlayButton_OnClick(object sender, EventArgs e)
       {
@@ -1801,7 +1782,7 @@ namespace ProjectionMappingGame.StateMachine
       {
          RenderGradient(new Rectangle(2, GUI_APP_Y, GUI_LEFT_TOOLBAR_WIDTH - 2, 18), spriteBatch, Color.Gray, Color.LightGray);
          m_AppHeaderLabel.Draw(m_Game.GraphicsDevice, spriteBatch);
-         m_ModeButton.Draw(m_Game.GraphicsDevice, spriteBatch);
+         //m_ModeButton.Draw(m_Game.GraphicsDevice, spriteBatch);
          m_PlayButton.Draw(m_Game.GraphicsDevice, spriteBatch);
          m_ResetButton.Draw(m_Game.GraphicsDevice, spriteBatch);
          m_QuitButton.Draw(m_Game.GraphicsDevice, spriteBatch);

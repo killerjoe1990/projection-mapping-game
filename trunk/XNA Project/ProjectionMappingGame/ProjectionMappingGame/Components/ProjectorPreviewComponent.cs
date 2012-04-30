@@ -149,7 +149,7 @@ namespace ProjectionMappingGame.Components
 
       public void Reset()
       {
-         m_Projectors.Clear();
+         //m_Projectors.Clear();
          m_Buildings.Clear();
          AddBuilding();
 

@@ -32,25 +32,27 @@ namespace ProjectionMappingGame.Components
    class ProjectorComponent
    {
       // View components
+      Matrix m_ViewMatrix;
+      Viewport m_Viewport;
+      float m_Fov;
+      float m_AspectRatio;
+      float m_NearPlane;
+      float m_FarPlane;
+      Matrix m_ProjectionMatrix;
+
+      // Local space
       Vector3 m_Position;
       Vector3 m_LookAt;
       Vector3 m_Up;
       Vector3 m_LocalX, m_LocalY, m_LocalZ;
       Vector3 m_Direction;
-      Matrix m_ViewMatrix;
       float m_RotX, m_RotY, m_RotZ;
-      Viewport m_Viewport;
 
       // Graph and Grid
       UVGrid m_Grid;
       UVDualEdgeGraph m_EdgeGraph;
 
       // Projection components
-      float m_Fov;
-      float m_AspectRatio;
-      float m_NearPlane;
-      float m_FarPlane;
-      Matrix m_ProjectionMatrix;
       Texture2D m_Texture;
       bool m_IsOn;
       ModelEntity m_Entity;
@@ -60,6 +62,17 @@ namespace ProjectionMappingGame.Components
       const float KEYBOARD_TRANSLATE_SCALAR = 5.0f;
       const float MOUSE_MOVEMENT_SCALAR = 0.5f;
 
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="displayBounds"></param>
+      /// <param name="pos"></param>
+      /// <param name="lookAt"></param>
+      /// <param name="fov"></param>
+      /// <param name="ar"></param>
+      /// <param name="near"></param>
+      /// <param name="far"></param>
+      /// <param name="content"></param>
       public ProjectorComponent(Rectangle displayBounds, Vector3 pos, Vector3 lookAt, float fov, float ar, float near, float far, ContentManager content)
       {
          // Store settings
@@ -79,7 +92,6 @@ namespace ProjectionMappingGame.Components
          m_EdgeGraph = new UVDualEdgeGraph(content.Load<Texture2D>("Textures/Layer0_2"));
          m_Grid = new UVGrid(100, 100);
          m_Alpha = 1.0f;
-
          m_Viewport = new Viewport(displayBounds);
 
          // Create initial projection/view matrix
@@ -90,7 +102,7 @@ namespace ProjectionMappingGame.Components
       #region Orientation
 
       /// <summary>
-      /// Reflect updates position or rotation by recomputing
+      /// Reflect updates in position or rotation by recomputing
       /// the projector's view matrix.
       /// </summary>
       public void UpdateView()
@@ -110,6 +122,10 @@ namespace ProjectionMappingGame.Components
          m_Direction.Normalize();
       }
 
+      /// <summary>
+      /// Reflect updates in fov or aspect ratio by recomputing
+      /// the projector's projection matrix.
+      /// </summary>
       public void UpdateProjection()
       {
          m_ProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(m_Fov, m_AspectRatio, 0.1f, 1000f);
@@ -183,8 +199,8 @@ namespace ProjectionMappingGame.Components
       /// <summary>
       /// Handle projector rotation based off mouse input.
       /// </summary>
-      /// <param name="kState">Current frame's keyboard state</param>
-      /// <param name="mStatePrev">Preview frame's keyboard state</param>
+      /// <param name="mState">Current frame's mouse state</param>
+      /// <param name="mStatePrev">Preview frame's mouse state</param>
       /// <param name="elapsedTime">Elapsed time since last frame</param>
       public void HandleRotation(MouseState mState, MouseState mStatePrev, float elapsedTime)
       {
@@ -241,22 +257,163 @@ namespace ProjectionMappingGame.Components
 
       #region Public Access TV
 
+      /// <summary>
+      /// Accessor/Mutator for the projector's output viewport dimensions.
+      /// </summary>
       public Viewport Viewport
       {
          get { return m_Viewport; }
          set { m_Viewport = value; }
       }
 
+      /// <summary>
+      /// Accessor/Mutator for the projector's output texture alpha.
+      /// </summary>
       public float Alpha
       {
          get { return m_Alpha; }
          set { m_Alpha = value; }
       }
 
+      /// <summary>
+      /// Accessor/Mutator for the projector's representative model entity in the
+      /// editor.
+      /// </summary>
       public ModelEntity Entity
       {
          get { return m_Entity; }
          set { m_Entity = value; }
+      }
+
+      /// <summary>
+      /// Accessor/Mutator for the projector's on/off state.
+      /// </summary>
+      public bool IsOn
+      {
+         get { return m_IsOn; }
+         set { m_IsOn = value; }
+      }
+
+      /// <summary>
+      /// Accessor/Mutator for the projector's current output texture.
+      /// </summary>
+      public Texture2D Texture
+      {
+         get { return m_Texture; }
+         set { m_Texture = value; }
+      }
+
+      /// <summary>
+      /// Accessor/Mutator for the projector's output UV edge graph.
+      /// </summary>
+      public UVDualEdgeGraph EdgeGraph
+      {
+         get { return m_EdgeGraph; }
+         set { m_EdgeGraph = value; }
+      }
+
+      /// <summary>
+      /// Accessor/Mutator for the projector's output UV grid.
+      /// </summary>
+      public UVGrid Grid
+      {
+         get { return m_Grid; }
+         set { m_Grid = value; }
+      }
+
+      /// <summary>
+      /// Accessor/Mutator for the projector's local space rotation around the
+      /// x-axis. Setting this value forces a recomputation of the view matrix.
+      /// </summary>
+      public float RotX
+      {
+         get { return m_RotX; }
+         set { m_RotX = value; UpdateView(); }
+      }
+
+      /// <summary>
+      /// Accessor/Mutator for the projector's local space rotation around the
+      /// y-axis. Setting this value forces a recomputation of the view matrix.
+      /// </summary>
+      public float RotY
+      {
+         get { return m_RotY; }
+         set { m_RotY = value; UpdateView(); }
+      }
+
+      /// <summary>
+      /// Accessor/Mutator for the projector's local space rotation around the
+      /// z-axis. Setting this value forces a recomputation of the view matrix.
+      /// </summary>
+      public float RotZ
+      {
+         get { return m_RotZ; }
+         set { m_RotZ = value; UpdateView(); }
+      }
+
+      /// <summary>
+      /// Accessor/Mutator for the projector's projection matrix fov. Setting
+      /// this value forces a recomputation of the projection matrix.
+      /// </summary>
+      public float Fov
+      {
+         get { return m_Fov; }
+         set { m_Fov = value; UpdateProjection(); }
+      }
+
+      /// <summary>
+      /// Accessor/Mutator for the projector's projection matrix near plane. Setting
+      /// this value forces a recomputation of the projection matrix.
+      /// </summary>
+      public float NearPlane
+      {
+         get { return m_NearPlane; }
+         set { m_NearPlane = value; UpdateProjection(); }
+      }
+
+      /// <summary>
+      /// Accessor/Mutator for the projector's projection matrix far plane. Setting
+      /// this value forces a recomputation of the projection matrix.
+      /// </summary>
+      public float FarPlane
+      {
+         get { return m_FarPlane; }
+         set { m_FarPlane = value; UpdateProjection(); }
+      }
+
+      /// <summary>
+      /// Accessor/Mutator for the projector's projection matrix aspect ratio. Setting
+      /// this value forces a recomputation of the projection matrix.
+      /// </summary>
+      public float AspectRatio
+      {
+         get { return m_AspectRatio; }
+         set { m_AspectRatio = value; UpdateProjection(); }
+      }
+
+      /// <summary>
+      /// Accessor/Mutator for the projector's local up orientation.
+      /// </summary>
+      public Vector3 Up
+      {
+         get { return m_Up; }
+         set { m_Up = value; }
+      }
+
+      /// <summary>
+      /// Accessor/Mutator for the projector's position.  Setting this value
+      /// forces a recomputation of the view matrix.
+      /// </summary>
+      public Vector3 Position
+      {
+         get { return m_Position; }
+         set
+         {
+            Vector3 translation = value - m_Position;
+            m_Position += translation;
+            m_LookAt += translation;
+            UpdateView();
+         }
       }
 
       /// <summary>
@@ -275,126 +432,29 @@ namespace ProjectionMappingGame.Components
          get { return m_ProjectionMatrix; }
       }
 
-      public Vector3 Up
-      {
-         get { return m_Up; }
-         set { m_Up = value; }
-      }
-
+      /// <summary>
+      /// Accessor for the projector's local right direction.
+      /// </summary>
       public Vector3 Right
       {
          get { return m_LocalX; }
       }
 
+      /// <summary>
+      /// Accessor for the projector's local forward direction.
+      /// </summary>
       public Vector3 Direction
       {
          get { return m_Direction; }
       }
 
-      public bool IsOn
-      {
-         get { return m_IsOn; }
-         set { m_IsOn = value; }
-      }
-
-      public Texture2D Texture
-      {
-         get { return m_Texture; }
-         set { m_Texture = value; }
-      }
-
       /// <summary>
+      /// Accessor for the projector's current focus/lookat point.
       /// </summary>
-      public UVDualEdgeGraph EdgeGraph
-      {
-         get { return m_EdgeGraph; }
-         set { m_EdgeGraph = value; }
-      }
-
-      /// <summary>
-      /// </summary>
-      public UVGrid Grid
-      {
-         get { return m_Grid; }
-         set { m_Grid = value; }
-      }
-
-      /// <summary>
-      /// </summary>
-      public float RotX
-      {
-         get { return m_RotX; }
-         set { m_RotX = value; UpdateView(); }
-      }
-
-      /// <summary>
-      /// </summary>
-      public float RotY
-      {
-         get { return m_RotY; }
-         set { m_RotY = value; UpdateView(); }
-      }
-
-      /// <summary>
-      /// </summary>
-      public float RotZ
-      {
-         get { return m_RotZ; }
-         set { m_RotZ = value; UpdateView(); }
-      }
-
-      /// <summary>
-      /// </summary>
-      public float Fov
-      {
-         get { return m_Fov; }
-         set { m_Fov = value; UpdateProjection(); }
-      }
-
-      /// <summary>
-      /// </summary>
-      public float NearPlane
-      {
-         get { return m_NearPlane; }
-         set { m_NearPlane = value; UpdateProjection(); }
-      }
-
-      /// <summary>
-      /// </summary>
-      public float FarPlane
-      {
-         get { return m_FarPlane; }
-         set { m_FarPlane = value; UpdateProjection(); }
-      }
-
-      /// <summary>
-      /// </summary>
-      public float AspectRatio
-      {
-         get { return m_AspectRatio; }
-         set { m_AspectRatio = value; UpdateProjection(); }
-      }
-
       public Vector3 LookAt
       {
          get { return m_LookAt; }
       }
-
-      /// <summary>
-      /// </summary>
-      public Vector3 Position
-      {
-         get { return m_Position; }
-         set
-         {
-            Vector3 translation = value - m_Position;
-            m_Position += translation;
-            m_LookAt += translation;
-            UpdateView();
-         }
-      }
-
-      
 
       #endregion
    }

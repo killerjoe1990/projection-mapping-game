@@ -23,16 +23,12 @@ namespace ProjectionMappingGame.Game
             {
                 case CollisionDirections.Bot:
                     return true;
-                    break;
                 case CollisionDirections.Top:
                     return true;
-                    break;
                 case CollisionDirections.Left:
                     return true;
-                    break;
                 case CollisionDirections.Right:
                     return true;
-                    break;
             }
 
             return false;

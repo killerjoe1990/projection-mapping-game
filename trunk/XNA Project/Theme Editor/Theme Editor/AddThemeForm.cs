@@ -683,6 +683,7 @@ namespace Theme_Editor
             catch (Exception e)
             {
                 error += "File System Error\n";
+                error += e.Message + "\n";
                 error += "Please Try Again";
             }
 
