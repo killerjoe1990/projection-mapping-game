@@ -20,6 +20,7 @@ namespace ProjectionMappingGame.Game
             : base(position, velocity, tilesWide, images)
         {
             m_IsBlinking = false;
+
             m_TimerToDestroyItself = 2.0f;
 
             Blink = true;
