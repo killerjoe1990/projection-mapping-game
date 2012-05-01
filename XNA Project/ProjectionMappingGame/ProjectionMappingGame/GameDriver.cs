@@ -302,7 +302,7 @@ namespace ProjectionMappingGame
             m_AppConfig.Loaded = data.Loaded;
             return true;
          }
-         catch (IOException e)
+         catch (Exception e)
          {
             Console.WriteLine(e.Message);
             return false;

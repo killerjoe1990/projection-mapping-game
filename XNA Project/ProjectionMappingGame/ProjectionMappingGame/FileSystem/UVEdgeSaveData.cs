@@ -32,6 +32,6 @@ namespace ProjectionMappingGame.FileSystem
       public int TwinEdge;
       public int NextEdge;
       public int PrevEdge;
-      VertexPositionColorTexture[] OrthoQuadVertices;  // 4 vertices
+      //VertexPositionColorTexture[] OrthoQuadVertices;  // 4 vertices
    }
 }
